@@ -26,4 +26,21 @@ export function setLocalStorage(key, value, isJson=false) {
     }
 }
 
+ export function AddnewValue(newValue,Key)
+{
+    const OldValue = getLocalStorage(Key,true)
+    if(OldValue)
+    {
+        OldValue.push(newValue);
+    }
 
+    setLocalStorage(Key,OldValue,true);
+}
+
+export function GetLatestid(key){
+    const oldData = getLocalStorage(key,true)
+    if(oldData){
+       const latestid= oldData.length;
+       return latestid;
+    } 
+}

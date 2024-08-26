@@ -1,14 +1,31 @@
-import { VIPKEY } from "../mock";
+import { VIPKEY } from "../Mock/mock";
 import { getLocalStorage, setLocalStorage } from "./storageways";
 
 
-export function changeVIP(id, newValue) {
+export function changeVIP(id, addPoints) {
     const vips = getLocalStorage(VIPKEY, true);
-    for (let i = 0; i < vips.length; i++) {
-        if (vips[i].id === id) {
-            vips[i] = newValue;
-            break;
-        }
-    }
-    setLocalStorage(VIPKEY, vips, true);
+    const updatedVips = vips.map(vip => 
+        vip.vip_id === id ? { ...vip, nowpoints: vip.nowpoints + addPoints } : vip
+    );
+    setLocalStorage(VIPKEY, updatedVips, true);
 }
+
+
+export function GetLastVIP(){
+    const oldVip = getLocalStorage(VIPKEY,true)
+    if(oldVip){
+       const lastMemberid= oldVip.length;
+       return lastMemberid;
+    } 
+}
+
+// export function AddVIP(newValue)
+// {
+//     const VipMembers = getLocalStorage(VIPKEY,true)
+//     if(VipMembers)
+//     {
+//         VipMembers.push(newValue);
+//     }
+
+//     setLocalStorage(VIPKEY,VipMembers,true);
+// }

@@ -1,15 +1,17 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginForm from './Components/LoginAndRegister/Login';
-import RegisterForm from './Components/LoginAndRegister/Register';
-import PsdForgetForm from './Components/LoginAndRegister/PsdForget';
-import HomeForm from './Components/Homesettings/Home';
-import  { PaymentTocashier } from './Components/Payments/Payment';
-import { Receipts } from './Components/Payments/Receipt';
-import { ManageToAddVip } from './Components/Vip/VipMemberShip';
-import { PointSetForMana } from './Components/Vip/PointsToManager';
-import { PointSetForCash } from './Components/Vip/PointsToCashier';
+import LoginForm from './VIews/LoginAndRegister/Login';
+import RegisterForm from './VIews/LoginAndRegister/Register';
+import PsdForgetForm from './VIews/LoginAndRegister/PsdForget';
+import HomeForm from './VIews/Homesettings/Home';
+import  { PaymentTocashier } from './VIews/Payments/Payment';
+import { Receipts } from './VIews/Payments/Receipt';
+import { PointSetForMana } from './VIews/Vip/PointsToManager';
+import { PointSetForCash } from './VIews/Vip/PointsToCashier';
+import { AddVipMembership ,DeleteVipMemberShip} from './VIews/Vip/VipMemberShip';
+import { ApplyForICaiGou } from './VIews/Storage/CaiGouSB';
+import { CheckForCaiGou } from './VIews/Storage/CaiGouSH';
 
 
 
@@ -33,9 +35,12 @@ function App() {
       {/* 会员 */}
        <Route path='/pointsformanager'element={<PointSetForMana/>}/>
        <Route path='/pointsforcashier' element={<PointSetForCash/>}/> 
-       <Route path='/addvipmembers' element={<ManageToAddVip/>}/>
-       
-       {/* <Route path='/deletvipmemers' element={}/> */}
+       <Route path='/addvipmembers' element={<AddVipMembership/>}/>
+       <Route path='/deletvipmemers' element={<DeleteVipMemberShip/>}/>
+
+       {/* 采购 */}
+       <Route path='/applyforcaigou' element={<ApplyForICaiGou/>}/>
+       <Route path='/checkforcaigou' element={<CheckForCaiGou/>}/>
       </Routes>
     </Router>
     </div >

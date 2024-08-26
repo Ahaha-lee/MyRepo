@@ -1,7 +1,7 @@
 import {Link, useNavigate } from 'react-router-dom';
 import useSession from '../../hooks/useSession';
 import { useEffect } from 'react';
-import { initialProducts, initialVIP } from '../../utils/initial';
+import { initialCAIGOUSB, initialCATEGORY, initialINVENTORY, initialPRODUCTS, initialSUPPLIERS, initialVIP } from '../../utils/initial';
 
 export default function HomeForm() {
     const navigate = useNavigate();
@@ -10,7 +10,11 @@ export default function HomeForm() {
 
     useEffect(() => {
         initialVIP();
-        initialProducts();
+        initialPRODUCTS();
+        initialCATEGORY();
+        initialINVENTORY();
+        initialSUPPLIERS();
+        initialCAIGOUSB();
         if (!user) {
             navigate("/login")
         }
@@ -29,7 +33,10 @@ export default function HomeForm() {
             <Link to='/addvipmembers'>会员注册</Link>
             <br/>
             <Link to='/deletvipmemers'>会员注销</Link>
-
+            <br/>
+            <Link to='/applyforcaigou'>采购申报</Link>
+            <br/>
+            <Link to='/checkforcaigou'>采购申报审核</Link>
         </div>
     )
 }
