@@ -99,10 +99,10 @@ export function PaymentTocashier(){
         const productToAdd = products.find(item => item.id === productId);
         if (existingProduct) {
             // 商品已经存在，更新数量
-            setChill(prevChill => prevChill.map(item => item.id === productId ? {...item, quantities: item.quantities + quantity} : item));
+            setChill(prevChill => prevChill.map(item => item.id === productId ? {...item, quantities: item.quantities + quantities} : item));
         } else if (productToAdd) {
             // 商品不存在，添加新的条目
-            setChill(prevChill => [...prevChill, {...productToAdd, quantities: quantity}]);
+            setChill(prevChill => [...prevChill, {...productToAdd, quantities: quantities}]);
         }
     };
     

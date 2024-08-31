@@ -18,14 +18,3 @@ export function GetLastVIP(){
        return lastMemberid;
     } 
 }
-
-// export function AddVIP(newValue)
-// {
-//     const VipMembers = getLocalStorage(VIPKEY,true)
-//     if(VipMembers)
-//     {
-//         VipMembers.push(newValue);
-//     }
-
-//     setLocalStorage(VIPKEY,VipMembers,true);
-// }
