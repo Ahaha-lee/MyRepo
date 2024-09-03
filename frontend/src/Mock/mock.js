@@ -1,4 +1,3 @@
-import pinyin from "pinyin";
 
 export const INITIAL_VIP= [
     {vip_id:1, vipname:'喜羊羊', nowpoints:500, usedpoints:200, phone:'12345678910', regisdate:'2024-05-01T15:30:00'},

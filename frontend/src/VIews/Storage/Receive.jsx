@@ -1,17 +1,23 @@
 import { useParams } from "react-router-dom";
-import { CHECKRESULTKEY } from "../../Mock/inventoryMock";
+import { CGEXISTEDKEY, CGNOTEXISTEDKEY, CHECKRESULTKEY } from "../../Mock/inventoryMock";
 import { getLocalStorage, setLocalStorage } from "../../utils/storageways";
 import { useState } from "react";
 import { RealTimeClock } from "../../Components/groceries";
 
 export function CaiGouReceive() {
     const inicheckresult = getLocalStorage(CHECKRESULTKEY, true);
+    const iniExisted = getLocalStorage(CGEXISTEDKEY,true);
+    const iniNotExisted = getLocalStorage(CGNOTEXISTEDKEY,true);
     const { recordid } = useParams();
-    const [putinQuantities, setPutinQuantities] = useState(0); // 入库数量
+    const productE = iniExisted.find(item => item.recordid === recordid);
+    const productNE = iniNotExisted.find(item => item.recordid === recordid);
+    const tempt = productE?productE.productQuantity :productNE.productQuantity;
+    const [putinQuantities, setPutinQuantities] = useState(tempt); // 入库数量
     const [currentTime, setCurrentTime] = useState(""); // 入库时间
     const [putinResult, setPutinResult] = useState(null);
 
     let record = null; 
+    if(inicheckresult.length>0){
     // 查找匹配的记录
     for (let i = 0; i < inicheckresult.length; i++) {
         if (inicheckresult[i].recordid === recordid) {
@@ -19,7 +25,9 @@ export function CaiGouReceive() {
             break; 
         }
     }
-    if(record.checkResult==='no')
+    }
+
+    if(!record || record?.checkResult==='no')
     {
         return(
             <div>
@@ -65,7 +73,10 @@ export function CaiGouReceive() {
                 {putinResult && (
                     <div>
                         入库数量：
-                        <input type="number" value={putinQuantities} onChange={handleQuantitiesChange} />
+                        <input  type="number" 
+                                value={putinQuantities} 
+                                onChange={handleQuantitiesChange}
+                                placeholder="是否区别于申报表中的入库数量"/>
                     </div>
                 )}
                 <br />

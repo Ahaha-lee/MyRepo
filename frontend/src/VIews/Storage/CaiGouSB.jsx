@@ -26,6 +26,7 @@ export function ApplyForICaiGou() {
         recordid: '',
         productBarcode: '',
         applystaffid:'',
+        barcode:'',
     });
     // 新添置商品
     const [formDataNo, setFormDataNo] = useState({
@@ -47,6 +48,7 @@ export function ApplyForICaiGou() {
         supplierContactPhone: '',
         recordid: '',
         applystaffid:'',
+        barcode:'',
     });
 
     const [stockExists, setStockExists] = useState(null);
@@ -105,75 +107,79 @@ export function ApplyForICaiGou() {
             {stockExists === false && (
                 <>
                 标题：
-                 <input type='text' name="title" value={formDataYes.title} onchange={handleChange} required/><br/>
+                 <input type='text' name="title" value={formDataYes.title} onChange={handleChange} required/><br/>
                 1、入库商品名称：
                 <input type="text" name="productName" value={formDataNo.productName} onChange={handleChange} required /><br />
-                2、入库商品类型：
+                2、入库商品条码：
+                <input type="text" name="barcode" value={formDataNo.barcode} onChange={handleChange} required /><br />
+                3、入库商品类型：
                 <input type="text" name="productType" value={formDataNo.productType} onChange={handleChange} required /><br />
-                3、入库商品数量：
+                4、入库商品数量：
                 <input type="number" name="productQuantity" value={formDataNo.productQuantity} onChange={handleChange} required /><br />
-                4、入库商品数量单位：
+                5、入库商品数量单位：
                 <input type="text" name="productUnit" value={formDataNo.productUnit} onChange={handleChange} required /><br />
-                5、入库商品单价：
+                6、入库商品单价：
                 <input type="text" name="productPrice" value={formDataNo.productPrice} onChange={handleChange} required /><br />
-                6、入库商品描述：
+                7、入库商品描述：
                 <textarea name="productDescription" value={formDataNo.productDescription} onChange={handleChange} required/><br />
-                7、入库商品生产公司：
+                8、入库商品生产公司：
                 <input type="text" name="productionCompany" value={formDataNo.productionCompany} onChange={handleChange} required /><br />
-                8、选择该商品的理由：
+                9、选择该商品的理由：
                 <textarea name="reasonForSelection" value={formDataNo.reasonForSelection} onChange={handleChange} required /><br />
-                9、采购负责人编号：
+                10、采购负责人编号：
                 <input type="text" name="purchaserId" value={formDataNo.purchaserId} onChange={handleChange} required /><br />
-                10、采购负责人姓名：
+                11、采购负责人姓名：
                 <input type="text" name="purchaserName" value={formDataNo.purchaserName} onChange={handleChange} required /><br />
-                11、供应商名称：
+                12、供应商名称：
                 <input type="text" name="supplierName" value={formDataNo.supplierName} onChange={handleChange} required /><br />
-                12、供应商联系电话：
+                13、供应商联系电话：
                 <input type="text" name="supplierContact" value={formDataNo.supplierContact} onChange={handleChange} required /><br />
-                13、供应商地址：
+                14、供应商地址：
                 <input type="text" name="supplierAddress" value={formDataNo.supplierAddress} onChange={handleChange} required /><br />
-                14、供应商直接联系人姓名：
+                15、供应商直接联系人姓名：
                 <input type="text" name="supplierContactName" value={formDataNo.supplierContactName} onChange={handleChange} required /><br />
-                15、供应商直接联系人电话：
+                16、供应商直接联系人电话：
                 <input type="text" name="supplierContactPhone" value={formDataNo.supplierContactPhone} onChange={handleChange} required /><br />
-                16、申报日期时间即提交时间：
-                <br/> <RealTimeClock />
+                17、申报日期时间即提交时间：
+                <br/> <RealTimeClock  />
                 </>
             )}
             {/* 已存在此商品 */}
             {stockExists === true && (
                 <>
                 标题：
-                <input type='text' name="title" value={formDataYes.title} onchange={handleChange} required/><br/>
+                <input type='text' name="title" value={formDataYes.title} onChange={handleChange} required/><br/>
                 1、入库商品名称：
                 <input type="text" name="productName" value={formDataYes.productName} onChange={handleChange} required /><br />
-                2、入库商品编号：
+                2、入库商品条码：
+                <input type="text" name="barcode" value={formDataYes.barcode} onChange={handleChange} required /><br />
+                3、入库商品编号：
                 <input type="text" name="productId" value={formDataYes.productId} onChange={handleChange} required /> <br/>
-                3、入库商品类型：
+                4、入库商品类型：
                 <input type="text" name="productType" value={formDataYes.productType} onChange={handleChange} required /><br />
-                4、入库商品数量：
+                5、入库商品数量：
                 <input type="number" name="productQuantity" value={formDataYes.productQuantity} onChange={handleChange} required /><br />
-                5、入库商品数量单位：
+                6、入库商品数量单位：
                 <input type="text" name="productUnit" value={formDataYes.productUnit} onChange={handleChange} required /><br />
-                6、入库商品单价：
+                7、入库商品单价：
                 <input type="text" name="productPrice" value={formDataYes.productPrice} onChange={handleChange} required /><br />
-                7、价格变动理由：
+                8、价格变动理由：
                 <textarea name="priceChangeReason" value={formDataYes.priceChangeReason} onChange={handleChange} placeholder='若价格未变动，则无需填写' /><br />
-                8、入库商品描述：
+                9、入库商品描述：
                 <textarea name="productDescription" value={formDataYes.productDescription} onChange={handleChange} required/><br />
-                9、入库商品生产公司：
+                10、入库商品生产公司：
                 <input type="text" name="productionCompany" value={formDataYes.productionCompany} onChange={handleChange} required /><br />
-                10、选择该商品的理由：
+                11、选择该商品的理由：
                 <textarea name="reasonForSelection" value={formDataYes.reasonForSelection} onChange={handleChange} required /><br />
-                11、采购负责人编号：
+                12、采购负责人编号：
                 <input type="text" name="purchaserId" value={formDataYes.purchaserId} onChange={handleChange} required /><br />
-                12、采购负责人姓名：
+                13、采购负责人姓名：
                 <input type="text" name="purchaserName" value={formDataYes.purchaserName} onChange={handleChange} required /><br />
-                13、供应商编号：
+                14、供应商编号：
                 <input type="text" name="supplierId" value={formDataYes.supplierId} onChange={handleChange} required /><br />
-                14、供应商名称：
+                15、供应商名称：
                 <input type="text" name="supplierName" value={formDataYes.supplierName} onChange={handleChange} required /><br />
-                15、申报日期时间即提交时间：
+                16、申报日期时间即提交时间：
                 <br/> <RealTimeClock />
 
                 </>

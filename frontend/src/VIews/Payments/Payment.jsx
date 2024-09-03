@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import useSession from "../../useSession";
 import { Select } from 'antd';
-import pinyin from'pinyin';
 import { Receipts } from "./Receipt";
 
 export const Paymentcontext = React.createContext({ chill: [
@@ -11,23 +10,23 @@ export const Paymentcontext = React.createContext({ chill: [
     { id: 4, name: '西瓜', price: 2.00, quantities: 3 , diacount:0}
     ], setChill: () => {}, 
     products: [
-    { id: 1, name: '苹果', price: 1.00, codenumeber: '12345', notes: '', pinyin: pinyin('苹果', { style: pinyin.STYLE_NORMAL }).join('') },
-    { id: 2, name: '橙子', price: 0.50, codenumeber: '22345', notes: '', pinyin: pinyin('橙子', { style: pinyin.STYLE_NORMAL }).join('') },
-    { id: 3, name: '梨子', price: 1.00, codenumeber: '32345', notes: '', pinyin: pinyin('梨子', { style: pinyin.STYLE_NORMAL }).join('') },
-    { id: 4, name: '西瓜', price: 2.00, codenumeber: '42345', notes: '', pinyin: pinyin('西瓜', { style: pinyin.STYLE_NORMAL }).join('') },
-    { id: 5, name: '玫瑰', price: 1.50, codenumeber: '52345', notes: '', pinyin: pinyin('玫瑰', { style: pinyin.STYLE_NORMAL }).join('') },
-    { id: 6, name: '苹果醋', price: 3.00, codenumeber: '62345', notes: '', pinyin: pinyin('苹果醋', { style: pinyin.STYLE_NORMAL }).join('') }
+    { id: 1, name: '苹果', price: 1.00, codenumeber: '12345', notes: '', pinyin: '苹果' },
+    { id: 2, name: '橙子', price: 0.50, codenumeber: '22345', notes: '', pinyin: '橙子', },
+    { id: 3, name: '梨子', price: 1.00, codenumeber: '32345', notes: '', pinyin: '梨子', },
+    { id: 4, name: '西瓜', price: 2.00, codenumeber: '42345', notes: '', pinyin: '西瓜', },
+    { id: 5, name: '玫瑰', price: 1.50, codenumeber: '52345', notes: '', pinyin: '玫瑰', },
+    { id: 6, name: '苹果醋', price: 3.00, codenumeber: '62345', notes: '', pinyin: '苹果醋', }
     ],
     cashiers: [ { employeesId: '1001', name: 'Tom' },] });
 const { Option } = Select;
 export default function Payment(){
     const [products,setproducts] =useState([
-        { id: 1, name: '苹果', price: 1.00, codenumeber: '12345', notes: '', pinyin: pinyin('苹果', { style: pinyin.STYLE_NORMAL }).join('') },
-        { id: 2, name: '橙子', price: 0.50, codenumeber: '22345', notes: '', pinyin: pinyin('橙子', { style: pinyin.STYLE_NORMAL }).join('') },
-        { id: 3, name: '梨子', price: 1.00, codenumeber: '32345', notes: '', pinyin: pinyin('梨子', { style: pinyin.STYLE_NORMAL }).join('') },
-        { id: 4, name: '西瓜', price: 2.00, codenumeber: '42345', notes: '', pinyin: pinyin('西瓜', { style: pinyin.STYLE_NORMAL }).join('') },
-        { id: 5, name: '玫瑰', price: 1.50, codenumeber: '52345', notes: '', pinyin: pinyin('玫瑰', { style: pinyin.STYLE_NORMAL }).join('') },
-        { id: 6, name: '苹果醋', price: 3.00, codenumeber: '62345', notes: '', pinyin: pinyin('苹果醋', { style: pinyin.STYLE_NORMAL }).join('') }
+        { id: 1, name: '苹果', price: 1.00, codenumeber: '12345', notes: '', pinyin: '苹果', },
+        { id: 2, name: '橙子', price: 0.50, codenumeber: '22345', notes: '', pinyin: '橙子', },
+        { id: 3, name: '梨子', price: 1.00, codenumeber: '32345', notes: '', pinyin: '梨子', },
+        { id: 4, name: '西瓜', price: 2.00, codenumeber: '42345', notes: '', pinyin: '西瓜', },
+        { id: 5, name: '玫瑰', price: 1.50, codenumeber: '52345', notes: '', pinyin: '玫瑰', },
+        { id: 6, name: '苹果醋', price: 3.00, codenumeber: '62345', notes: '', pinyin: '苹果醋', }
     ]);
     const [cashiers,setCashier] = ([
         { employeesId: '1001', name: 'Tom' },

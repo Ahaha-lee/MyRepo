@@ -7,7 +7,7 @@ export const RealTimeClock = ({ setCurrentTime }) => { // 接收 setCurrentTime 
     const timerId = setInterval(() => {
       const newTime = new Date();
       setCurrentTimeState(newTime);
-      setCurrentTime(newTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })); // 更新父组件的时间
+      setCurrentTime && setCurrentTime(newTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })); // 更新父组件的时间
     }, 1000);
 
     return () => clearInterval(timerId);

@@ -1,0 +1,10 @@
+{
+    
+        "workbench.colorTheme": "Default Light Modern",
+        "explorer.compactFolders": false,
+        "explorer.confirmDelete": false,
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        "go.goroot": "F:\\Softdownload\\GO"  // 注意使用双反斜杠
+    
+    
+}
