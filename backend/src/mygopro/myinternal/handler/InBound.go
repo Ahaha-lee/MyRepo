@@ -5,12 +5,13 @@ import (
 	// "encoding/json"
 	"fmt"
 	"io"
+	"mygopro/myinternal/myinternal/utils"
 	"net/http"
 )
 
 func DeclarationHandller(w http.ResponseWriter, r *http.Request) {
 	// 连接数据库
-	db, err := DataBaseConnect()
+	db, err := utils.DataBaseConnect()
 	if err != nil {
 		http.Error(w, "数据库连接失败", http.StatusInternalServerError)
 		return
