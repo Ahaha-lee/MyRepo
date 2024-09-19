@@ -10,7 +10,7 @@ CREATE TABLE ProductsData (
     CostPrice DECIMAL(10,2), -- 成本价
     RetailPrice DECIMAL(10,2), -- 零售价
     DetailedlyDesc TEXT, -- 详细描述 
-    PROLocation VARCHAR(50) -- 商品位置
+    PROLocation VARCHAR(50) -- 商品位置 类型A/B/c……区XX货架XX层数
 );
 
 CREATE TABLE PRODUCT_CATEGORIES (
@@ -28,7 +28,7 @@ CREATE TABLE InventoryData (
     cumulativeInbound DOUBLE, -- 库存中累计入库数量
     outboundQuantity DOUBLE, -- 累计出库数量
     remarks VARCHAR(50), -- 备注
-    INVLocation VARCHAR(50) -- 库存位置
+    INVLocation VARCHAR(50) -- 库存位置 冷库/常温仓库XX号A/B/C……区XX货架XX层，
 );
 
 -- 商品采购申报表
@@ -83,10 +83,12 @@ CREATE TABLE InboundRecords (
     CheckResult VARCHAR(10), -- 审核结果
     CheckOpinion TEXT, -- 审核意见
     CheckDate DATETIME, -- 审核时间
+
     StorehouseStaffID VARCHAR(20), -- 仓库管理员ID
     PutINResult VARCHAR(10), -- 是否入库
     PutInQuantities INT, -- 入库数量
     PutInDate DATETIME, -- 入库时间
+    
     ExamineStaffID VARCHAR(20), -- 验收人ID
     ExamineResult VARCHAR(10), -- 是否通过验收
     ExamineQuantities DOUBLE, -- 验收通过数量
@@ -116,4 +118,43 @@ CREATE TABLE VipMembersData (
     JoinDate DATE, -- 加入日期
     NowPoints INT, -- 当前积分
     UsedPoints INT -- 已使用积分
+);
+
+
+-- 出库申请表
+CREATE TABLE OutboundApply (
+    Title VARCHAR(20),
+    OutRecordID VARCHAR(20) PRIMARY KEY, -- 记录ID
+    ApplyStaffID VARCHAR(20) NOT NULL,    -- 申请人员ID
+    ApplyStaffName VARCHAR(20),            -- 申请人员姓名
+    OutProductID VARCHAR(20) NOT NULL,     -- 出库产品ID
+    OutProductName VARCHAR(100) NOT NULL,  -- 出库产品名称
+    OutProductBarcode VARCHAR(50),          -- 出库产品条形码
+    OutBoundReason VARCHAR(255),            -- 出库原因
+    OutboundQuantity INT NOT NULL,          -- 出库数量
+    OutboundQuantityt VARCHAR(20),            -- 出库数量单位
+    OutApplyTime DATETIME DEFAULT CURRENT_TIMESTAMP -- 出库申请时间
+);
+
+//出库记录表
+CREATE TABLE OutboundRecords (
+    OBReRecordID INT PRIMARY KEY,
+    ApplyStaffID VARCHAR(20) NOT NULL,    -- 申请人员ID
+    ApplyStaffName VARCHAR(20),            -- 申请人员姓名
+    OBReProductID VARCHAR(20) NOT NULL,     -- 出库产品ID
+    OBReProductName VARCHAR(100) NOT NULL,  -- 出库产品名称
+    OBReProductBarcode VARCHAR(50),          -- 出库产品条形码
+    OBReApplyQuantityUnit VARCHAR(20),            -- 申请出库数量单位
+    OBReApplyTime DATETIME DEFAULT CURRENT_TIMESTAMP -- 出库申请时间
+    
+    CheckStaffID
+    CheckResult
+    CheckOpinion
+    CheckDate
+
+    OutResult,
+    OutQuantities,
+    StoragestaffName
+    StoragestaffId
+    OutTime
 );

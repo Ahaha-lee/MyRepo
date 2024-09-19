@@ -1,0 +1,70 @@
+frontend/
+│
+├── public/                  # 静态文件
+│   ├── index.html           # 入口 HTML 文件
+│   └── favicon.ico          # 网站图标
+│
+├── src/                     # 源代码
+│   ├── assets/              # 静态资源（图片、字体等）
+│   ├── components/          # 可复用的组件
+│   ├── pages/               # 页面组件
+│   ├── hooks/               # 自定义 Hooks
+│   ├── context/             # React Context
+│   ├── services/            # API 服务
+│   ├── utils/               # 工具函数
+│   ├── App.js               # 主应用组件
+│   ├── index.js             # 应用入口文件
+│   └── styles/              # 样式文件
+│       └── App.css          # 主样式文件
+│
+├── .gitignore               # Git 忽略文件
+├── package.json             # 项目配置文件
+├── package-lock.json        # 依赖锁定文件
+└── README.md                # 项目说明文件
+
+
+Golang/
+│
+├── cmd/                     # 启动应用程序的入口
+│   └── main.go              # 主程序文件
+│
+├── internal/                # 内部应用程序和库代码
+│   ├── api/                 # API 相关代码
+│   ├── config/              # 配置管理
+│   ├── model/               # 数据模型
+│   ├── repository/          # 数据库访问层
+│   ├── service/             # 业务逻辑层
+│   └── utils/               # 工具函数
+│
+├── pkg/                     # 可重用的库代码
+│
+├── scripts/                 # 脚本文件
+│
+├── test/                    # 测试文件
+│
+├── go.mod                   # Go 模块文件
+├── go.sum                   # Go 依赖校验和文件
+└── README.md                # 项目说明文件
+
+Golang/backend
+│
+├── cmd/                     # 启动应用程序的入口
+│   └── main.go              # 主程序文件
+│
+├── internal/                # 内部应用程序和库代码
+│   ├── api/                 # API 相关代码
+│   ├── handler/  
+                DecalrationHandler.go            # 配置管理
+│   ├── model/               # 数据模型
+│   └── utils/  
+                basicfunction.go              # 工具函数
+│
+├── pkg/                     # 可重用的库代码
+│
+├── scripts/                 # 脚本文件
+│
+├── test/                    # 测试文件
+│
+├── go.mod                   # Go 模块文件
+├── go.sum                   # Go 依赖校验和文件
+└── README.md       

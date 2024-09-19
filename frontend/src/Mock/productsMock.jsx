@@ -1,74 +1,23 @@
-export const ALLPRODUCTS = [
+export const ProductsDataTable = [
     {
-        name: "喜羊羊红色苹果",
-        price: "3.00元",
-        category: "水果",
-        manufacturer: "羊村食品有限公司",
-        barcode: "123456789001",
-        description: "新鲜的红色苹果，口感脆甜，富含维生素C，适合生吃或做成苹果派。",
-    },
-
-    {
-        name: "蛋蛋纯牛奶",
-        price: "5.00元",
-        category: "饮品",
-        manufacturer: "黑大帅乳业有限公司",
-        barcode: "123456789002",
-        description: "100%纯牛奶，富含蛋白质和钙质，适合全家饮用。"
-    },
-
-    {
-        name: "全麦面包",
-        category: "零食_烘焙",
-        stockUnit: "个",
-        entryDate: "2023-03-05 08:45",
-        minimumStockLevel: 10,
-        managerId: "M003",
-        managerName: "蕉太狼"
-    },
-
-    {
-        name: "太空洗发水",
-        price: "25.00元",
-        category: "美容护理",
-        manufacturer: "智羊羊美容化妆品有限公司",
-        barcode: "123456789004",
-        description: "温和配方的洗发水，适合各种发质，能有效清洁头发，保持头发光泽。"
-    },   
-
-    {
-        name: "羊羊透气运动鞋",
-        price: "150.00元",
-        category: "鞋类",
-        manufacturer: "羊村运动先锋有限公司",
-        barcode: "123456789005",
-        description: "轻便透气的运动鞋，适合跑步和日常穿着，提供良好的支撑和舒适感。",
-    },
-
-    {
-        name: "知识羊经典文学书籍",
-        price: "30.00元",
-        category: "图书",
-        manufacturer: "羊村大聪明出版社",
-        barcode: "123456789006",
-        description: "经典文学作品，适合各个年龄段的读者，提升阅读品味。",
-    },
-
-    {
-        name: "潇洒哥最新款智能手机",
-        price: "3000.00元",
-        category: "电子产品",
-        manufacturer: "包包大人科技有限公司",
-        barcode: "123456789007",
-        description: "最新款智能手机，配备高性能处理器和高清摄像头，支持5G网络。",
+        "ProductID": "P001",
+        "PROBarcode": "123456789001",
+        "Category": "水果",
+        "ProductName": "喜羊羊红色苹果",
+        "CostPrice": 3.00,
+        "RetailPrice": 3.00,
+        "DetailedlyDesc": "新鲜的红色苹果，口感脆甜，富含维生素C，适合生吃或做成苹果派。",
+        "PROLocation": "水果A区"
     },
     {
-        name: "羊村4K高清智能电视",
-        price: "5000.00元",
-        category: "家电",
-        manufacturer: "包包大人科技有限公司",
-        barcode: "123456789008",
-        description: "4K高清智能电视，支持多种流媒体应用，带来极致的观影体验。",
+        "ProductID": "P002",
+        "PROBarcode": "123456789002",
+        "Category": "饮品",
+        "ProductName": "蛋蛋纯牛奶",
+        "CostPrice": 5.00,
+        "RetailPrice": 5.00,
+        "DetailedlyDesc": "100%纯牛奶，富含蛋白质和钙质，适合全家饮用。",
+        "PROLocation": "饮品A区01货架01层"
     }
 ];
 
@@ -77,18 +26,11 @@ export const PRODUCTSKEY = "initialproducts";
 
 
 // 商品分类类型总表
-export const PRODUCT_CATEGORIES = [
-    { categoryId: "C001", categoryName: "水果" },
-    { categoryId: "C002", categoryName: "饮品" },
-    { categoryId: "C003", categoryName: "零食_烘焙" },
-    { categoryId: "C004", categoryName: "美容护理" },
-    { categoryId: "C005", categoryName: "鞋类" },
-    { categoryId: "C006", categoryName: "图书" },
-    { categoryId: "C007", categoryName: "电子产品" },
-    { categoryId: "C008", categoryName: "家电" },
+export const ProductCategoryTable = [
+    { CategoryId: "C001", CategoryName: "水果" },
+    { CategoryId: "C002", CategoryName: "饮品" },
 ];
-
-export const CATEGORYKEY = 'initialcategory';
+export const CATEGORYKEY = 'inicategory';
 
 
 

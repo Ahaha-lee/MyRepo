@@ -6,8 +6,8 @@ export function UserInfo({ user }) {
 
     return (
         <div className="user-info">
-            <p> username:{user.username} &nbsp;&nbsp;
-            role: {user.role}</p>
+            <p> username:{user.FirstName+user.LastName} &nbsp;&nbsp;
+            role: {user.Position}</p>
         </div>
     );
 }

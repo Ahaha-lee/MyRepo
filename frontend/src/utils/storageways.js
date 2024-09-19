@@ -32,10 +32,17 @@ export function AddnewValue(data, key) {
     setLocalStorage(key, existingData, true);
 }
 
-export function GetLatestid(key){
-    const oldData = getLocalStorage(key,true)
-    if(oldData){
-       const latestid= oldData.length;
-       return latestid;
-    } 
+export function GetLatestid(key) {
+    const oldData = getLocalStorage(key, true); // 获取数据
+    if (oldData && Array.isArray(oldData)) { // 检查 oldData 是否存在且是数组
+        return oldData.length; // 返回数组的长度
+    }
+    return 0; // 如果 oldData 为 null 或不是数组，返回 0
+}
+
+export function DeleteData(index,quantity,key){
+    const deleData = getLocalStorage(key,true)||[];
+    deleData.splice(index,quantity);
+    setLocalStorage(key,deleData,true)
+
 }

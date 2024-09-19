@@ -1,12 +1,11 @@
 
-export const INITIAL_VIP= [
-    {vip_id:1, vipname:'喜羊羊', nowpoints:500, usedpoints:200, phone:'12345678910', regisdate:'2024-05-01T15:30:00'},
-    {vip_id:2, vipname:'美羊羊', nowpoints:420, usedpoints:300, phone:'22345678910', regisdate:'2024-06-06T10:30:00'},
-    {vip_id:3, vipname:'沸羊羊', nowpoints:450, usedpoints:100, phone:'32345678910', regisdate:'2024-07-031T11:30:00'},
-    {vip_id:4, vipname:'懒羊羊', nowpoints:330, usedpoints:220, phone:'42345678910', regisdate:'2024-08-01T14:30:00'},
-    {vip_id:5, vipname:'暖羊羊', nowpoints:550, usedpoints:100, phone:'52345678910', regisdate:'2024-08-05T17:30:00'}
-];
-
+export const VIPDataTable= [
+{VIPID: "V001", FirstName: "喜", LastName: "羊羊", Phone: "12345678910", JoinDate: "2024-05-01", NowPoints: 500, UsedPoints: 200, Handler:'Em003'},
+{VIPID: "V002", FirstName: "美", LastName: "羊羊", Phone: "22345678910", JoinDate: "2024-06-06", NowPoints: 420, UsedPoints: 300, Handler:'Em003'},
+{VIPID: "V003", FirstName: "沸", LastName: "羊羊", Phone: "32345678910", JoinDate: "2024-07-03", NowPoints: 450, UsedPoints: 100, Handler:'Em003'},
+]
 export const VIPKEY = "initialvip";
 
 
+export const DeleteVIPDataTable = [];
+export const DELETEVIPKEY = 'inidelevip';
