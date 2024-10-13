@@ -37,9 +37,8 @@ export const AddVipMembership = () => {
       if (!response.ok) {
         throw new Error('插入数据失败');
       }
+      alert('注册成功')
 
-      const data = await response.text();
-      setMessage(data);
     } catch (error) {
       setMessage(error.message);
     }
@@ -73,7 +72,7 @@ export const AddVipMembership = () => {
           注册时间：
           <RealTimeClock setCurrentTime={setcurrenttime}/>
         <button type="submit">注册</button>
-      </form>
+      </form>     
       {message && <p>{message}</p>}
     </div>
   );
@@ -101,7 +100,7 @@ export function DeleteVipMemberShip() {
 
     //找到注销会员
   async function checkVipExists() {
-    const response = await fetch(`/api/vip?vipphone=${logoutPhone}`); 
+    const response = await fetch(`/api/vip/search?vipphone=${logoutPhone}`); 
     if (!response.ok) {
       throw new Error('检查 VIP 失败');
     }

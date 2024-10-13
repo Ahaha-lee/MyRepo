@@ -23,48 +23,41 @@ frontend/
 └── README.md                # 项目说明文件
 
 
-Golang/
-│
-├── cmd/                     # 启动应用程序的入口
-│   └── main.go              # 主程序文件
-│
-├── internal/                # 内部应用程序和库代码
-│   ├── api/                 # API 相关代码
-│   ├── config/              # 配置管理
-│   ├── model/               # 数据模型
-│   ├── repository/          # 数据库访问层
-│   ├── service/             # 业务逻辑层
-│   └── utils/               # 工具函数
-│
-├── pkg/                     # 可重用的库代码
-│
-├── scripts/                 # 脚本文件
-│
-├── test/                    # 测试文件
-│
-├── go.mod                   # Go 模块文件
-├── go.sum                   # Go 依赖校验和文件
-└── README.md                # 项目说明文件
+user/
+├── controllers/
+│   ├── user_controller.go  // package usercontroller
+│   └── user_controller_test.go
+├── services/
+│   ├── user_service.go     // package userservice
+│   └── user_service_test.go
+├── models/
+│   ├── user.go             // package usermodel
+│   └── user_test.go
+├── repositories/
+│   ├── user_repository.go  // package userrepository
+│   └── user_repository_test.go
+├── utils/
+│   ├── utils.go            // package userutils
+│   └── utils_test.go
+├── user.go                 // package user
+└── user_test.go
 
-Golang/backend
-│
-├── cmd/                     # 启动应用程序的入口
-│   └── main.go              # 主程序文件
-│
-├── internal/                # 内部应用程序和库代码
-│   ├── api/                 # API 相关代码
-│   ├── handler/  
-                DecalrationHandler.go            # 配置管理
-│   ├── model/               # 数据模型
-│   └── utils/  
-                basicfunction.go              # 工具函数
-│
-├── pkg/                     # 可重用的库代码
-│
-├── scripts/                 # 脚本文件
-│
-├── test/                    # 测试文件
-│
-├── go.mod                   # Go 模块文件
-├── go.sum                   # Go 依赖校验和文件
-└── README.md       
+product/
+├── controllers/
+│   ├── product_controller.go  // package productcontroller
+│   └── product_controller_test.go
+├── services/
+│   ├── product_service.go     // package productservice
+│   └── product_service_test.go
+├── models/
+│   ├── product.go             // package productmodel
+│   └── product_test.go
+├── repositories/
+│   ├── product_repository.go  // package productrepository
+│   └── product_repository_test.go
+├── utils/
+│   ├── utils.go               // package productutils
+│   └── utils_test.go
+├── product.go                 // package product
+└── product_test.go
+

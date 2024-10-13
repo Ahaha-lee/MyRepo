@@ -5,10 +5,10 @@ import { initialEMPLOYEE, initialVIP,initialINVENTORY,initialPRODUCTS } from '..
 
 export default function HomeFormToPayment(){
     useEffect(() => {
-        initialVIP();
+       
         initialEMPLOYEE();
         initialINVENTORY();
-        initialPRODUCTS();
+  
     }, []);
 
     return(

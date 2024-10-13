@@ -10,20 +10,19 @@ import ProtectedRoute from './Components/ProtectedRoute';
 import { PaymentTocashier } from './Pages/Payments/Payment';
 import { Receipts } from './Pages/Payments/Receipt';
 import { AddVipMembership, DeleteVipMemberShip } from './Pages/Vip/VipMemberShip';
-import { ApplyForICaiGou } from './Pages/Storage/CaiGouSB';
-import { CGList } from './Pages/Storage/CaiGouSBList';
-import CheckForCaiGou from './Pages/Storage/CaiGouSH';
+import { ApplyForCaiGou } from './Pages/Storage/CaiGouSB';
+import { CGList } from './Pages/Storage/CaiGouList';
+import { CGListForStaff } from './Pages/Storage/CGStaffList';
 import HomeFormToCGStaff from './Pages/Homesettings/HomeToCGstaff';
 import useSession from './useSession';
-import { CaiGouExamine } from './Pages/Storage/Examine';
-import { CaiGouReceive } from './Pages/Storage/Receive';
 import { ProductOutSB } from './Pages/Storage/OutSB';
 import { OutList } from './Pages/Storage/OutList';
-import { ProductOutCheck } from './Pages/Storage/OutCheck';
-import HomeFormToTallying from './Pages/Homesettings/HomeToTallying';
-
+import HomeFormToTallying from './Pages/Homesettings/HomeToTallyClerk';
+import { OutListForStaff } from './Pages/Storage/OutStaffList';
 import HomeFormToPayment from './Pages/Homesettings/HomeToPayment';
 import {ChangePoints, SearchVip } from './Pages/Vip/VIPPoints';
+import HomeFormToStorage from './Pages/Homesettings/HomeToStorage';
+import { StorageListForCG,StorageListForOut } from './Pages/Storage/StorageList';
 
 const PaymentStaffRoutes = ({ user }) => {
         return (
@@ -36,8 +35,19 @@ const CGStaffRoutes = ({ user }) => {
         return (
             <Routes>
                 <Route path="/" element={<HomeFormToCGStaff />} />
-                {/* <Route path='/caigoulistfotcgstaff' 
-                       element={<ProtectedRoute element={<CGListForStaff />} allowedRoles={['采购专员']} user={user} />} /> */}
+                <Route path='/cgistforcgstaff' 
+                       element={<ProtectedRoute element={<CGListForStaff />} allowedRoles={['采购专员']} user={user} />} />
+            </Routes>
+        );
+    };
+const StorageStaffRoutes = ({ user }) => {
+        return (
+            <Routes>
+                <Route path="/" element={<HomeFormToStorage />} />
+                <Route path='/cgistforstorstaff' 
+                       element={<ProtectedRoute element={<StorageListForCG/>} allowedRoles={['仓库管理员']} user={user} />} />
+            <Route path='/outistforstorstaff' 
+                       element={<ProtectedRoute element={<StorageListForOut/>} allowedRoles={['仓库管理员']} user={user} />} />
             </Routes>
         );
     };
@@ -46,8 +56,8 @@ const TallyingStaffRoutes = ({ user }) => {
         return (
             <Routes>
                 <Route path="/" element={<HomeFormToTallying/>} />
-                {/* <Route path='/outlistfortallying' 
-                       element={<ProtectedRoute element={<OutListTotallying />} allowedRoles={['理货员']} user={user} />} /> */}
+                <Route path='/outlistfortallyclerk' 
+                       element={<ProtectedRoute element={<OutListForStaff />} allowedRoles={['理货员']} user={user} />} />
 
             </Routes>
         );
@@ -72,7 +82,7 @@ function App() {
                 <Route path='/caigoustaffhome/*' element={<CGStaffRoutes user={user} />} />
                 <Route path='/tallyingstaffhome/*' element={<TallyingStaffRoutes user={user} />} />
                 <Route path='/paymentstaffhome/*' element={<PaymentStaffRoutes user={user} />} />
-                
+                <Route path='/storagestaffhome/*' element={<StorageStaffRoutes user={user}/>}/>
                 {/* 注册登录 */}
                 <Route path="/register" element={<RegisterForm allowedRoles={['顶级boss', '采购专员']} />} />
                 <Route path="/login" element={<LoginForm handleSession={updateSession} />} />
@@ -95,15 +105,12 @@ function App() {
 
                 {/* 采购管理 */}
                 <Route path='/applyforcaigou' 
-                        element={<ProtectedRoute element={<ApplyForICaiGou />} allowedRoles={['顶级boss', '采购专员']} user={user} />} />
-                <Route path='/checkforcaigou/:recordid' 
-                        element={<ProtectedRoute element={<CheckForCaiGou />} allowedRoles={['顶级boss']} user={user} />} />
-                <Route path='/acceptanceforcaigou/:recordid'
-                        element={<ProtectedRoute element={<CaiGouExamine />} allowedRoles={['顶级boss']} user={user} />} />
-                 <Route path='/putinforcaigou/:recordid'
-                        element={<ProtectedRoute element={<CaiGouReceive />} allowedRoles={['顶级boss','采购专员']} user={user} />} />
+                        element={<ProtectedRoute element={<ApplyForCaiGou />} allowedRoles={['顶级boss', '采购专员']} user={user} />} />
                 <Route path='/caigoulist' 
-                        element={<ProtectedRoute element={<CGList />} allowedRoles={['顶级boss']} user={user} />} />
+                         element={<ProtectedRoute element={<CGList />} allowedRoles={['顶级boss']} user={user} />} /> 
+               
+                {/* <Route path='/cgparticulars/:recordid' 
+                        element={<ProtectedRoute element={<CGParticulars />} allowedRoles={['顶级boss']} user={user} />} /> */}
                  {/* <Route path='/caigoufeedback/:recordid' 
                       element={<ProtectedRoute element={<CGFeedBack />} allowedRoles={['采购专员']} user={user} />} /> */}
 
@@ -113,8 +120,8 @@ function App() {
                         element={<ProtectedRoute element={<ProductOutSB />} allowedRoles={['顶级boss','理货员']} user={user} />} />
                  <Route path='/outlist' 
                         element={<ProtectedRoute element={<OutList />} allowedRoles={['顶级boss']} user={user} />} />
-                <Route path='/checkforoutproducts/:outrecordid'
-                        element={<ProtectedRoute element={<ProductOutCheck />} allowedRoles={['顶级boss']} user={user} />} />
+                {/* <Route path='/checkforoutproducts/:recordid'
+                        element={<ProtectedRoute element={<ProductOutCheck />} allowedRoles={['顶级boss']} user={user} />} /> */}
                 {/* <Route path='/outfeedback/:outrecordid' 
                                 element={<ProtectedRoute element={<OutFeedBack/>} allowedRoles={['理货员']} user={user} />} /> */}
 

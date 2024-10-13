@@ -12,18 +12,20 @@ export function DashtableToPoints({vip_Results}){
                             <th>会员姓氏</th>
                             <th>会员名</th>
                             <th>会员电话号码</th>
+                            <th>会员注册时间</th>
                             <th>会员可用积分</th>
                             <th>会员消耗积分</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                            <td>{vip_Results.VIPID}</td>
-                            <td>{vip_Results.FirstName}</td>
-                            <td>{vip_Results.LastName}</td>
-                            <td>{vip_Results.Phone}</td>
-                            <td>{vip_Results.NowPoints}</td>
-                            <td>{vip_Results.UsedPoints}</td>
+                            <td>{vip_Results.vipid}</td>
+                            <td>{vip_Results.firstname}</td>
+                            <td>{vip_Results.lastname}</td>
+                            <td>{vip_Results.phone}</td>
+                            <td>{vip_Results.joindate}</td>             
+                            <td>{vip_Results.nowpoints}</td>
+                            <td>{vip_Results.usedpoints}</td>
                             </tr>
                         </tbody>
                         </table>
@@ -49,13 +51,15 @@ export const SearchVip = () => {
         setVipData(null);
 
         try {
-            const response = await axios.get(`/api/vip?vipphone=${vipphone}`);
+            const response = await axios.get(`/api/vip/search?vipphone=${vipphone}`);
             console.log('response',response)
             setVipData(response.data);
         } catch (err) {
-            setError('查询失败: ' + (err.response ? err.response.data : err.message));
-        }
+            setError('查询失败: ' + (err.response ? err.response.data : err.message));         
+     }
+         
     };  
+    console.log('查询VIP信息：',vipData)
 
     return (
         <div>
@@ -72,15 +76,8 @@ export const SearchVip = () => {
                 <button type="submit">查询</button>
             </form>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            {vipData && (
-                <div>
-                    {vipData ? (
-                        <DashtableToPoints vip_Results={vipData}/>
-                        ) : (
-                        <p>加载中...</p>
-                    )}
-                </div>
-                            )}
+            {vipData&&<DashtableToPoints vip_Results={vipData}/>}
+         
          </div>
         );
 };
@@ -90,6 +87,7 @@ export const ChangePoints = () => {
   const [vipPhone, setVIPPhone] = useState('');
   const [updateNowPoints, setUpdateNowPoints] = useState(false);
   const [updateUsedPoints, setUpdateUsedPoints] = useState(false);
+  const [message,setMessage]=useState('')
   const [changeResult,setChangeResult] = useState(null);//存储更新后的会员信息
   let type = null;
 
@@ -122,15 +120,15 @@ export const ChangePoints = () => {
       });
 
       if (!response.ok) {
-        throw new Error('网络响应不正常');
+        throw new Error('网络响应不正常')
+    
       }
 
-      const updateresult = await axios.get(`/api/vip?vipphone=${vipPhone}`);
+      const updateresult = await axios.get(`/api/vip/search?vipphone=${vipPhone}`);
       setChangeResult(updateresult.data); // 更新状态
-
-    } catch (error) {
+    } catch (err) {
       console.log(changeResult)
-      console.error('错误:', error.message);
+      setMessage( err.message);
     }
   };
 
@@ -177,6 +175,7 @@ export const ChangePoints = () => {
           </>
         )}
       </form>
+      {message&&<p>{message}</p>}
       {changeResult&&(
         <div>
           <DashtableToPoints vip_Results={changeResult}/>

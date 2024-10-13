@@ -1,16 +1,43 @@
+import { CGCheck, CGCheckKEY, CGExamine, CGExamineKEY, CGPutin, CGPutinKEY,Out,OutKEY,OutCheck,OutCheckKEY } from "../LocalStorage/Storagelist";
 import { EMPLOYEEKEY,  EmployeesTables } from "../Mock/employeesMock";
 import { InventoryDataTable, INVENTORYKEY, SUPPLIERSKEY, SupplierTable } from "../Mock/inventoryMock";
-import { VIPKEY, VIPDataTable} from "../Mock/mock";
-import {CATEGORYKEY,PRODUCTSKEY, ProductCategoryTable, ProductsDataTable} from "../Mock/productsMock";
+import {CATEGORYKEY,PRODUCTSKEY, ProductCategoryTable,} from "../Mock/productsMock";
 import { getLocalStorage,setLocalStorage } from "./storageways";
 
-export function initialVIP() {
-    const isVIPExists = getLocalStorage(VIPKEY, true)
-    if (!isVIPExists&&localStorage.getItem('session')) {
-        setLocalStorage(VIPKEY, VIPDataTable , true)
+export function initialCGcheck() {
+    const isExists = getLocalStorage(CGCheckKEY, true)
+    if (!isExists&&localStorage.getItem('session')) {
+        setLocalStorage(CGCheckKEY,CGCheck , true)
+    }
+}
+export function initialCGPutin() {
+    const isExists = getLocalStorage(CGPutinKEY, true)
+    if (!isExists&&localStorage.getItem('session')) {
+        setLocalStorage(CGPutinKEY, CGPutin, true)
     }
 }
 
+export function initialCgExamine() {
+    const isExists = getLocalStorage(CGExamineKEY, true)
+    if (!isExists&&localStorage.getItem('session')) {
+        setLocalStorage(PRODUCTSKEY, CGExamine, true)
+    }
+}
+
+
+export function initialOutcheck() {
+    const isExists = getLocalStorage(OutCheckKEY, true)
+    if (!isExists&&localStorage.getItem('session')) {
+        setLocalStorage(OutCheckKEY,OutCheck , true)
+    }
+}
+
+export function initialOut() {
+    const isExists = getLocalStorage(OutKEY, true)
+    if (!isExists&&localStorage.getItem('session')) {
+        setLocalStorage(OutKEY,Out , true)
+    }
+}
 //员工信息初始化
 export function initialEMPLOYEE() {
     const isExists = getLocalStorage(EMPLOYEEKEY, true)
@@ -19,13 +46,7 @@ export function initialEMPLOYEE() {
     }
 }
 
-//所有商品信息初始化
-export function initialPRODUCTS() {
-    const isExists = getLocalStorage(PRODUCTSKEY, true)
-    if (!isExists&&localStorage.getItem('session')) {
-        setLocalStorage(PRODUCTSKEY, ProductsDataTable, true)
-    }
-}
+
 
 //商品类型信息初始化
 export function initialCATEGORY() {

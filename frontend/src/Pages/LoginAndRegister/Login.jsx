@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
-
+// 注意这里的uers跟数据库的数据不同
 const users = {
     "Tom": {
         EmployeeID: "Em001",
@@ -33,27 +33,27 @@ const users = {
         EmployeeID: "Em003",
         FirstName: "大",
         LastName: "灰灰",
-        Position: "收银员",
+        Position: "理货员",
         Phone: "111222333443",
         Gender: "男",
         LoginPassword: "101112",
         BirthDate: "1999-09-02",
         DateOfEntry: "2024-08-24",
         PositionState: "在职",
-        redirect: '/paymentstaffhome'
+        redirect: '/tallyingstaffhome'
     },
     "灰太狼": {
         EmployeeID: "Em004",
         FirstName: "灰",
         LastName: "太狼",
         Position: "仓库管理员",
-        Phone: "111222333443",
+        Phone: "1112223334444",
         Gender: "男",
         LoginPassword: "131415",
-        BirthDate: "1999-09-02",
+        BirthDate: "1999-08-02",
         DateOfEntry: "2024-08-24",
         PositionState: "在职",
-        redirect: '/tallyingstaffhome'
+        redirect: '/storagestaffhome'
     }
 };
 

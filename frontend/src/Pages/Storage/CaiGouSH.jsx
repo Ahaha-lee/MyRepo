@@ -1,105 +1,85 @@
-import { useState } from "react";
-import {setLocalStorage, getLocalStorage } from "../../utils/storageways";
-import { INBOUNDRECORDKEY} from "../../Mock/inventoryMock";
-import { RealTimeClock } from "../../Components/groceries";
-import { Link, useParams } from "react-router-dom";
-import useSession from "../../useSession";
+import React, { useState } from 'react';
+import Modal from 'react-modal';
+import useSession from '../../useSession';
 
-
-//顶级boss账号下的，起到一个给提交上来的申报表进行审核的作用  
-export  default function CheckForCaiGou() {
-    const [checkResult, setCheckResult] = useState(null);
-    const [approvalopinion, setApprovalOpinion] = useState("");
-    const [currentTime, setCurrentTime] = useState(""); // 新增状态来存储当前时间
-    const { recordid } = useParams();
-    const inicaigourecord = getLocalStorage(INBOUNDRECORDKEY,true)//获取采购申报表
-    const { getSession } = useSession();
-    const checker = getSession();
-
-    // 根据 recordid 在采购申报表数组中查找对应的商品
-    const product = inicaigourecord.find(item => item.RecordID === recordid);
-    const handleChange = (event) => {
-        setCheckResult(event.target.value);
-    };
-
-    const handleOpinionChange = (event) => {
-        setApprovalOpinion(event.target.value);
-    };
-    //审核结束以后无论审核是否通过） 想数据中的入库记录数组中 push新的记录数据
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (checkResult) {
-            const resultData = {
-               ...product,
-               CheckStaffID:checker.EmployeeID,              
-               CheckResult:checkResult,
-               CheckOpinion: approvalopinion,
-               CheckData: currentTime,
-            };
-            const updatedCheckResults = inicaigourecord.map(item =>
-                item.RecordID === recordid ? resultData : item
-            );
-            setLocalStorage(INBOUNDRECORDKEY, updatedCheckResults, true); // 整个数组的更新
-        }
-
-    };
-
-    let productDetail;
-
-    if (product){
-        productDetail = (
-            <div>
-                商品采购:<br/>
-                <strong>标题:</strong> {product.Title} <br />
-                <strong>采购记录ID:</strong> {product.RecordID} <br />
-                <strong>采购员工ID:</strong> {product.PurchaserStaffID} <br />
-                <strong>采购员工姓名:</strong> {product.PurchaserStaffName} <br />
-                <strong>商品条码:</strong> {product.CGProductBarcode} <br />
-                <strong>商品类别:</strong> {product.CGProCategory} <br />
-                <strong>商品名称:</strong> {product.CGProductName} <br />
-                <strong>成本价:</strong> {product.CGCostPrice} <br />
-                <strong>数量:</strong> {product.CGQuantity} <br />
-                <strong>单位:</strong> {product.CGProductUnit} <br />
-                <strong>生产公司:</strong> {product.ProductionCompany} <br />
-                <strong>生产地点:</strong> {product.ProductAddress} <br />
-                <strong>产品描述:</strong> {product.ProductDescription} <br />
-                <strong>选择该商品的理由:</strong> {product.SelectReason} <br />
-                <strong>供应商名称:</strong> {product.SupplierName} <br />
-                <strong>供应商ID:</strong> {product.SupplierID} <br />
-                <strong>供应商地址:</strong> {product.SupplierAddress} <br />
-                <strong>供应商直接联系人:</strong> {product.SupplierContactName} <br />
-                <strong>供应商直接联系人电话号码:</strong> {product.SupplierContactPhone} <br />
-                <strong>供应商备用联系号码:</strong> {product.SupplierContactStandby} <br />
-                <strong>供应商公司邮件:</strong> {product.SupplierEmail} <br />
-                <strong>申报表提交时间:</strong> {product.ApplyDate } <br />
-                <hr/>
-            </div>
-        );
-    } else {
-        productDetail = <p>未找到对应的商品数据。</p>;
-    }
-
-
-    return (
-        <>
-            <div>
-                {productDetail}
-            </div>
-            <form onSubmit={handleSubmit}>
-                申报是否通过:<br/>
-                <input type="radio" value="yes" checked={checkResult === 'yes'} onChange={handleChange}/> 是
-                <input type="radio" value="no" checked={checkResult === 'no'} onChange={handleChange}/> 否<br/>
-                {checkResult && (
-                    <div>
-                        审批意见：<input type="text" value={approvalopinion} onChange={handleOpinionChange} />
-                    </div>
-                )}
-                <br />
-                <RealTimeClock setCurrentTime={setCurrentTime} /> {/* 传递状态更新函数 */}
-                <input type="submit" value="提交"/>
-            </form>
-            <Link to='/caigoulist'>返回上一页</Link>
-        </>
+export function ShowDetails({data}){
+  return (
+    <>
+        <div>
+            <strong>标题:</strong> {data.title} <br />
+            <strong>采购记录ID:</strong> {data.recordID} <br />
+            <strong>采购员工ID:</strong> {data.purchaserStaffID} <br />
+            <strong>采购员工姓名:</strong> {data.purchaserStaffName} <br />
+            <strong>商品条码:</strong> {data.cGProductBarcode} <br />
+            <strong>商品类别:</strong> {data.cGProCategory} <br />
+            <strong>商品名称:</strong> {data.cGProductName} <br />
+            <strong>成本价:</strong> {data.cGCostPrice} <br />
+            <strong>数量:</strong> {data.cGQuantity} <br />
+            <strong>单位:</strong> {data.cGProductUnit} <br />
+            <strong>生产公司:</strong> {data.productionCompany} <br />
+            <strong>生产地点:</strong> {data.productAddress} <br />
+            <strong>产品描述:</strong> {data.productDescription} <br />
+            <strong>选择该商品的理由:</strong> {data.selectReason} <br />
+            <strong>供应商名称:</strong> {data.supplierName} <br />
+            <strong>供应商ID:</strong> {data.supplierID} <br />
+            <strong>供应商地址:</strong> {data.supplierAddress} <br />
+            <strong>供应商直接联系人:</strong> {data.supplierContactName} <br />
+            <strong>供应商直接联系人电话号码:</strong> {data.supplierContactPhone} <br />
+            <strong>供应商备用联系号码:</strong> {data.supplierContactStandby} <br />
+            <strong>供应商公司邮件:</strong> {data.supplierEmail} <br />
+            <strong>申报表提交时间:</strong> {data.applyDate } <br />
+            <hr/>
+        </div>
+    </>
     );
 }
+export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit,state }) => {
+    const [CheckResult, setCheckResult] = useState('通过');
+    const [CheckComment, setCheckComment] = useState('');
+    const {getSession} = useSession();
+    const handler = getSession();
+    const handleSubmit = () => {       
+        const checkData =( {
+            CheckStaffID :handler.EmployeeID, 
+            CheckStaffName :handler.FirstName+handler.LastName,
+            CheckResult:CheckResult,
+            CheckOpinion:CheckComment,
+            CheckDate:"2024-01-01 00:00:00",
+        });  
+        onSubmit(checkData,CheckResult);        
+    };
+    console.log(state)
+    return (
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+            <h2>审核确认</h2>
+            <p>您确定要审核此采购申报吗？</p>
+            <p>申报表详情：</p>
+            {procureDetails && <ShowDetails data={procureDetails} />}
+            <div>
+                审核结果:
+                <select value={CheckResult} onChange={(e) => setCheckResult(e.target.value)}>
+                    <option value="通过">通过</option>
+                    <option value="不通过">不通过</option>
+                </select>
+            </div>
+            <div>
+                审核意见:
+                <textarea 
+                    value={CheckComment} 
+                    onChange={(e) => setCheckComment(e.target.value)} 
+                    placeholder="请输入审核意见"
+                />
+            </div>
+            <button onClick={onRequestClose}>取消</button>
+            <button 
+                onClick={handleSubmit}
+                disabled={state}
+                title={state ? "审核已完成，不可重复审核。" : ""}
+            >
+                确认审核 
+            </button>
+        </Modal>
+    );
+};
+
+

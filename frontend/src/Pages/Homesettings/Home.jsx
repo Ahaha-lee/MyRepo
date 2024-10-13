@@ -1,7 +1,7 @@
 import {Link, useNavigate } from 'react-router-dom';
 import useSession from '../../hooks/useSession';
 import { useEffect } from 'react';
-import { initialEMPLOYEE, initialINVENTORY, initialPRODUCTS, initialVIP } from '../../utils/initial';
+import { initialCGcheck, initialCgExamine, initialCGPutin, initialEMPLOYEE, initialINVENTORY, initialOut, initialOutcheck } from '../../utils/initial';
 
 export default function HomeForm() {
     const navigate = useNavigate();
@@ -9,10 +9,14 @@ export default function HomeForm() {
     const user = getSession();
 
     useEffect(() => {
-        initialVIP();
+        initialCGcheck();
+        initialCGPutin();
+        initialCgExamine()
+        initialOut();
+        initialOutcheck();
         initialEMPLOYEE();
         initialINVENTORY();
-        initialPRODUCTS();
+
         if (!user) {
             navigate("/login");
         }
@@ -36,9 +40,11 @@ export default function HomeForm() {
             <br/>
             <Link to='/deletvipmemers'>会员注销（后端）</Link>
             <br/>
-            <Link to='/applyforcaigou'>采购申报</Link>
+            <Link to='/applyforcaigou'>采购申报（后端）</Link>
             <br/>
-            <Link to='/caigoulist'>采购申请表</Link>
+            <Link to='/caigoulist'>采购列表（1/3后端）</Link>
+            <br/>
+            <Link to= '/checkforcaigou'>采购验收</Link>
             <br/>
             <Link to='/outproducts'>出库申报</Link>
             <br/>
