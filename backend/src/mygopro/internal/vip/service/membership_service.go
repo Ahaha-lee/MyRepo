@@ -13,7 +13,7 @@ func (s *VipService) Registervip(ctx context.Context, newvip vipmodels.VIP) (str
 	newvipid, err := s.viprepo.InsertData(ctx, newvip)
 
 	if err != nil {
-		fmt.Println("service会员注册失败")
+		fmt.Println("service会员注册失败", err)
 		return "", err
 	}
 

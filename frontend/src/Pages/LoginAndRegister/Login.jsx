@@ -54,6 +54,19 @@ const users = {
         DateOfEntry: "2024-08-24",
         PositionState: "在职",
         redirect: '/storagestaffhome'
+    },
+    "红太狼": {
+        EmployeeID: "Em005",
+        FirstName: "红",
+        LastName: "太狼",
+        Position: "收银员",
+        Phone: "1112223334445",
+        Gender: "女",
+        LoginPassword: "161718",
+        BirthDate: "1999-08-02",
+        DateOfEntry: "2024-08-24",
+        PositionState: "在职",
+        redirect: '/paymentstaffhome'
     }
 };
 

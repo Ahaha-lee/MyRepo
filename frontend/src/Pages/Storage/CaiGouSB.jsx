@@ -28,7 +28,6 @@ export function ApplyForCaiGou() {
         supplierContactPhone:'',
         supplierContactStandby:'',
         supplierEmail:'',
-        applyDate:'2024-01-01 00:00:00 ',
     });
 
 
@@ -126,8 +125,6 @@ export function ApplyForCaiGou() {
         16、供应商备用联系号码：
         <input type="text" name="supplierContactStandby" value={formData.supplierContactStandby} onChange={handleChange} /><br />
         
-        17、申报日期时间即提交时间：
-        <br /> <RealTimeClock/>
             <button type="submit">提交</button>
             </>
         </form>

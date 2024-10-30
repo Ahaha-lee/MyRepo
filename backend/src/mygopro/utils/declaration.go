@@ -21,7 +21,7 @@ func DeclarationRepo[T any](db *sql.DB, tableName string, tableName1 string, id 
 
 	placeholders := strings.Repeat("?, ", len(fields)) + "?"
 
-	query := fmt.Sprintf("INSERT INTO %s (RecordID, %s) VALUES (%s)", tableName, strings.Join(fields, ", "), placeholders)
+	query := fmt.Sprintf("INSERT INTO %s (RecordID, %s, ApplyDate) VALUES (%s, DEFAULT)", tableName, strings.Join(fields, ", "), placeholders)
 
 	// 执行 SQL 插入语句
 	sqlresu, err := db.Exec(query, append([]interface{}{id}, values...)...)
@@ -41,6 +41,8 @@ func DeclarationRepo[T any](db *sql.DB, tableName string, tableName1 string, id 
 
 	return nil
 }
+
+//商品信息是否正确 不知barcode
 
 func ApplyProcurement(declareStruct *storagemodels.ProcurmentStruct, tablename string, tablename1 string) {
 	db := DataBaseConnect()
@@ -78,7 +80,7 @@ func ApplyOutStorage(declareStruct *storagemodels.OutDeclaration, tablename stri
 	fmt.Println("申报成功:", declareStruct)
 }
 
-func DeclarationHandler(w http.ResponseWriter, r *http.Request) {
+func TableDataInsertHandler(w http.ResponseWriter, r *http.Request) {
 	HandleCORS(w, r)
 	if r.Method != http.MethodPost {
 		http.Error(w, "不支持的方法", http.StatusMethodNotAllowed)
@@ -110,6 +112,7 @@ func DeclarationHandler(w http.ResponseWriter, r *http.Request) {
 	case *storagemodels.OutDeclaration:
 		fmt.Println("v", *v)
 		*v, err = RequestOperation[storagemodels.OutDeclaration](w, r)
+		//商品条码匹配？sql语句怎么写
 	default:
 		http.Error(w, "不支持的请求结构体", http.StatusBadRequest)
 		return

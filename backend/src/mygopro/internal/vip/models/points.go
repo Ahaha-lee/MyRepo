@@ -5,8 +5,8 @@ type VIP struct {
 	FirstName   string  `json:"firstname"`
 	LastName    string  `json:"lastname"`
 	JoinDate    string  `json:"joindate"`
-	Phone       string  `json:"phone"`
 	NowPoints   float64 `json:"nowpoints"`
+	Phone       string  `json:"phone"`
 	UsedPoints  float64 `json:"usedpoints"`
 	RegiHandler string  `json:"regihandler"`
 }

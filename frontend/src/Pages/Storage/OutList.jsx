@@ -69,6 +69,7 @@ export function OutList() {
     };
 
     const handleOperationSubmit = async (reqData,Result) => {
+        console.log(reqData)
         try {
             const response = await fetch(`/api/storage/outoperation?action=${action}&&recordID=${recordID}`, {
                 method: 'POST',

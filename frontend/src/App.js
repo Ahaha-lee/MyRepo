@@ -7,8 +7,6 @@ import PsdForgetForm from './Pages/LoginAndRegister/PsdForget';
 import HomeForm from './Pages/Homesettings/Home';
 import { UserInfo } from './Components/Login/UserInfo';
 import ProtectedRoute from './Components/ProtectedRoute';
-import { PaymentTocashier } from './Pages/Payments/Payment';
-import { Receipts } from './Pages/Payments/Receipt';
 import { AddVipMembership, DeleteVipMemberShip } from './Pages/Vip/VipMemberShip';
 import { ApplyForCaiGou } from './Pages/Storage/CaiGouSB';
 import { CGList } from './Pages/Storage/CaiGouList';
@@ -19,15 +17,27 @@ import { ProductOutSB } from './Pages/Storage/OutSB';
 import { OutList } from './Pages/Storage/OutList';
 import HomeFormToTallying from './Pages/Homesettings/HomeToTallyClerk';
 import { OutListForStaff } from './Pages/Storage/OutStaffList';
-import HomeFormToPayment from './Pages/Homesettings/HomeToPayment';
 import {ChangePoints, SearchVip } from './Pages/Vip/VIPPoints';
 import HomeFormToStorage from './Pages/Homesettings/HomeToStorage';
 import { StorageListForCG,StorageListForOut } from './Pages/Storage/StorageList';
+import { Productinfoinsert } from './Pages/Payments/ProductDatainsert';
+import { ProductinfoDelete } from './Pages/Payments/ProductDelete';
+import { ProductOperationList } from './Pages/Payments/ProductDatainsert';
+import { ProductinfoSelect } from './Pages/Payments/ProductSelect';
+import { PaymentPuls } from './Pages/Payments/PaymentPlus';
+import { InventoryinfoSelect } from './Pages/Storage/InventoryDataSelect';
+import { InventoryDataUpdate } from './Pages/Storage/InventoryUpdate';
+import { ProductDataUpdate } from './Pages/Payments/ProductUpdate';
+import HomeFormToCashier from './Pages/Homesettings/HomeToPayment';
+import { SupplierinfoDelete, SupplierInfoinsert, SupplierInfoselect, SupplierInfoUpdate,SupplierOperationList} from './Pages/Storage/SuppliersOperation';
+import { InventorytOperationList } from './Pages/Storage/InventoryDataSelect';
+import { Categoryinfoinsert, CategoryOPerationList } from './Pages/Storage/CategoryOperation';
+import { DiscountOperationList } from './Pages/Payments/DiscoutOperation';
 
 const PaymentStaffRoutes = ({ user }) => {
         return (
             <Routes>
-                <Route path="/" element={<HomeFormToPayment />} />
+                <Route path="/" element={<HomeFormToCashier />} />
             </Routes>
         );
     };
@@ -89,8 +99,7 @@ function App() {
                 <Route path='/forgetPassword' element={<PsdForgetForm allowedRoles={['顶级boss', '采购专员']} />} />
 
                 {/* 收银 */}
-                <Route path='/payment' element={<ProtectedRoute element={<PaymentTocashier />} allowedRoles={['顶级boss']} user={user} />} />
-                <Route path='/receipt' element={<ProtectedRoute element={<Receipts />} allowedRoles={['顶级boss']} user={user} />} />
+                <Route path='/payment' element={<ProtectedRoute element={<PaymentPuls/>} allowedRoles={['顶级boss','收银员']} user={user} />} />
 
                 {/* 会员积分管理 */}
                 <Route path='/searchvipdata'
@@ -108,24 +117,33 @@ function App() {
                         element={<ProtectedRoute element={<ApplyForCaiGou />} allowedRoles={['顶级boss', '采购专员']} user={user} />} />
                 <Route path='/caigoulist' 
                          element={<ProtectedRoute element={<CGList />} allowedRoles={['顶级boss']} user={user} />} /> 
-               
-                {/* <Route path='/cgparticulars/:recordid' 
-                        element={<ProtectedRoute element={<CGParticulars />} allowedRoles={['顶级boss']} user={user} />} /> */}
-                 {/* <Route path='/caigoufeedback/:recordid' 
-                      element={<ProtectedRoute element={<CGFeedBack />} allowedRoles={['采购专员']} user={user} />} /> */}
 
-
-               
+                {/* 出库管理 */}
                 <Route path='/outproducts'
                         element={<ProtectedRoute element={<ProductOutSB />} allowedRoles={['顶级boss','理货员']} user={user} />} />
                  <Route path='/outlist' 
                         element={<ProtectedRoute element={<OutList />} allowedRoles={['顶级boss']} user={user} />} />
-                {/* <Route path='/checkforoutproducts/:recordid'
-                        element={<ProtectedRoute element={<ProductOutCheck />} allowedRoles={['顶级boss']} user={user} />} /> */}
-                {/* <Route path='/outfeedback/:outrecordid' 
-                                element={<ProtectedRoute element={<OutFeedBack/>} allowedRoles={['理货员']} user={user} />} /> */}
 
-                                
+                {/* 商品信息操作 */}
+                <Route path='/productoperation'
+                        element={<ProtectedRoute element={<ProductOperationList />} allowedRoles={['顶级boss']} user={user} />} /> 
+      
+                {/* 库存信息操作 */}
+                <Route path='/inventoryoperation'
+                        element={<ProtectedRoute element={<InventorytOperationList/>} allowedRoles={['顶级boss']} user={user} />} /> 
+                
+                {/* 供应商信息操作 */}
+                <Route path='/supplieroperation'
+                        element={<ProtectedRoute element={<SupplierOperationList/>} allowedRoles={['顶级boss']} user={user} />} />
+              
+
+                {/* 类型信息操作 */}
+                <Route path='/categoryoperation'
+                        element={<ProtectedRoute element={<CategoryOPerationList/>} allowedRoles={['顶级boss']} user={user} />} />    
+                {/* 优惠信息添加 */}
+                <Route path='/discountoperation'
+                        element={<ProtectedRoute element={<DiscountOperationList/>} allowedRoles={['顶级boss']} user={user} />} />    
+
             </Routes>
             </div>
         </Router>

@@ -44,7 +44,6 @@ export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit,st
             CheckStaffName :handler.FirstName+handler.LastName,
             CheckResult:CheckResult,
             CheckOpinion:CheckComment,
-            CheckDate:"2024-01-01 00:00:00",
         });  
         onSubmit(checkData,CheckResult);        
     };

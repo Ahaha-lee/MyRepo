@@ -5,6 +5,5 @@ type RegiVIP struct {
 	FirstName   string `json:"firstname"`
 	LastName    string `json:"lastname"`
 	Phone       string `json:"phone"`
-	JoinDate    string `json:"joindate"`
 	RegiHandler string `json:"regihandler"`
 }

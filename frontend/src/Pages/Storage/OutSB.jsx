@@ -13,7 +13,6 @@ export function ProductOutSB() {
         outReason: '',
         outQuantity: 0,
         outProductUnit: '',
-        outApplyTime: '2024-01-01 00:00:00',
     });
     
     const handleChange = (event) => {
@@ -63,7 +62,6 @@ export function ProductOutSB() {
                 出库原因：<input type="text" name="outReason" value={formData.outReason} onChange={handleChange} /><br />
                 出库数量：<input type="number" name="outQuantity" value={formData.outQuantity} onChange={handleChange} /><br />
                 数量单位：<input type='text' name="outProductUnit" value={formData.outProductUnit} onChange={handleChange} /><br />
-                申报时间：<RealTimeClock setCurrentTime={setCurrentTime} /><br />
                 <button type="submit">提交</button>
             </form>
         </div>

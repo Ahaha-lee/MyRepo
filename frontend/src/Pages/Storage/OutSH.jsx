@@ -16,7 +16,7 @@ export function ShowDetails({product}){
         <strong>出库原因：</strong>{product.outReason} <br />
         <strong>出库数量：</strong>{product.outQuantity} <br />
         <strong>数量单位：</strong>{product. outProductUnit} <br />      
-        <strong>申报时间:</strong>{product.outApplyTime} <br />
+        <strong>申报时间:</strong>{product.applyDate} <br />
         <hr />
     </div>
     );
@@ -36,7 +36,6 @@ export const CheckModal = ({ isOpen, onRequestClose,procureDetails, onSubmit,sta
             OCheckStaffName :handler.FirstName+handler.LastName,
             OCheckResult :CheckResult,
             OCheckOpinion :CheckComment,
-            OCheckDate:"2024-01-01 00:00:00",
       });
       onSubmit(checkData,CheckResult);
   };

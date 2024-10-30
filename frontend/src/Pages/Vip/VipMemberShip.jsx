@@ -20,8 +20,7 @@ export const AddVipMembership = () => {
       FirstName: firstName,
       LastName: lastName,
       Phone: phone,
-     JoinDate: currenttime,
-     RegiHandler:handler.EmployeeID,
+      RegiHandler:handler.EmployeeID,
     };
 
     try {
@@ -69,8 +68,6 @@ export const AddVipMembership = () => {
             onChange={(e) => setPhone(e.target.value)}
             required
           /><br/>
-          注册时间：
-          <RealTimeClock setCurrentTime={setcurrenttime}/>
         <button type="submit">注册</button>
       </form>     
       {message && <p>{message}</p>}
@@ -127,7 +124,7 @@ export function DeleteVipMemberShip() {
         }
 
         const rowsAffected = await response.text();
-        alert(`删除成功，受影响的行数: ${rowsAffected}`);
+        alert("删除成功");
         
         // 可选：从本地存储或状态中移除已删除的 VIP
       } else {

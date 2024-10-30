@@ -21,8 +21,8 @@ func (r *VipRepository) InsertData(ctx context.Context, newvip vipmodels.VIP) (s
 	// 生成新的 VIPID
 	vipid := fmt.Sprintf("V%d", count+1)
 	newvip.VIPID = vipid
-	query := "INSERT INTO vipmembersdata (VIPID, FirstName, LastName,JoinDate, Phone,NowPoints, UsedPoints,RegiHandler) VALUES (?, ?, ?, ?,?,?, ?, ?)"
-	_, err = r.db.Exec(query, newvip.VIPID, newvip.FirstName, newvip.LastName, newvip.JoinDate, newvip.Phone, 0, 0, newvip.RegiHandler)
+	query := "INSERT INTO vipmembersdata (VIPID, FirstName, LastName, Phone,NowPoints, UsedPoints,RegiHandler) VALUES (?, ?, ?, ?,?, ?, ?)"
+	_, err = r.db.Exec(query, newvip.VIPID, newvip.FirstName, newvip.LastName, newvip.Phone, 0, 0, newvip.RegiHandler)
 	if err != nil {
 		return "", err
 	}

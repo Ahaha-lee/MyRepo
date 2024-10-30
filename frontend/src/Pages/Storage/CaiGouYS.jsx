@@ -32,6 +32,13 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit,
         }
     }, [isOpen, procureDetails]);
 
+
+    const params = new URLSearchParams({
+        tablename:"inventorydata",
+        action:"caigou",
+        keyword:"INVBarcode",
+    });
+
     const fetchRecordDetails = async (recordid) => {
         try {
             const response = await fetch(`/api/storage/operationinfo?action=putin&recordID=${recordid}`);
@@ -45,8 +52,28 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit,
             setError(err.message);
         } 
     };
+    const ChangeQuantities = async (id) => {
+        try {
+            const response = await fetch(`/api/storage/inventorychange?${params}&&id=${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examineQuantities),
+            });
     
-    const handleSubmit = () => {
+            if (!response.ok) {
+                throw new Error('网络响应不正常');
+            }
+
+        } catch (error) {
+            console.error("更新失败:", error);
+            alert(error.message); 
+            throw error; 
+        }
+    };
+    
+    const handleSubmit = async () => {
         const examineData = {
             ExamineStaffID: handler.EmployeeID,
             ExamineResult: examineResult,
@@ -54,10 +81,23 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit,
             ExamineOpinion: examineOpinion,
             ExamineDate: "2024-01-01 00:00:00"
         };
-        console.log("examindata",examineData)
-        
+    
+        console.log("examindata", examineData);
+    
+        // 只有在 examineResult 为 "通过" 时才进行库存更新
+        if (examineResult === "通过") {
+            try {
+                 ChangeQuantities(procureDetails.cGProductBarcode);
+            } catch (error) {
+                return;
+            }
+        }
+    
+        // 提交 examineData
         onSubmit(examineData, examineResult);
     };
+    
+    
 
     // 计算按钮是否禁用的逻辑
     const isDisabled = state || 

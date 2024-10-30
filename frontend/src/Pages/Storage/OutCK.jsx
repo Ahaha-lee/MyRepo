@@ -11,7 +11,7 @@ export function CkShowDetails({checkdata}){
             <strong>审核人员id：{checkdata.oCheckStaffID}</strong><br/>
             <strong>审核结果：{checkdata.oCheckResult}</strong><br/>
             <strong>审核意见：{checkdata.oCheckOpinion}</strong><br/>
-            <strong>审核时间：{checkdata.oCheckDate}</strong> <br/>
+            <strong>审核时间：{checkdata.checkDate}</strong> <br/>
         </div>
     );
 }
@@ -26,9 +26,15 @@ export const OutModal = ({ isOpen, onRequestClose, procureDetails,onSubmit,state
     const {getSession} = useSession();
     const handler = getSession();
 
+    const params = new URLSearchParams({
+        tablename:"inventorydata",
+        action:"out",
+        keyword:"INVBarcode",
+    });
     useEffect(() => {
         if (isOpen && procureDetails && procureDetails.recordID) {
             fetchRecordDetails(procureDetails.recordID);
+            ChangeQuantities(procureDetails.outProductBarcode)
         }
     }, [isOpen, procureDetails]);
     useEffect(() => {
@@ -37,7 +43,6 @@ export const OutModal = ({ isOpen, onRequestClose, procureDetails,onSubmit,state
             setOutQuantities(parseFloat(procureDetails.outQuantity) || 0);
         }
     }, [procureDetails]);
-
 
     const fetchRecordDetails = async (recordid) => {
         try {
@@ -51,19 +56,52 @@ export const OutModal = ({ isOpen, onRequestClose, procureDetails,onSubmit,state
             setError(err.message);
         }
     };
+    console.log(recordDetails)
+    const ChangeQuantities = async (id)=> {
+        console.log("id",id)
+        try {
+            const response = await fetch(`/api/storage/inventorychange?${params}&&id=${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(outQuantities),
+            });
+    
+            if (!response.ok) {
+                throw new Error('网络响应不正常');
+            }
 
-    const handleSubmit = () => {
-
+        } catch (error) {
+            console.error("更新失败:", error);
+            alert(error.message); 
+            throw error; 
+        }
+    };
+    
+    const handleSubmit = async () => {
         const outData = {
             OStoreHouseStaffID   :handler.EmployeeID,
             OStoreHouseStaffName :handler.FirstName+handler.LastName,
             OStoreHouseResult   :OutResult,
             OStoreHouseOpinion   :OutComment,
-            OutDate:"2024-01-01 00:00:00",
         };
 
+    
+
+        if (OutResult === "通过") {
+            try {
+                console.log(procureDetails.outProductBarcode)
+                 ChangeQuantities(procureDetails.outProductBarcode);
+            } catch (error) {
+                return;
+            }
+        }
         onSubmit(outData,OutResult);
+    
     };
+    
+    
         // 计算按钮是否禁用的逻辑
       const isDisabled = state || 
       laststate === "不通过" || 
@@ -80,7 +118,7 @@ export const OutModal = ({ isOpen, onRequestClose, procureDetails,onSubmit,state
 
   return (
       <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
-          <h2>审核确认</h2>
+          <h2>出库确认</h2>
           <p>您确定要出库申报商品出库吗？</p>
           {error && <p style={{ color: 'red' }}>{error}</p>}
           <p>申报表详情：</p>
