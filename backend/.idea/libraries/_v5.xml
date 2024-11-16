@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="@v5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/github.com/google/go-cmp/@v/v0.5.8.zip!/" />
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/github.com/google/go-cmp/@v/v0.6.0.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

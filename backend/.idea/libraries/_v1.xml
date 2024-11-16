@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="@v1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/honnef.co/go/tools/@v/v0.5.1.zip!/" />
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/honnef.co/go/tools/@v/v0.4.7.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

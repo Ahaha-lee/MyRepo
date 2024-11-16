@@ -1,20 +1,78 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import Modal from 'react-modal'; // 确保导入 Modal
+const webpack = require('webpack');
+const path = require('path');
 
-// 设置应用程序元素
-Modal.setAppElement('#root'); // 假设你的根元素的 ID 是 'root'
+module.exports = function override(config, env) {
+    // 仅在开发环境中修改 devServer 配置
+    if (env === 'development') {
+        config.devServer = {
+            ...config.devServer,
+            static: './dist', // 提供静态文件
+            hot: true, // 启用热模块替换
+            allowedHosts: 'all', // 允许所有主机
+        };
+    }
 
-// 创建根元素并渲染应用程序
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+    // 修改输出路径
+    config.output = {
+        ...config.output,
+        path: path.resolve(__dirname, 'dist'), // 输出路径
+        clean: true, // 清理输出目录
+    };
 
-// 如果需要，可以保留 reportWebVitals
-reportWebVitals();
+    // 添加模块规则
+    config.module.rules.push(
+        {
+            test: /\.jsx?$/, // 处理 JavaScript 和 JSX 文件
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader', // 使用 Babel 转换 ES6+
+                options: {
+                    presets: [
+                        '@babel/preset-env',   // 支持 ES6+
+                        '@babel/preset-react'  // 支持 JSX
+                    ]
+                }
+            },
+        },
+        {
+            test: /\.css$/, // 处理 CSS 文件
+            use: ['style-loader', 'css-loader'], // 使用 style-loader 和 css-loader
+        },
+        {
+            test: /\.(png|jpg|gif|svg)$/, // 处理图片文件
+            type: 'asset/resource',
+        }
+    );
+
+    // 添加 resolve.fallback 配置
+    config.resolve.fallback = {
+        "zlib": require.resolve("browserify-zlib"),
+        "querystring": require.resolve("querystring-es3"),
+        "path": require.resolve("path-browserify"),
+        "crypto": require.resolve("crypto-browserify"),
+        "stream": require.resolve("stream-browserify"),
+        "http": require.resolve("stream-http"),
+        "fs": false, // 如果不需要 fs 模块，可以设置为 false
+        "net": false, // 添加 net 模块的 fallback
+        "tls": false, // 添加 tls 模块的 fallback
+        "process": require.resolve("process/browser"), // 添加 process 的 fallback
+    };
+
+    // 添加 DefinePlugin
+    config.plugins.push(
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify(env),
+            },
+            process: {
+                browser: true,
+                env: {},
+            },
+        })
+    );
+
+    // 添加 source map 配置
+    config.devtool = 'source-map'; // 生成 source map
+
+    return config; // 返回修改后的配置
+};

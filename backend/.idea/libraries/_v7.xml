@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="@v7">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/golang.org/x/telemetry/config/@v/v0.31.0.zip!/" />
+      <root url="jar://$PROJECT_DIR$/pkg/mod/cache/download/golang.org/x/telemetry/config/@v/v0.32.0.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
