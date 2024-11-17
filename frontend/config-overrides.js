@@ -34,11 +34,15 @@ module.exports = function override(config, env) {
             },
         },
         {
+            test: /\.tsx?$/, // 匹配 .ts 和 .tsx 文件
+            exclude: /node_modules/,
+            use: 'ts-loader', // 使用 ts-loader
+        },
+        {
             test: /\.d\.ts$/, // 匹配 .d.ts 文件
             use: 'ignore-loader', // 使用 ignore-loader 忽略这些文件
             exclude: /node_modules/,
         },
-        
         {
             test: /\.css$/, // 处理 CSS 文件
             use: ['style-loader', 'css-loader'], // 使用 style-loader 和 css-loader
@@ -46,12 +50,7 @@ module.exports = function override(config, env) {
         {
             test: /\.(png|jpg|gif|svg)$/, // 处理图片文件
             type: 'asset/resource',
-        },
-        {
-            test: /\.tsx?$/, // 匹配 .ts 和 .tsx 文件
-            use: 'ts-loader',
-            exclude: /node_modules/,
-        },
+        }
     );
 
     // 添加 resolve.fallback 配置
@@ -62,18 +61,18 @@ module.exports = function override(config, env) {
         "crypto": require.resolve("crypto-browserify"),
         "stream": require.resolve("stream-browserify"),
         "http": require.resolve("stream-http"),
-        "fs": false, // 如果不需要 fs 模块，可以设置为 false
-        "net": false, // 添加 net 模块的 fallback
-        "tls": false, // 添加 tls 模块的 fallback
         "process": require.resolve("process/browser"), // 添加 process 的 fallback
         "constants": require.resolve("constants-browserify"),
         "os": require.resolve("os-browserify/browser"),
         "https": require.resolve("https-browserify"),
-        "vm": require.resolve("vm-browserify"),
-        "child_process": false, // 如果不需要，可以设置为 false
-        "worker_threads": false, // 如果不需要，可以设置为 false  
         "tty": require.resolve("tty-browserify"),
-        "module": false, // 如果不需要，可以设置为 false
+        // 其他不需要的模块可以设置为 false
+        "fs": false,
+        "net": false,
+        "tls": false,
+        "child_process": false,
+        "worker_threads": false,
+        "module": false,
     };
 
     // 添加 source map 配置
