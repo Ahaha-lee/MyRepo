@@ -5,17 +5,17 @@ import (
 	"fmt"
 )
 
-func (s *LoginService) LoginServ(ctx context.Context, name string, password string) error {
+func (s *LoginService) LoginServ(ctx context.Context, id int, password string) (string, error) {
 
-	if name == "" {
-		return fmt.Errorf("账号不能为空")
+	if id == 0 {
+		return "", fmt.Errorf("账号不能为空")
 	}
 	if password == "" {
-		return fmt.Errorf("密码不能为空")
+		return "", fmt.Errorf("密码不能为空")
 	}
-	err := s.loginrepo.LoginRepo(ctx, name, password)
+	name, err := s.loginrepo.LoginRepo(ctx, id, password)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return name, nil
 }

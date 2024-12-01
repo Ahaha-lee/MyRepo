@@ -8,15 +8,15 @@ import (
 )
 
 type jwtTokenStruct struct {
-	Name     string `json:"name"`
+	ID       int    `json:"id"`
 	Password string `json:"password"`
 	jwt.RegisteredClaims
 }
 
 // 生成token
-func GenerateToken(name string, password string) (string, error) {
+func GenerateToken(id int, password string) (string, error) {
 	claims := jwtTokenStruct{
-		Name:     name,
+		ID:       id,
 		Password: password,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 设置过期时间

@@ -26,15 +26,15 @@ func GetUsers(service *loginServ.LoginService) gin.HandlerFunc {
 
 		// 创建新用户
 		ctx := context.Background()
-		err := service.LoginServ(ctx, input.Name, input.Password)
+		name, err := service.LoginServ(ctx, input.EmployeeID, input.Password)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "登录失败", "errormessage": err.Error()})
 			return
 		}
 		// 生成token
-		if input.Name != "" && input.Password != "" {
-			takenStr, err = utils.GenerateToken(input.Name, input.Password)
+		if input.EmployeeID != 0 && input.Password != "" {
+			takenStr, err = utils.GenerateToken(input.EmployeeID, input.Password)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "生成token失败", "errormessage": err.Error()})
 			}
@@ -43,7 +43,7 @@ func GetUsers(service *loginServ.LoginService) gin.HandlerFunc {
 			// fmt.Println("takenheader", takenheader)
 		}
 		userinfo := map[string]interface{}{
-			"name":     input.Name,
+			"name":     name,
 			"password": takenStr,
 		}
 

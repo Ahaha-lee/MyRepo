@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	login "mygo/server/login"
+	storage "mygo/server/storage"
 	vip "mygo/server/vip"
 	"time"
 
@@ -11,8 +12,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
+	"gorm.io/driver/mysql" // 确保正确导入 mysql 驱动
+	"gorm.io/gorm"
 )
 
 func DataBaseConnect() *sql.DB {
@@ -30,10 +32,33 @@ func DataBaseConnect() *sql.DB {
 
 	return db
 }
+
+func DataBaseConnectGorm() *gorm.DB {
+	dsn := "root:123456@tcp(127.0.0.1:3306)/dingguagua?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println("DataBaseConnectGorm", err)
+		return nil
+	}
+	return db
+}
 func Server() error {
 	// 连接数据库
 	db := DataBaseConnect()
 	defer db.Close()
+
+	// 试用 Gorm
+	dbGorm := DataBaseConnectGorm()
+	if dbGorm == nil {
+		return fmt.Errorf("dbGorm无法连接到数据库")
+	}
+
+	// 获取底层的 *sql.DB 并检查错误
+	dbsql, err := dbGorm.DB()
+	if err != nil {
+		return fmt.Errorf("获取底层 *sql.DB 失败: %v", err)
+	}
+	defer dbsql.Close()
 
 	// 服务器
 	server := gin.Default()
@@ -52,11 +77,13 @@ func Server() error {
 	server.Use(cors.New(corsConfig))
 
 	// 路由
-	login.LoginRoutes(server, db) // 登录注册路由
-	vip.VipRoutes(server, db)     // 会员模块
+	login.LoginRoutes(server, db)             // 登录注册路由
+	vip.VipRoutes(server, db)                 // 会员模块
+	storage.StorageRoutes(server, db)         //库存模块
+	storage.StorageRoutesGorm(server, dbGorm) //库存模块2.0
 
 	// 启动服务器
-	if err := server.Run(":8080"); err != nil {
+	if err := server.Run(":8081"); err != nil {
 		log.Fatalf("无法启动服务器: %v", err)
 		return err
 	}

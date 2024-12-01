@@ -15,6 +15,6 @@ type Registerinput struct {
 }
 
 type Logininput struct {
-	Name     string `json:"name" `
-	Password string `json:"password" `
+	EmployeeID int    `json:"employeeID"`
+	Password   string `json:"password" `
 }
