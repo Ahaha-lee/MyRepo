@@ -52,7 +52,7 @@ func ApplyProcurement(declareStruct *storagemodels.ProcurmentStruct, tablename s
 	}
 	defer db.Close() // 确保在函数结束时关闭数据库连接
 
-	PRID, _ := GetTableCount(db, "procurement")
+	PRID, _ := GetTableCount(db, "in_declaration")
 	recordid := fmt.Sprintf("PO%d", PRID)
 
 	if err := DeclarationRepo(db, tablename, tablename1, recordid, declareStruct); err != nil {
@@ -70,7 +70,7 @@ func ApplyOutStorage(declareStruct *storagemodels.OutDeclaration, tablename stri
 	}
 	defer db.Close() // 确保在函数结束时关闭数据库连接
 
-	ODID, _ := GetTableCount(db, "outdeclaration")
+	ODID, _ := GetTableCount(db, "out_declaration")
 	recordid := fmt.Sprintf("OD%d", ODID)
 
 	if err := DeclarationRepo(db, tablename, tablename1, recordid, declareStruct); err != nil {

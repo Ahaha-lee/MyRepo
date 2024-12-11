@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	stormodels "mygo/storage/models"
+	slicepage "mygo/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -22,34 +24,40 @@ func NewStorageRepository(db *sql.DB) *StorageRepository {
 }
 
 // recordid==0查询全部入库申请表
-func (r *StorageRepository) GetProcurementInfoRepo(ctx context.Context, recordId int) ([]stormodels.ProcurmentStruct, error) {
+func (r *StorageRepository) GetProcurementInfoRepo(ctx context.Context, recordId int, currentpage int) ([]stormodels.ProcurmentStruct, int, error) {
 	// 执行查询
 	var query string
 	var count int
 	var err error
 	var rows *sql.Rows
 	if recordId > 0 {
-		query2 := "SELECT COUNT(*) FROM procurement WHERE RecordID = ?"
-		err := r.db.QueryRowContext(ctx, query2, recordId).Scan(&count)
+		query2 := "SELECT COUNT(*) FROM in_declaration WHERE RecordID = ?"
+		err = r.db.QueryRowContext(ctx, query2, recordId).Scan(&count)
 		if err != nil {
 			fmt.Println("GetProcurementInfoRepo出错5", err)
-			return nil, err
+			return nil, -1, err
 		} else if count == 0 {
-			return nil, fmt.Errorf("该申请表记录未存在")
+			return nil, -1, fmt.Errorf("该申请表记录未存在")
 		}
 	}
-
 	if recordId > 0 {
-		query = "SELECT * FROM procurement WHERE RecordID = ?"
+		query = "SELECT * FROM in_declaration WHERE RecordID = ?"
 		rows, err = r.db.QueryContext(ctx, query, recordId)
+		count = 1
 	} else if recordId == 0 {
-		query = "SELECT * FROM procurement"
+		query3 := "SELECT COUNT(*) FROM in_declaration"
+		err = r.db.QueryRowContext(ctx, query3).Scan(&count)
+		if err != nil {
+			fmt.Println("GetDeclarationInfoRepo出错6:", err)
+			return nil, -1, err
+		}
+		query = slicepage.PaginationQuery(currentpage, 10, "in_declaration")
 		rows, err = r.db.QueryContext(ctx, query)
 	}
 
 	if err != nil {
 		fmt.Println("GetProcurementInfoRepo出错4:", err)
-		return nil, err
+		return nil, -1, err
 	}
 	defer rows.Close()
 
@@ -84,7 +92,7 @@ func (r *StorageRepository) GetProcurementInfoRepo(ctx context.Context, recordId
 			&declaration.SupplierEmail,
 			&declaration.ApplyDate); err != nil {
 			fmt.Println("GetDeclarationInfoRepo出错2:", err)
-			return nil, err
+			return nil, -1, err
 		}
 		// 将当前结构体添加到切片中
 		declarations = append(declarations, declaration)
@@ -93,17 +101,17 @@ func (r *StorageRepository) GetProcurementInfoRepo(ctx context.Context, recordId
 	// 检查遍历过程中是否发生错误
 	if err := rows.Err(); err != nil {
 		fmt.Println("GetProcurementInfoRepo出错3:", err)
-		return nil, err
+		return nil, -1, err
 	}
-
 	// 返回所有结果
-	return declarations, nil
+	return declarations, count, nil
+
 }
 
 // 审核 入库 验收
 func CaigouOperatenRepo[T any](ctx context.Context, db *sql.DB, recordID int, newStruct *T) error {
 	var count int
-	query2 := "SELECT COUNT(*) FROM inboundrecords WHERE RecordID = ?"
+	query2 := "SELECT COUNT(*) FROM in_records WHERE RecordID = ?"
 	err := db.QueryRowContext(ctx, query2, recordID).Scan(&count)
 	fmt.Println(count)
 	if err != nil {
@@ -122,7 +130,7 @@ func CaigouOperatenRepo[T any](ctx context.Context, db *sql.DB, recordID int, ne
 		fields[i] = fmt.Sprintf("%s = ?", fields[i])
 	}
 
-	query := fmt.Sprintf("UPDATE inboundrecords SET %s WHERE RecordID = ?", strings.Join(fields, ", "))
+	query := fmt.Sprintf("UPDATE in_records SET %s WHERE RecordID = ?", strings.Join(fields, ", "))
 	args := append(values, recordID)
 	_, err = db.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -134,34 +142,46 @@ func CaigouOperatenRepo[T any](ctx context.Context, db *sql.DB, recordID int, ne
 
 // 库存数量更改
 
-// 入库记录 inboundrecords
-func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int) ([]stormodels.InboundRecordStruct, error) {
+// 入库记录 in_records
+func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int, page int) ([]stormodels.InboundRecordStruct, int, error) {
 	var query string
 	var count int
 	var err error
 	var rows *sql.Rows
 	if recordId > 0 {
-		query2 := "SELECT COUNT(*) FROM inboundrecords WHERE RecordID = ?"
+		query2 := "SELECT COUNT(*) FROM in_records WHERE RecordID = ?"
 		err := r.db.QueryRowContext(ctx, query2, recordId).Scan(&count)
 		if err != nil {
 			fmt.Println("GetIbRecordRepo出错1", err)
-			return nil, err
+			return nil, -1, err
 		} else if count == 0 {
-			return nil, fmt.Errorf("该申请表未存在")
+			return nil, -1, fmt.Errorf("该申请表未存在")
 		}
 	}
 
 	if recordId > 0 {
-		query = "SELECT * FROM inboundrecords WHERE RecordID = ?"
+		query = "SELECT * FROM in_records WHERE RecordID = ?"
 		rows, err = r.db.QueryContext(ctx, query, recordId)
+		count = 1
 	} else if recordId == 0 {
-		query = "SELECT * FROM inboundrecords"
+		query3 := "SELECT COUNT(*) FROM in_records"
+		err = r.db.QueryRowContext(ctx, query3).Scan(&count)
+		if err != nil {
+			fmt.Println("GetIbRecordRepo出错3:", err)
+			return nil, -1, err
+		}
+		query := slicepage.PaginationQuery(page, 10, "in_records")
 		rows, err = r.db.QueryContext(ctx, query)
+		if err != nil {
+			fmt.Println("GetIbRecordRepo出错4:", err)
+			return nil, -1, err
+		}
+
 	}
 
 	if err != nil {
 		fmt.Println("GetIbRecordRepo出错2:", err)
-		return nil, err
+		return nil, -1, err
 	}
 	defer rows.Close()
 
@@ -192,7 +212,7 @@ func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int) (
 			&examineDateBytes,
 			&record.IsEnd); err != nil {
 			fmt.Println("GetIbRecordRepo出错3:", err)
-			return nil, err
+			return nil, -1, err
 		}
 		// 解析字节切片为 time.Time
 		if len(checkDateBytes) == 0 {
@@ -201,7 +221,7 @@ func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int) (
 			parsecheck, err := time.Parse("2006-01-02 15:04:05", string(checkDateBytes))
 			if err != nil {
 				fmt.Println("解析 CheckDate 出错:", err)
-				return nil, err
+				return nil, -1, err
 			}
 			record.CheckDate = &parsecheck
 		}
@@ -212,7 +232,7 @@ func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int) (
 			parseputin, err := time.Parse("2006-01-02 15:04:05", string(putInDateBytes))
 			if err != nil {
 				fmt.Println("解析 PutInDate 出错:", err)
-				return nil, err
+				return nil, -1, err
 			}
 			record.PutInDate = &parseputin
 		}
@@ -222,61 +242,131 @@ func (r *StorageRepository) GetIbRecordRepo(ctx context.Context, recordId int) (
 			parseexamine, err := time.Parse("2006-01-02 15:04:05", string(examineDateBytes))
 			if err != nil {
 				fmt.Println("解析 ExamineDate 出错:", err)
-				return nil, err
+				return nil, -1, err
 			}
 			record.ExamineDate = &parseexamine
 		}
 		records = append(records, record)
 	}
-	fmt.Println("GetIbRecordRepo", records)
-	return records, nil
+	return records, count, nil
 }
 
-// 一条入库记录的状态
-func (r *StorageRepository) GetCGOperationStatusRepo(ctx context.Context, recordID int) (map[string]string, error) {
-	var inboundrecords []stormodels.InboundRecordStruct
+// 入库记录的状态
+func (r *StorageRepository) GetCGOperationStatusRepo(ctx context.Context, recordID int, page int) ([]map[string]string, error) {
+	var in_records []stormodels.InboundRecordStruct
 	var err error
-	inboundrecords, err = r.GetIbRecordRepo(ctx, recordID)
+	in_records, _, err = r.GetIbRecordRepo(ctx, recordID, page)
 	if err != nil {
 		fmt.Println("GetCGOperationStatusRepo出错1", err)
 		return nil, err
 	}
-	if len(inboundrecords) == 0 {
+	if len(in_records) == 0 {
 		return nil, fmt.Errorf("未找到入库记录")
 	}
 
-	// 获取第一条记录
-	firstRecord := inboundrecords[0]
+	status := make([]map[string]string, 0)
 
-	// 检查指针是否为 nil
-	cdata := firstRecord.CheckResult
-	pdata := firstRecord.PutINResult
-	edata := firstRecord.ExamineResult
-	idata := strconv.FormatBool(*firstRecord.IsEnd)
+	if recordID > 0 {
+		// 获取第一条记录
+		firstRecord := in_records[0]
+		recordStatus := make(map[string]string)
 
-	status := map[string]string{}
+		// 检查指针是否为 nil
+		cdata := firstRecord.CheckResult
+		pdata := firstRecord.PutINResult
+		edata := firstRecord.ExamineResult
+		idata := strconv.FormatBool(*firstRecord.IsEnd)
 
-	// 检查 cdata、pdata 和 edata 是否为 nil
-	if cdata != nil {
-		status["checkresult"] = *cdata
-	} else {
-		status["checkresult"] = "无结果"
+		recordStatus["recordid"] = strconv.Itoa(recordID)
+
+		// 检查 cdata、pdata 和 edata 是否为 nil
+		if cdata != nil {
+			recordStatus["checkresult"] = *cdata
+		} else {
+			recordStatus["checkresult"] = ""
+		}
+
+		if pdata != nil {
+			recordStatus["putinresult"] = *pdata
+		} else {
+			recordStatus["putinresult"] = ""
+		}
+
+		if edata != nil {
+			recordStatus["examineresult"] = *edata
+		} else {
+			recordStatus["examineresult"] = ""
+		}
+
+		recordStatus["isend"] = idata
+		status = append(status, recordStatus)
+
+	} else if recordID == 0 {
+		// 当 recordID == 0 时，获取所有记录的状态
+		for _, record := range in_records {
+			recordStatus := make(map[string]string)
+
+			cdata := record.CheckResult
+			pdata := record.PutINResult
+			edata := record.ExamineResult
+			idata := strconv.FormatBool(*record.IsEnd)
+
+			recordStatus["recordid"] = strconv.Itoa(*record.RecordID)
+			if cdata != nil {
+				recordStatus["checkresult"] = *cdata
+			} else {
+				recordStatus["checkresult"] = ""
+			}
+
+			if pdata != nil {
+				recordStatus["putinresult"] = *pdata
+			} else {
+				recordStatus["putinresult"] = ""
+			}
+
+			if edata != nil {
+				recordStatus["examineresult"] = *edata
+			} else {
+				recordStatus["examineresult"] = ""
+			}
+
+			recordStatus["isend"] = idata
+			status = append(status, recordStatus)
+		}
 	}
 
-	if pdata != nil {
-		status["putinresult"] = *pdata
-	} else {
-		status["putinresult"] = "无结果"
-	}
-
-	if edata != nil {
-		status["examineresult"] = *edata
-	} else {
-		status["examineresult"] = "无结果"
-	}
-
-	status["isend"] = idata
-
-	fmt.Println("GetCGOperationStatusRepoStatus", status)
 	return status, nil
+}
+
+func (r *StorageRepository) CGDeclarationUpdateRepo(ctx context.Context, recordid int, newStruct *stormodels.ProcurmentStruct) error {
+	if recordid <= 0 {
+		log.Panicln("CGDeclarationUpdateRepo出错1")
+		return fmt.Errorf("id不能小于等于0")
+	}
+
+	fields, values, err := BuildlongQuery(newStruct)
+	if err != nil {
+		log.Panicln("CGDeclarationUpdateRepo出错2")
+		return err
+	}
+
+	var columns []string
+	var data []interface{}
+
+	for i := 0; i < len(fields); i++ {
+		columns = append(columns, fields[i])
+		data = append(data, values[i])
+	}
+
+	// 构建更新语句
+	setClause := strings.Join(columns, " = ?, ") + " = ?"
+	query := fmt.Sprintf("UPDATE in_declaration SET %s WHERE RecordID = ?", setClause)
+	data = append(data, recordid)
+
+	_, err = r.db.ExecContext(ctx, query, data...)
+	if err != nil {
+		return fmt.Errorf("CGDeclarationUpdateRepo执行更新出错: %w", err)
+	}
+
+	return nil
 }

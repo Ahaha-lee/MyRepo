@@ -64,7 +64,8 @@ func ChuKuOperationCon(db *sql.DB) gin.HandlerFunc {
 
 func GetCKProgressInfoCon(server *storserv.StorageService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		record, err := server.GetOutDeclarationInfoServ(c, 0)
+		page, _ := strconv.Atoi(c.Param("page"))
+		record, err := server.GetOutDeclarationInfoServ(c, 0, page)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "数据获取错误", "errormessage": err.Error()})
 			return
@@ -76,8 +77,9 @@ func GetCKProgressInfoCon(server *storserv.StorageService) gin.HandlerFunc {
 func GetOutboundRecordsCon(server *storserv.StorageService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		recordid, _ := strconv.Atoi(c.Param("search_id"))
+		page, _ := strconv.Atoi(c.Param("page"))
 
-		record, err := server.GetOutboundRecordsServ(c, recordid)
+		record, err := server.GetOutboundRecordsServ(c, recordid, page)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "数据获取错误", "errormessage": err.Error()})
 			return

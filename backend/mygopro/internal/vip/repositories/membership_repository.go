@@ -13,7 +13,7 @@ import (
 func (r *VipRepository) InsertData(ctx context.Context, newvip vipmodels.VIP) (string, error) {
 	// 获取表中记录数
 	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM vipmembersdata").Scan(&count)
+	err := r.db.QueryRow("SELECT COUNT(*) FROM vipmember_data").Scan(&count)
 	if err != nil {
 		return "", err
 	}
@@ -21,7 +21,7 @@ func (r *VipRepository) InsertData(ctx context.Context, newvip vipmodels.VIP) (s
 	// 生成新的 VIPID
 	vipid := fmt.Sprintf("V%d", count+1)
 	newvip.VIPID = vipid
-	query := "INSERT INTO vipmembersdata (VIPID, FirstName, LastName, Phone,NowPoints, UsedPoints,RegiHandler) VALUES (?, ?, ?, ?,?, ?, ?)"
+	query := "INSERT INTO vipmember_data (VIPID, FirstName, LastName, Phone,NowPoints, UsedPoints,RegiHandler) VALUES (?, ?, ?, ?,?, ?, ?)"
 	_, err = r.db.Exec(query, newvip.VIPID, newvip.FirstName, newvip.LastName, newvip.Phone, 0, 0, newvip.RegiHandler)
 	if err != nil {
 		return "", err
@@ -33,7 +33,7 @@ func (r *VipRepository) InsertData(ctx context.Context, newvip vipmodels.VIP) (s
 // 删除会员信息
 func (r *VipRepository) DeleteData(ctx context.Context, vipPhone string) (int64, error) {
 
-	query := "DELETE FROM vipmembersdata WHERE Phone= ?"
+	query := "DELETE FROM vipmember_data WHERE Phone= ?"
 	result, err := r.db.Exec(query, vipPhone)
 	if err != nil {
 		return 0, err

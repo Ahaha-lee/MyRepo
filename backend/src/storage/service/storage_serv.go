@@ -17,13 +17,13 @@ func DeclarationServ[T any](db *sql.DB, input *T, tablename string) error {
 	return nil
 }
 
-func (s *StorageService) GetOperationStatusServ(ctx context.Context, recordid int, action string) (map[string]string, error) {
-	var status map[string]string
+func (s *StorageService) GetOperationStatusServ(ctx context.Context, recordid int, action string, page int) ([]map[string]string, error) {
+	var status []map[string]string
 	var err error
 	if action == "ck" {
-		status, err = s.storagerepo.GetCKOperationStatusRepo(ctx, recordid)
+		status, err = s.storagerepo.GetCKOperationStatusRepo(ctx, recordid, page)
 	} else if action == "cg" {
-		status, err = s.storagerepo.GetCGOperationStatusRepo(ctx, recordid)
+		status, err = s.storagerepo.GetCGOperationStatusRepo(ctx, recordid, page)
 	}
 	if err != nil {
 		fmt.Println("GetOperationStatusServ出错1:", err)

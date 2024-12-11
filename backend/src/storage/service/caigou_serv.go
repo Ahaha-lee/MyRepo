@@ -17,26 +17,26 @@ func NewStorageService(storagerepo *storrepo.StorageRepository) *StorageService 
 		storagerepo: storagerepo,
 	}
 }
-func (s *StorageService) GetAllProcurementInfoServ(ctx context.Context, recordid int) ([]stormodels.ProcurmentStruct, error) {
-	procurement, err := s.storagerepo.GetProcurementInfoRepo(ctx, recordid)
+func (s *StorageService) GetAllProcurementInfoServ(ctx context.Context, recordid int, page int) ([]stormodels.ProcurmentStruct, int, error) {
+	in_declaration, total, err := s.storagerepo.GetProcurementInfoRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetProcurementInfoServ出错1", err)
-		return nil, err
+		return nil, -1, err
 	}
-	return procurement, nil
+	return in_declaration, total, nil
 }
 
-// 采购操作中 状态不为完成的 procurement 进度的记录合集
-func (s *StorageService) GetProcurementInfoServ(ctx context.Context, recordid int) ([]stormodels.ProcurmentStruct, error) {
+// 采购操作中 状态不为完成的 in_declaration 进度的记录合集
+func (s *StorageService) GetProcurementInfoServ(ctx context.Context, recordid int, page int) ([]stormodels.ProcurmentStruct, error) {
 	// 从存储库获取数据
-	var procurement []stormodels.ProcurmentStruct
+	var in_declaration []stormodels.ProcurmentStruct
 	var err error
-	procurement, err = s.storagerepo.GetProcurementInfoRepo(ctx, recordid)
+	in_declaration, _, err = s.storagerepo.GetProcurementInfoRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetProcurementInfoServ出错1", err)
 		return nil, err
 	}
-	records, err := s.storagerepo.GetIbRecordRepo(ctx, recordid)
+	records, _, err := s.storagerepo.GetIbRecordRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetProcurementInfoServ出错2", err)
 		return nil, err
@@ -57,9 +57,9 @@ func (s *StorageService) GetProcurementInfoServ(ctx context.Context, recordid in
 		}
 	}
 
-	// 过滤 procurement 中的记录，只保留与 emptyExamineResultIDs 匹配的记录
+	// 过滤 in_declaration 中的记录，只保留与 emptyExamineResultIDs 匹配的记录
 	var filteredProcurement []stormodels.ProcurmentStruct
-	for _, proc := range procurement {
+	for _, proc := range in_declaration {
 		for _, id := range emptyExamineResultIDs {
 			if proc.RecordID == id { // 假设 ProcurmentStruct 也有一个 ID 字段
 				filteredProcurement = append(filteredProcurement, proc)
@@ -83,11 +83,21 @@ func CaigouOperatenServ[T any](ctx context.Context, db *sql.DB, recordID int, ne
 }
 
 // 获取入库记录数据
-func (s *StorageService) GetInboundRecordsServ(ctx context.Context, recordID int) ([]stormodels.InboundRecordStruct, error) {
+func (s *StorageService) GetInboundRecordsServ(ctx context.Context, recordID int, page int) ([]stormodels.InboundRecordStruct, int, error) {
 	var err error
-	inboundRecords, err := s.storagerepo.GetIbRecordRepo(ctx, recordID)
+	inboundRecords, total, err := s.storagerepo.GetIbRecordRepo(ctx, recordID, page)
 	if err != nil {
 		fmt.Println("GetInboundRecordsServ出错1", err)
 	}
-	return inboundRecords, nil
+	return inboundRecords, total, nil
+}
+
+// 更新采购申请表的信息
+func (s *StorageService) CGDeclarationUpdateServ(ctx context.Context, recordid int, newStruct *stormodels.ProcurmentStruct) error {
+	err := s.storagerepo.CGDeclarationUpdateRepo(ctx, recordid, newStruct)
+	if err != nil {
+		fmt.Println("CGDeclarationUpdateServ出错1", err)
+		return err
+	}
+	return nil
 }

@@ -8,27 +8,27 @@ import (
 	storrepo "mygo/storage/repositories"
 )
 
-func (s *StorageService) GetAllOutDeclarationInfoServ(ctx context.Context, recordid int) ([]stormodels.OutDeclaration, error) {
+func (s *StorageService) GetAllOutDeclarationInfoServ(ctx context.Context, recordid int, page int) ([]stormodels.OutDeclaration, int, error) {
 
-	outdeclaration, err := s.storagerepo.GetOutDeclarationInfoRepo(ctx, recordid)
+	out_declaration, total, err := s.storagerepo.GetOutDeclarationInfoRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetAllOutDeclarationInfoServ出错1", err)
-		return nil, err
+		return nil, -1, err
 	}
 
-	return outdeclaration, nil
+	return out_declaration, total, nil
 }
 
-// 采购操作中 状态不为完成的 outdeclaration 进度的记录合集
-func (s *StorageService) GetOutDeclarationInfoServ(ctx context.Context, recordid int) ([]stormodels.OutDeclaration, error) {
+// 采购操作中 状态不为完成的 out_declaration 进度的记录合集
+func (s *StorageService) GetOutDeclarationInfoServ(ctx context.Context, recordid int, page int) ([]stormodels.OutDeclaration, error) {
 	// 从存储库获取数据
-	outdeclaration, err := s.storagerepo.GetOutDeclarationInfoRepo(ctx, recordid)
+	out_declaration, _, err := s.storagerepo.GetOutDeclarationInfoRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetOutDeclarationServ出错1", err)
 		return nil, err
 	}
 
-	records, err := s.storagerepo.GetOutSRecordsRepo(ctx, recordid)
+	records, err := s.storagerepo.GetOutSRecordsRepo(ctx, recordid, page)
 	if err != nil {
 		fmt.Println("GetOutDeclarationServ出错2", err)
 		return nil, err
@@ -55,7 +55,7 @@ func (s *StorageService) GetOutDeclarationInfoServ(ctx context.Context, recordid
 	}
 
 	var filteredOutDeclaration []stormodels.OutDeclaration
-	for _, proc := range outdeclaration {
+	for _, proc := range out_declaration {
 		if _, exists := idSet[proc.RecordID]; exists {
 			filteredOutDeclaration = append(filteredOutDeclaration, proc)
 		}
@@ -73,9 +73,9 @@ func ChuKuOperatenServ[T any](ctx context.Context, db *sql.DB, recordID int, new
 	}
 	return nil
 }
-func (s *StorageService) GetOutboundRecordsServ(ctx context.Context, recordID int) ([]stormodels.OutRecordsStruct, error) {
+func (s *StorageService) GetOutboundRecordsServ(ctx context.Context, recordID int, page int) ([]stormodels.OutRecordsStruct, error) {
 	var err error
-	outboundRecords, err := s.storagerepo.GetOutSRecordsRepo(ctx, recordID)
+	outboundRecords, err := s.storagerepo.GetOutSRecordsRepo(ctx, recordID, page)
 	if err != nil {
 		fmt.Println("GetOutboundRecordsServ出错1", err)
 	}

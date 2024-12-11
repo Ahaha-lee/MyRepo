@@ -65,7 +65,7 @@ func DeclarationRepo[T any](db *sql.DB, declarationStruct *T, tablename string) 
 
 	//验证商品是否存在
 	var count int
-	query2 := "select count(*) from productsdata where PROBarcode=?"
+	query2 := "select count(*) from product_data where pro_barcode=?"
 	err = db.QueryRow(query2, barcode).Scan(&count)
 	if err != nil {
 		fmt.Println("DeclarationRepo出错2:", err)

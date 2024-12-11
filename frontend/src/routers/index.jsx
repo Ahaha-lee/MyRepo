@@ -5,19 +5,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AppPage from '../views/AppPage';
 
 import { LoginPage } from '../views/Login/LoginPlus';
-import { HeaderNav } from '../components/HeaderNav';
 import { RegisterPage } from '../views/Login/RegisterPlus';
-import VIPPage from '../views/Vip/vip';
-import StoragePage from '../views/Storage/storage';
-import { SiderNav } from '../components/SiderNav';
 import { AdminHomePage } from '../views/Homesettings/Home';
-
+import { VIPRouter } from './vip_router';
+import { StorageRouter } from './storage_router';
 export default function AppRouter(){
+
     return(
         <div>
         <Router>
-        <HeaderNav/>
-        <SiderNav/>
+
         <Routes>
             <Route path="/" element={<AppPage/>} />
             
@@ -27,10 +24,10 @@ export default function AppRouter(){
             <Route path='/register' element={<RegisterPage/>}/>
 
             {/* vip  */}
-            <Route path='/vip/*' element={<VIPPage/>}/> 
+            <Route path='/vip/*' element={<VIPRouter/>}/>
 
             {/* storage */}
-            <Route path='/storage/*' element={<StoragePage/>}/>
+            <Route path='/storage/*' element={<StorageRouter/>}/>
         </Routes>
 
         </Router>

@@ -1,6 +1,5 @@
-import { postRequest } from "../../utils/request";
 import { BaseApi } from "..";
-
+import { postRequest } from "../../utils/request";
 
 
 export const RegisterApi = {

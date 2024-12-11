@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { getLocalStorage } from "../../utils/localstorage";
+import { getLocalStorage } from "../../components/localstorage";
 import { SearchVipApi, VipMemberApi } from "../../api/vip";
 import Modal from 'react-modal';
 import { ErrorPage } from "../Employees/error";
-import { VipDash } from "./dashtable";
+import { AVipDash } from "./dashtable";
+import React from "react";
+import MainLayout from '../../utils/MainLayOut/MainLayout'
 
+
+export function AddVipPage (){
+  return(
+    <div>
+      <MainLayout rightContent={<AddVipMembership/>}></MainLayout>
+    </div>
+  )
+}
 export const AddVipMembership = () => {
   const [message, setMessage] = useState('');  // 错误信息
   const [reminder, setReminder] = useState(''); // 提醒消息
@@ -49,9 +59,7 @@ export const AddVipMembership = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="row g-0">
-          <div className="col-5"></div>
-          <div className="col-3">
+        <div>
             <h2 className="text-center">会员注册</h2>
             <div className="mb-3">
               <label htmlFor="name" className="form-label">注册会员姓名：</label>
@@ -81,12 +89,18 @@ export const AddVipMembership = () => {
             {message && <p className="text-danger">{message}</p>}
             {reminder && <p className='text-success'>{reminder}</p>}
           </div>
-        </div>
       </form>
     </div>
   );
 };
 
+export function DeleteVipPage(){
+  return(
+    <div>
+      <MainLayout rightContent={<DeleteVipMemberShip/>}></MainLayout>
+    </div>
+  )
+} 
 
 
 
@@ -132,7 +146,7 @@ export const VipinfoModal = ({ isOpen, onRequestClose, vipdata }) => {
       <div>
       <h2>注销会员信息确认</h2>
       <p>会员一旦注销,不可恢复!请确认好信息.</p>
-      {vipdata && <VipDash Results={vipdata} />}
+      {vipdata && <AVipDash Results={vipdata} />}
       <button  className="btn btn-primary" onClick={deleteClick}>删除</button> &nbsp;&nbsp;
       <button  className="btn btn-primary" onClick={cancelClick}>取消</button>
       <br/>{reminder && <span className="text-danger">{reminder}</span>}
@@ -177,9 +191,7 @@ export function DeleteVipMemberShip() {
 
   return (
     <div>
-      <div className="row g-0">
-        <div className="col-5"></div>
-        <div className="col-3">
+      <div>
         <div className="mb-3">
             <label htmlFor="phone" clphone="form-label">注销会员电话号码：</label>
             <input
@@ -194,7 +206,6 @@ export function DeleteVipMemberShip() {
         </div>
         <button type="submit" onClick={searchClick}  className="btn btn-primary">搜索</button>
         {message && <p>{message}</p>}
-        </div>
       </div>
       {isModalVisible && (
       <VipinfoModal

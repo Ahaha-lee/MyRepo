@@ -1,0 +1,15 @@
+.layout-container {
+    display: flex; /* 使用 Flexbox 布局 */
+    height: 100vh; /* 使容器高度充满视口 */
+  }
+  
+  .left {
+    width: 280px; /* 左侧导航的宽度 */
+  }
+  .right {
+    flex: 1; /* 右侧内容占据剩余空间 */
+    padding-top: 3%; /* 设置顶部内边距为 10% */
+    overflow-y: auto; /* 如果内容超出，允许垂直滚动 */
+  }
+  
+  

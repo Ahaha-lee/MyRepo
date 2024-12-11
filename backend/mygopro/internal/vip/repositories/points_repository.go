@@ -28,7 +28,7 @@ func NewVipRepository(db *sql.DB) *VipRepository {
 // FindByVipPhone是VipRepository的方法
 func (r *VipRepository) FindByVipPhone(ctx context.Context, vipphone string) (*vipmodels.VIP, error) {
 	var vip vipmodels.VIP
-	err := r.db.QueryRowContext(ctx, "SELECT * FROM vipmembersdata WHERE Phone = ?", vipphone).
+	err := r.db.QueryRowContext(ctx, "SELECT * FROM vipmember_data WHERE Phone = ?", vipphone).
 		Scan(
 			&vip.VIPID,
 			&vip.FirstName,
@@ -61,12 +61,12 @@ func (r *VipRepository) UpdatePointsByPhone(
 	// 根据需要构建 SQL 查询
 	if updateNowPoints && !updateUsedPoints {
 
-		query = `UPDATE vipmembersdata SET NowPoints = NowPoints + ? WHERE Phone = ?`
+		query = `UPDATE vipmember_data SET NowPoints = NowPoints + ? WHERE Phone = ?`
 		args = []interface{}{value, phone}
 
 	} else if updateUsedPoints && !updateNowPoints {
 
-		query = `UPDATE vipmembersdata SET NowPoints = Nowpoints - ?, UsedPoints = UsedPoints + ? WHERE Phone= ?`
+		query = `UPDATE vipmember_data SET NowPoints = Nowpoints - ?, UsedPoints = UsedPoints + ? WHERE Phone= ?`
 		args = []interface{}{value, value, phone}
 
 	} else {

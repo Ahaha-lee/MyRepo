@@ -79,7 +79,7 @@ func CaigouOperateFun[T any](ctx context.Context, recordID string, newStruct *T)
 	for i, field := range fields {
 		setSQLClause[i] = fmt.Sprintf("%s = ?", field)
 	}
-	query := fmt.Sprintf("UPDATE inboundrecords SET %s WHERE RecordID = ?", strings.Join(setSQLClause, ", "))
+	query := fmt.Sprintf("UPDATE in_records SET %s WHERE RecordID = ?", strings.Join(setSQLClause, ", "))
 	fmt.Println("生成的更新语句:", query)
 	values = append(values, recordID)
 	fmt.Println("字段:", fields)
@@ -114,7 +114,7 @@ func OutOperateFun[T any](ctx context.Context, recordID string, newStruct *T) er
 	for i, field := range fields {
 		setSQLClause[i] = fmt.Sprintf("%s = ?", field)
 	}
-	query := fmt.Sprintf("UPDATE outstoragerecords SET %s WHERE RecordID = ?", strings.Join(setSQLClause, ", "))
+	query := fmt.Sprintf("UPDATE out_records SET %s WHERE RecordID = ?", strings.Join(setSQLClause, ", "))
 	fmt.Println("生成的更新语句:", query)
 	values = append(values, recordID)
 	fmt.Println("字段:", fields)

@@ -31,13 +31,13 @@ func (s *StorageService) ShowList(ctx context.Context, tablename string) ([]stri
 
 func (s *StorageService) ShowTableInfo(ctx context.Context, recordid string, tablename string) (interface{}, error) {
 	// 调用 GetTableInfo 函数获取数据
-	procurement, err := sharedutils.GetTableInfo(ctx, recordid, tablename)
+	in_declaration, err := sharedutils.GetTableInfo(ctx, recordid, tablename)
 	if err != nil {
 		fmt.Println("service error:", err)
 		return nil, err
 	}
 
-	return procurement, nil
+	return in_declaration, nil
 }
 
 func (s *StorageService) GaiGouCheck(ctx context.Context, recordid string, checkstruct stormodels.CaiGouCheckStruct) error {
@@ -80,7 +80,7 @@ func OperateInfo[T any](ctx context.Context, action string, recordid string, new
 			"CheckOpinion",
 			"CheckDate",
 		}
-		tablename = "inboundrecords" // 修正赋值
+		tablename = "in_records" // 修正赋值
 
 	case "putin":
 		columns = []string{
@@ -90,7 +90,7 @@ func OperateInfo[T any](ctx context.Context, action string, recordid string, new
 			"PutInQuantities",
 			"PutInDate",
 		}
-		tablename = "inboundrecords" // 修正赋值
+		tablename = "in_records" // 修正赋值
 
 	case "examine":
 		columns = []string{
@@ -100,7 +100,7 @@ func OperateInfo[T any](ctx context.Context, action string, recordid string, new
 			"ExamineQuantities",
 			"ExamineDate",
 		}
-		tablename = "inboundrecords" // 修正赋值
+		tablename = "in_records" // 修正赋值
 
 	case "outcheck":
 		columns = []string{
@@ -110,7 +110,7 @@ func OperateInfo[T any](ctx context.Context, action string, recordid string, new
 			"OCheckOpinion",
 			"CheckDate",
 		}
-		tablename = "outstoragerecords" // 修正赋值
+		tablename = "out_records" // 修正赋值
 
 	case "out":
 		columns = []string{
@@ -120,7 +120,7 @@ func OperateInfo[T any](ctx context.Context, action string, recordid string, new
 			"OStoreHouseOpinion",
 			"OutDate",
 		}
-		tablename = "outstoragerecords" // 修正赋值
+		tablename = "out_records" // 修正赋值
 	}
 
 	// 调用存储库函数

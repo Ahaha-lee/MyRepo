@@ -41,3 +41,16 @@ export const VIPPointsApi={
         }
     }
 }
+
+
+export const VIPListApi={
+    list: async () => {
+        try {
+            const response = await getRequest(BaseApi.baseURL+BaseApi.viplist,{params:{}});
+            return response; 
+        } catch (error) {
+            console.error('请求错误:', error);
+            throw error;
+        }
+    }
+}

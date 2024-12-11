@@ -78,11 +78,11 @@ func GetTableInfo(ctx context.Context, recordid string, tablename string) (inter
 	var row *sql.Row
 
 	switch tablename {
-	case "procurement":
+	case "in_declaration":
 		selectdata = &stormodels.ProcurmentStruct{}
 		query = fmt.Sprintf("SELECT * FROM %s WHERE RecordID=?", tablename)
 		row = db.QueryRowContext(ctx, query, recordid)
-	case "outdeclaration":
+	case "out_declaration":
 		selectdata = &stormodels.OutDeclaration{}
 		query = fmt.Sprintf("SELECT * FROM %s WHERE RecordID=?", tablename)
 		row = db.QueryRowContext(ctx, query, recordid)
@@ -95,7 +95,7 @@ func GetTableInfo(ctx context.Context, recordid string, tablename string) (inter
 		selectdata = &stormodels.AllInventoryStruct{}
 		query = fmt.Sprintf("SELECT * FROM %s WHERE INVBarcode=? OR INVProductName=?", tablename)
 		row = db.QueryRowContext(ctx, query, recordid, recordid)
-	case "vipmembersdata":
+	case "vipmember_data":
 		selectdata = &vipmodels.VIP{}
 		query = fmt.Sprintf("SELECT * FROM %s WHERE Phone=?", tablename)
 		row = db.QueryRowContext(ctx, query, recordid)

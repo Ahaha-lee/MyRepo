@@ -71,8 +71,8 @@ func CaiGouOperationCon(db *sql.DB) gin.HandlerFunc {
 
 func GetCGProgressInfoCon(server *storserv.StorageService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		record, err := server.GetProcurementInfoServ(c, 0)
+		page, _ := strconv.Atoi(c.Param("page"))
+		record, err := server.GetProcurementInfoServ(c, 0, page)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "数据获取错误", "errormessage": err.Error()})
 			return
@@ -87,12 +87,41 @@ func GetCGProgressInfoCon(server *storserv.StorageService) gin.HandlerFunc {
 func GetInboundRecordsCon(server *storserv.StorageService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		recordid, _ := strconv.Atoi(c.Param("search_id"))
+		page, _ := strconv.Atoi(c.Param("page"))
 
-		record, err := server.GetInboundRecordsServ(c, recordid)
+		record, total, err := server.GetInboundRecordsServ(c, recordid, page)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "数据获取错误", "errormessage": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "信息获取成功", "data": record})
+		c.JSON(http.StatusOK, gin.H{"message": "信息获取成功", "data": record, "page_num": total})
+	}
+}
+
+//更新申请表的信息
+
+func CGDeclarationUpdateCon(server *storserv.StorageService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == "PUT" {
+			recordid, _ := strconv.Atoi(c.Param("update_id"))
+			action := c.Param("action")
+			if action == "cg_declaration" {
+				var newStruct stormodels.ProcurmentStruct
+				if err := c.ShouldBindJSON(&newStruct); err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error": "请求体", "errormessage": err.Error()})
+					return
+				}
+				fmt.Println(recordid)
+				fmt.Println(newStruct)
+				err := server.CGDeclarationUpdateServ(c, recordid, &newStruct)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "数据更新错误", "errormessage": err.Error()})
+					return
+				}
+				c.JSON(http.StatusOK, gin.H{"message": "数据更新成功"})
+			} else if action == "ck" {
+
+			}
+		}
 	}
 }

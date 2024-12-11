@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getLocalStorage } from './localstorage';
+import { getLocalStorage } from '../components/localstorage';
 
 const apiClient = axios.create({
   timeout: 20000, 
@@ -14,11 +14,13 @@ const gettoken=()=>{
 // 封装 GET 请求  我这里传的是一个params对象
 export const getRequest = async (url, { params }) => {
   try {
+    console.log("params",params)
+    if (params) {
     // 替换 URL 中的路径参数
     for (const key in params) {
       url = url.replace(`:${key}`, encodeURIComponent(params[key]));
       console.log(url);
-    }
+    }}
 
     // 发送GET请求
     const response = await apiClient.get(url);
@@ -59,10 +61,13 @@ export const postRequest = async (url, data) => {
 export const putRequest = async (url, data) => {
   try {
     const params = data.params
-    // 替换 URL 中的路径参数
+    console.log("apipa",data)
+    if (params) {
+       // 替换 URL 中的路径参数
     for (const key in params) {
       url = url.replace(`:${key}`, encodeURIComponent(params[key]));
       console.log(url);
+    }
     }
 
     // 将 data 转换为 JSON 字符串
@@ -81,11 +86,14 @@ export const putRequest = async (url, data) => {
 export const deleteRequest = async (url,  params ) => {
   try { 
     console.log("params",params)
+    
+    if (params){
     // 替换 URL 中的路径参数
     for (const key in params) {
       url = url.replace(`:${key}`, encodeURIComponent(params[key]));
       console.log(url);
     }
+  }
 
     // 发送GET请求
     const response = await apiClient.delete(url);
@@ -95,4 +103,5 @@ export const deleteRequest = async (url,  params ) => {
     throw error; 
   }
 };
+
 

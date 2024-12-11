@@ -1,21 +1,19 @@
 import { Component } from "react";
 import { RegisterApi } from "../../api/login";
-
+import React from "react";
 export class RegisterPage extends Component {
     render() {
         return (
-            <div>
-                <div className="text-center">
-                    <h3>顶呱呱收银系统</h3>
-                </div>
-                <div className="row g-0">
-                    <div className="col-4"></div>
-                    <div className="col-4">
-                        <RegisterForm />
-                    </div>
-                    <div className="col-4"></div>
+            <div class="row">
+            <div class="col-4">
+            </div>
+            <div class="col-5">
+                <div className="d-flex justify-content-center align-items-center"  style={{ height: '100vh' }}>
+                    <RegisterForm />
                 </div>
             </div>
+            <div class="col-3"></div>
+          </div>
         );
     }
 }
@@ -78,7 +76,8 @@ class RegisterForm extends Component {
     render() {
         const { name, password,birthday,phone } = this.state;
         return (
-            <div>
+            <div style={{width:"100%"}}>
+                <h3 className="text-center">顶呱呱收银系统</h3>
                 <form onSubmit={this.onsubmit}>
                     <div className="mb-3">
                         <label htmlFor="name" className="form-label">注册账号：</label>

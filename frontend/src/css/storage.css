@@ -1,0 +1,10 @@
+/* 模态框样式 */
+.modelstyle {
+    width: 80%; /* 设置模态框的宽度 */
+    max-width: 80%; /* 设置模态框的最大宽度 */
+    height: auto; /* 设置模态框的高度为自动 */
+    margin: auto; /* 使模态框居中 */
+    padding: 2px; /* 内边距 */
+    border-radius: 8px; /* 添加圆角 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}

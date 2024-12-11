@@ -7,7 +7,7 @@ import (
 )
 
 func (r *VipRepository) GetVIPInfoRepo(ctx context.Context) ([]vipmodels.VIP, error) {
-	query := "SELECT * FROM vipmembersdata"
+	query := "SELECT * FROM vipmember_data"
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		fmt.Println("GetVIPInfoRepo出错1", err)
