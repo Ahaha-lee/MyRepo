@@ -1,4 +1,4 @@
-import { postRequest,getRequest,deleteRequest,putRequest} from "../../utils/request";
+import { postRequest,getRequest,deleteRequest,putRequest} from "../../utils/Common/request";
 import { BaseApi } from "..";
 
 //membership 
@@ -44,13 +44,36 @@ export const VIPPointsApi={
 
 
 export const VIPListApi={
-    list: async () => {
+    list: async (data) => {
         try {
-            const response = await getRequest(BaseApi.baseURL+BaseApi.viplist,{params:{}});
+            const response = await getRequest(BaseApi.baseURL+BaseApi.viplist,data);
             return response; 
         } catch (error) {
             console.error('请求错误:', error);
             throw error;
         }
     }
+}
+
+
+export const VipGrade={
+    insert: async (data) => {
+        try {
+            const response = await postRequest(BaseApi.baseURL+BaseApi.vipgraderule,data);
+            return response; 
+        } catch (error) {
+            console.error('请求错误:', error);
+            throw error;
+        }
+    },
+    get: async () => {
+        try {
+            const response = await getRequest(BaseApi.baseURL+BaseApi.getgradeinfo,{});
+            return response; 
+        } catch (error) {
+            console.error('请求错误:', error);
+            throw error;
+        }
+    },
+
 }

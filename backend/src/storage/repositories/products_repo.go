@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	stormodels "mygo/storage/models"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -22,29 +23,42 @@ func NewStorageGormRepository(db *gorm.DB) *StorageGormRepository {
 	}
 }
 
-func (r *StorageGormRepository) InsertProductRepo(ctx context.Context, input *stormodels.ProductStruct) error {
+func (r *StorageGormRepository) InsertProductsRepo(ctx context.Context, inputs []*stormodels.ProductStruct) error {
+	// 创建一个切片来存储已存在的条形码
+	existingBarcodes := make(map[string]struct{})
 
-	barcode := input.ProBarcode
-	data := r.db.Where("pro_barcode = ?", barcode)
-	if data.RowsAffected > 0 {
-		return (fmt.Errorf("商品已存在"))
+	// 检查每个产品的条形码是否已存在
+	for _, input := range inputs {
+		barcode := input.ProBarcode
+		var count int64
+		r.db.Model(&stormodels.ProductStruct{}).Where("pro_barcode = ?", barcode).Count(&count)
+		if count > 0 {
+			existingBarcodes[barcode] = struct{}{}
+		}
 	}
 
-	product := stormodels.ProductStruct{
-		ProBarcode:     input.ProBarcode,
-		Category:       input.Category,
-		ProductName:    input.ProductName,
-		CostPrice:      input.CostPrice,
-		RetailPrice:    input.RetailPrice,
-		ProductUnit:    input.ProductUnit,
-		DetailedlyDesc: input.DetailedlyDesc,
-		ProLocation:    input.ProLocation,
+	// 如果有已存在的条形码，返回错误
+	if len(existingBarcodes) > 0 {
+		return fmt.Errorf("以下商品已存在: %v", existingBarcodes)
 	}
-	result := r.db.Create(&product)
+
+	// 执行批量插入
+	result := r.db.Create(inputs) // 这里直接传递 inputs
 	if result.Error != nil {
-		log.Fatalln("InsertProductRepo数据失败", result.Error)
+		log.Fatalln("InsertProductsRepo数据失败", result.Error)
 		return result.Error
 	}
+
+	// 插入到 product_stats 表
+	for _, input := range inputs {
+		barcode := input.ProBarcode
+		statsResult := r.db.Exec("INSERT INTO product_stats (product_barcode, visit_count, last_visit_time, daily_visits, weekly_visits, monthly_visits) VALUES (?, 1, NOW(), 1, 1, 1)", barcode)
+		if statsResult.Error != nil {
+			log.Fatalln("插入 product_stats 数据失败", statsResult.Error)
+			return statsResult.Error
+		}
+	}
+
 	return nil
 }
 func (r *StorageGormRepository) SearchProductRepo(ctx context.Context, productid int, page int) ([]stormodels.ProductStruct, int, error) {
@@ -68,19 +82,22 @@ func (r *StorageGormRepository) SearchProductRepo(ctx context.Context, productid
 			return nil, -1, result.Error
 		}
 	} else if productid > 0 {
+
 		// 查询符合条件的记录数
-		resultCount := r.db.Model(&stormodels.ProductStruct{}).Where("product_id = ?", productid).Count(&count)
+		productidStr := strconv.Itoa(productid) // 将 productid 转换为字符串
+		resultCount := r.db.Model(&stormodels.ProductStruct{}).Where("product_id LIKE ? OR product_name LIKE ?", "%"+productidStr+"%", "%"+productidStr+"%").Count(&count)
 		if resultCount.Error != nil {
 			log.Fatalln("SearchProductRepo获取产品数量失败:", resultCount.Error)
 			return nil, -1, resultCount.Error
 		}
 
 		// 分页查询符合条件的产品信息
-		result := r.db.Where("product_id = ?", productid).Limit(pageSize).Offset(offset).Find(&product)
+		result := r.db.Where("product_id LIKE ? OR product_name LIKE ?", "%"+productidStr+"%", "%"+productidStr+"%").Limit(pageSize).Offset(offset).Find(&product)
 		if result.Error != nil {
 			log.Fatalln("SearchProductRepo数据失败:", result.Error)
 			return nil, -1, result.Error
 		}
+
 	}
 
 	return product, int(count), nil
@@ -124,8 +141,25 @@ func (r *StorageGormRepository) DeleteProductRepo(ctx context.Context, productid
 
 	if productid == 0 {
 		if len(ids) == 0 {
-			return fmt.Errorf("DeleteProductRepo:ids数组为空")
+			return fmt.Errorf("DeleteProductRepo: ids数组为空")
 		}
+
+		// 查询 product_data 表中的 barcode
+		var barcodes []string
+		if err := tx.Raw("SELECT pro_barcode FROM product_data WHERE product_id IN ?", ids).Scan(&barcodes).Error; err != nil {
+			tx.Rollback() // 查询失败，回滚事务
+			return err
+		}
+		log.Println("dg", barcodes)
+
+		// 删除 product_stas 表中对应的记录
+		if err := tx.Where("product_barcode IN ?", barcodes).Delete(&stormodels.ProductStats{}).Error; err != nil {
+			tx.Rollback() // 删除失败，回滚事务
+			return err
+		}
+		// 从缓存中删除对应的记录
+		DeleteProductCache(barcodes)
+
 		// 批量删除商品
 		product := stormodels.ProductStruct{}
 		if err := tx.Where("product_id IN ?", ids).Delete(&product).Error; err != nil {
@@ -138,19 +172,29 @@ func (r *StorageGormRepository) DeleteProductRepo(ctx context.Context, productid
 			tx.Rollback() // 更新失败，回滚事务
 			return err
 		}
-	} else if productid > 0 {
-		// 单个删除商品
-		product := stormodels.ProductStruct{}
-		if err := tx.Where("product_id = ?", productid).Delete(&product).Error; err != nil {
-			tx.Rollback() // 删除失败，回滚事务
-			return err
-		}
 
-		// 更新库存表中的 ID 为 -1
-		if err := tx.Model(&stormodels.InventoryStruct{}).Where("inventory_id = ?", productid).Update("inv_status", "已下架").Error; err != nil {
-			tx.Rollback() // 更新失败，回滚事务
-			return err
-		}
+	} else if productid > 0 {
+		// // 单个删除商品
+		// product := stormodels.ProductStruct{}
+		// if err := tx.Where("product_id = ?", productid).Delete(&product).Error; err != nil {
+		// 	tx.Rollback() // 删除失败，回滚事务
+		// 	return err
+		// }
+
+		// // 更新库存表中的 ID 为 -1
+		// if err := tx.Model(&stormodels.InventoryStruct{}).Where("inventory_id = ?", productid).Update("inv_status", "已下架").Error; err != nil {
+		// 	tx.Rollback() // 更新失败，回滚事务
+		// 	return err
+		// }
+
+		// // 删除 product_stas 表中对应的记录
+		// if err := tx.Where("barcode = (SELECT barcode FROM products WHERE product_id = ?)", productid).Delete(&stormodels.ProductStats{}).Error; err != nil {
+		// 	tx.Rollback() // 删除失败，回滚事务
+		// 	return err
+		// }
+
+		// // 从缓存中删除对应的记录
+		// r.productCache.Delete(productid) // 假设 productid 是缓存的键
 	}
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {

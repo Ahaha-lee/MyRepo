@@ -1,7 +1,11 @@
 import { useState,useEffect } from "react";
 import MainLayout from "../../../utils/MainLayOut/MainLayout";
-import { ProductApi } from "../../../api/storage/product";
+import { ProductApi, ProductCacheApi } from "../../../api/storage/product";
 import { useLocation } from 'react-router-dom';
+import React from 'react';
+import { CommonTable } from "../../../utils/Common/CommonTable";
+import 'react-data-grid/lib/styles.css';
+import ReactDataGrid from 'react-data-grid'
 
 export function ProductAddPage() {
     return(
@@ -26,56 +30,57 @@ export function ProductUpdatePage() {
 }
 
 
-export function ProductAddUpdateForm({productinfo}) {
-
-    const [formdata, setFormData] = useState({
+export function ProductAddUpdateForm({ productinfo }) {
+    const [formdata, setFormData] = useState([{
         ProBarcode: "",
         Category: "",
         ProductName: "",
-        CostPrice: 0,
+        CostPrice:parseFloat(0),
         RetailPrice: 0,
         ProductUnit: "",
         DetailedlyDesc: "",
         ProLocation: "",
-    });
+    }]);
 
     useEffect(() => {
         if (productinfo) {
-            setFormData({
-                ProBarcode: productinfo.ProBarcode,
-                Category: productinfo.Category,
-                ProductName:productinfo.ProductName,
-                CostPrice:productinfo.CostPrice,
-                RetailPrice: productinfo.RetailPrice,
-                ProductUnit: productinfo.ProductUnit,
-                DetailedlyDesc: productinfo.DetailedlyDesc,
-                ProLocation: productinfo.ProLocation,
-            });
+            setFormData([{
+                ProBarcode: productinfo.ProBarcode || "",
+                Category: productinfo.Category || "",
+                ProductName: productinfo.ProductName || "",
+                CostPrice: productinfo.CostPrice || 0,
+                RetailPrice: productinfo.RetailPrice || 0,
+                ProductUnit: productinfo.ProductUnit || "",
+                DetailedlyDesc: productinfo.DetailedlyDesc || "",
+                ProLocation: productinfo.ProLocation || "",
+            }]);
         }
     }, [productinfo]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value
-        }));
+        setFormData(prevData => {
+            const updatedItem = {...prevData[0] };
+            if (name === "CostPrice"||name === "RetailPrice") {
+                const parsedValue = isNaN(Number(value))? updatedItem[name] : Number(value);
+                updatedItem[name] = parsedValue;
+            } else {
+                updatedItem[name] = value === ""? updatedItem[name] : value;
+            }
+            return [updatedItem];
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        formdata.CostPrice = parseFloat(formdata.CostPrice);
-        formdata.RetailPrice = parseFloat(formdata.RetailPrice);
-
+        
         try {
             if (productinfo) {
                 // 修改商品信息
-                const res = await ProductApi.updateinfo(
-                    {
-                        params:{update_id:productinfo.ProductID},
-                        data:formdata
-                    }
-                );
+                const res = await ProductApi.updateinfo({
+                    params: { update_id: productinfo.ProductID },
+                    data: formdata
+                });
                 console.log("修改商品成功", res);
             } else {
                 // 添加新商品
@@ -83,20 +88,20 @@ export function ProductAddUpdateForm({productinfo}) {
                 console.log("添加商品成功", res);
             }
         } catch (err) {
-            console.log("操作失败", err);
+            console.error("操作失败", err);
         }
     };
 
     return (
         <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh', width: '100%', minWidth: '400px' }}>
             <form onSubmit={handleSubmit} style={{ width: '60%' }}>
-                <h2 className="text-center">{productinfo ? "修改商品" : "新增商品"}</h2>
+                <h2 className="text-center">{productinfo? "修改商品" : "新增商品"}</h2>
                 <div className="col-md-12">
                     <label>商品名称:</label>
                     <input
                         className="form-control"
                         type="text"
-                        value={formdata.ProductName}
+                        value={formdata[0].ProductName}
                         name="ProductName"
                         onChange={handleChange}
                     />
@@ -106,10 +111,10 @@ export function ProductAddUpdateForm({productinfo}) {
                     <input
                         className="form-control"
                         type="text"
-                        value={formdata.ProBarcode}
+                        value={formdata[0].ProBarcode}
                         name="ProBarcode"
                         onChange={handleChange}
-                        readOnly
+                        readOnly={!!productinfo}
                     />
                 </div>
                 <div className="col-md-12">
@@ -117,7 +122,7 @@ export function ProductAddUpdateForm({productinfo}) {
                     <input
                         className="form-control"
                         type="text"
-                        value={formdata.Category}
+                        value={formdata[0].Category}
                         name="Category"
                         onChange={handleChange}
                     />
@@ -127,7 +132,7 @@ export function ProductAddUpdateForm({productinfo}) {
                     <input
                         className="form-control"
                         type="text"
-                        value={formdata.ProductUnit}
+                        value={formdata[0].ProductUnit}
                         name="ProductUnit"
                         onChange={handleChange}
                     />
@@ -138,7 +143,7 @@ export function ProductAddUpdateForm({productinfo}) {
                         <input
                             className="form-control"
                             type="number"
-                            value={formdata.CostPrice}
+                            value={formdata[0].CostPrice}
                             name="CostPrice"
                             onChange={handleChange}
                         />
@@ -148,7 +153,7 @@ export function ProductAddUpdateForm({productinfo}) {
                         <input
                             className="form-control"
                             type="number"
-                            value={formdata.RetailPrice}
+                            value={formdata[0].RetailPrice}
                             name="RetailPrice"
                             onChange={handleChange}
                         />
@@ -159,17 +164,17 @@ export function ProductAddUpdateForm({productinfo}) {
                     <input
                         className="form-control"
                         type="text"
-                        value={formdata.ProLocation}
+                        value={formdata[0].ProLocation}
                         name="ProLocation"
                         onChange={handleChange}
                     />
                 </div>
-                <div className="row">
-                    <div className="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
                         <label>商品详情:</label>
                         <textarea
                             className="form-control"
-                            value={formdata.DetailedlyDesc}
+                            value={formdata[0].DetailedlyDesc}
                             name="DetailedlyDesc"
                             onChange={handleChange}
                         />
@@ -177,7 +182,138 @@ export function ProductAddUpdateForm({productinfo}) {
                 </div>
                 <button className="btn btn-primary">提交</button>
             </form>
-            
         </div>
     );
+}
+
+
+
+// 批量增加商品
+export function ProductBatchAddPage() {
+    return (
+        <div>
+            <MainLayout rightContent={<EditableGrid />} />
+        </div>
+    );
+}
+
+  
+  
+const initialRows = Array.from({ length: 18 }, (_, index) => ({
+    id: index,
+    ProBarcode: '',
+    ProductName: '',
+    Category: '',
+    ProductUnit: '',
+    CostPrice: '',
+    RetailPrice: '',
+    ProLocation: '',
+    DetailedlyDesc: '',
+  }));
+  
+  const columns = [
+    { key: 'ProBarcode', name: '商品条码', editable: true },
+    { key: 'ProductName', name: '商品名称', editable: true },
+    { key: 'Category', name: '商品种类', editable: true },
+    { key: 'ProductUnit', name: '商品数量单位', editable: true },
+    { key: 'CostPrice', name: '商品成本价', editable: true },
+    { key: 'RetailPrice', name: '商品零售价', editable: true },
+    { key: 'ProLocation', name: '货架位置', editable: true },
+    { key: 'DetailedlyDesc', name: '商品详情', editable: true },
+  ];
+  
+  const EditableGrid = () => {
+    const [rows, setRows] = useState(initialRows);
+  
+    const handleRowsChange = (newRows) => {
+      setRows(newRows);
+    };
+  
+    const addRow = () => {
+      setRows([...rows, { id: rows.length, ProBarcode: '', ProductName: '', Category: '', ProductUnit: '', CostPrice: '', RetailPrice: '', ProLocation: '', DetailedlyDesc: '' }]);
+    };
+  
+    const handleSubmit = () => {
+      const filteredRows = rows.filter(row => Object.values(row).some(value => value !== ''));
+      console.log('提交的数据:', filteredRows);
+      // 在这里可以进行数据提交的操作，例如发送到服务器
+    };
+  
+    return (
+      <div style={{ height: "80vh", display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1 }}>
+          <ReactDataGrid
+            columns={columns}
+            rows={rows}
+            onRowsChange={handleRowsChange}
+            editable
+            style={{ height: "100%" }} // 确保表格占满容器
+          />
+        </div>
+        <div style={{ marginTop: "10px" }}>
+          <button onClick={addRow}>添加行</button>
+          <button onClick={handleSubmit}>提交</button>
+        </div>
+      </div>
+    );
+  };
+  
+
+export function GetCacheProduct() {
+    const [Results, setResults] = useState([]);
+     const columns = [
+        {
+          title: '商品ID',
+          key: 'ProductID'
+        },
+        {
+          title: '商品名称',
+          key: 'ProductName'
+        },
+        {
+          title: '商品条码',
+          key: 'ProBarcode'
+        },
+        {
+          title: '商品描述',
+          key: 'DetailedlyDesc'
+        },
+        {
+          title: '商品种类',
+          key: 'Category',
+        }
+      ];
+
+      useEffect(() => {
+        getlist();
+      }, []);
+    const getlist=()=>{
+    try{
+        ProductCacheApi.getallinfo().then((res)=>{
+            console.log("缓存返回的数据:", res);
+
+            // 提取 product 信息并组成新数组
+            const productsArray = res.map((item) => item.Product);
+            
+            // 设置结果
+            setResults(productsArray);
+        })
+    }catch(error){
+        console.error('错误信息:', error);
+    }
+    }    
+    console.log("Results:", Results);
+    
+      return (
+        <div>
+          <div className="container">
+           <CommonTable
+            columns={columns}
+            data={Results}
+            checkable={true}
+            idField={"ProductID"}
+          />
+        </div>
+        </div>
+    );   
 }

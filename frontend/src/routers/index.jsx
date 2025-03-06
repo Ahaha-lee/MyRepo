@@ -9,6 +9,8 @@ import { RegisterPage } from '../views/Login/RegisterPlus';
 import { AdminHomePage } from '../views/Homesettings/Home';
 import { VIPRouter } from './vip_router';
 import { StorageRouter } from './storage_router';
+import { PaymentRouter } from './payment_router';
+import { SysRouter } from './sysmanage_router';
 export default function AppRouter(){
 
     return(
@@ -28,6 +30,10 @@ export default function AppRouter(){
 
             {/* storage */}
             <Route path='/storage/*' element={<StorageRouter/>}/>
+
+            <Route path='/payment/*' element={<PaymentRouter/>}/>
+
+            <Route path='/sysmanage/*' element={<SysRouter/>}/>
         </Routes>
 
         </Router>

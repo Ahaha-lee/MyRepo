@@ -3,8 +3,9 @@ import MainLayout from '../../../utils/MainLayOut/MainLayout.jsx'
 import { InboundRecordsApiPro, ListApi} from '../../../api/storage';
 import { getPageStatus } from './Status.jsx';
 import { InfoModalPro } from './CauGouDetaillnfo.jsx'
-import { Pagination } from '../../../utils/SlicePage.jsx';
+import { Pagination } from '../../../utils/Common/SlicePage.jsx';
 import { useNavigate } from 'react-router-dom';
+import { CommonTable } from '../../../utils/Common/CommonTable.jsx';
 
 export function AllProcurementDetailsPage() {
     return(
@@ -111,42 +112,36 @@ export function AllProcurementList({ Results, fetchDetails,fetchRecordDetails,pa
     const [modalType, setModalType] = useState(null);
     const [procureDetails, setProcureDetails] = useState({});
     const [recordDetails, setRecordDetails] = useState({});
-    const [selectAllChecked, setSelectAllChecked]=useState(false);
-    const [checkboxStates, setCheckboxStates] = useState({ });
     const navigate=useNavigate();
-    useEffect(() => {
-        inicheck();
-      }, [Results]);
-      // 初始化页面商品勾选状态 为flase
-      const inicheck=()=>{
-        const initialStates = Results.reduce((acc, declarations) => {
-          acc[declarations.recordID] = false;
-          return acc;
-          }, {}); 
-            setCheckboxStates(initialStates);
-      }
-       // 处理全选框点击事件的函数
-       const handleSelectAllClick = () => {
-        setSelectAllChecked(!selectAllChecked);
-        const newCheckboxStates = {};
-        Results.forEach((declaration) => {
-          newCheckboxStates[declaration.ProductID] = !selectAllChecked;
-        });
-        setCheckboxStates(newCheckboxStates);
-        // setPcheckstatus(newCheckboxStates);
-       }
     
-      //  页面小框单独点击事件函数
-       const handleCheckboxChange = (id) => {
-        setCheckboxStates(prevStates => ({
-          ...prevStates,
-          [id]: !prevStates[id]
-        }));
-        // setPcheckstatus(pre=>({
-        //   ...pre,
-        //   [id]:!pre[id]
-        // }))
-      };
+    const columns = [
+        {
+            title: "申请表ID",
+            key: "recordID"
+        },
+        {
+            title: "标题",
+            key: "title"
+        },
+        {
+            title: "采购员工姓名",
+            key: "purchaserStaffName"
+        },
+        {
+            title: "商品名称",
+            key: "cGProductName"
+        },
+        {
+            title: "状态",
+            key: "isEnd",
+            render: (value, record) => matchstatus(record.recordID)
+        },
+    ];
+    const tableActions=(record)=>(
+        <>
+        <button onClick={() => handleFetchDetails(record.recordID)}>查看详情</button>
+        </>
+    )
 
     const handleFetchDetails = async (recordid) => {
         try {
@@ -188,58 +183,16 @@ export function AllProcurementList({ Results, fetchDetails,fetchRecordDetails,pa
     };
     return (
         <div>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>
-                        {/* 页面全选 */}
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={selectAllChecked}
-                            onChange={handleSelectAllClick}
-                        />
-                        </th>
-                        <th scope="col">#</th>
-                        <th scope="col">申请表ID</th>
-                        <th scope="col">标题</th>
-                        <th scope="col">采购员工姓名</th>
-                        <th scope="col">商品名称</th>
-                        <th scope="col">状态</th>
-                        <th scope="col">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Results.map((result, index) => (
-                        <tr key={result.recordID}>
-                            <td>
-                                {/* 页面单选 */}
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    checked={checkboxStates[result.recordID]} 
-                                    onChange={() => handleCheckboxChange(result.recordID)}
-                                />
-                            </td>
-                            <td scope="row">{index + 1}</td>
-                            <td>{result.recordID}</td>
-                            <td>{result.title}</td>
-                            <td>{result.purchaserStaffName}</td>
-                            <td>{result.cGProductName}</td>
-                            <td>{matchstatus(result.recordID)}</td>
-                            <td>
-                                <button onClick={() => handleFetchDetails(result.recordID)}>查看详情</button>
-                                <button
-                                disabled={matchstatus(result.recordID)!=="待审核"}
-                                onClick={()=>{handleUpdate(result.recordID)}}
-                                title='申请表只有在待审核的情况下才能修改'>修改</button>
+            <CommonTable
+                columns={columns}
+                data={Results}
+                checkable={true}
+                // onCheckChange={handleCheckboxChange}
+                indexColumn={true}
+                actions={tableActions}
+                idField={"recordID"}
+                />
 
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-         
             {modalType === "info" && (
                 <InfoModalPro 
                     isOpen={isOpen} 

@@ -6,8 +6,8 @@ import {AllOutDecalarationDetailsPage} from "../views/Storage/Chuku/OutListPro";
 import { CaiGouOpertionPage } from "../views/Storage/Caigou/CaiGouOperation";
 import { OutOpertionPage } from "../views/Storage/Chuku/OutOperation";
 import { AllProcurementDetailsPage } from "../views/Storage/Caigou/CaiGouListPro";
-import { ProductListPage } from "../views/Storage/Product/ProductList";
-import { ProductAddPage, ProductUpdatePage } from "../views/Storage/Product/ProductOperation";
+import { GetCacheProductPage, ProductListPage } from "../views/Storage/Product/ProductList";
+import { ProductAddPage, ProductBatchAddPage, ProductUpdatePage } from "../views/Storage/Product/ProductOperation";
 import { CategoryListPage } from "../views/Storage/Product/CategotyList";
 import { InventoryUpdatePage } from "../views/Storage/Inventory/InventoryOperation";
 import { InventoryListPage } from "../views/Storage/Inventory/InventoryList";
@@ -19,15 +19,17 @@ export function StorageRouter(){
         {/* 商品列表 */}
         <Route path="/productlist" element={<ProductListPage/>} />
 
-        <Route path="/product_add" element={< ProductAddPage/>} />
+        <Route path="/product_add" element={< ProductAddPage/>} />ff
+        <Route path="/product_batchadd" element={<ProductBatchAddPage/>} />
         <Route path="/product_update" element={<ProductUpdatePage/>} />
+        <Route path="/product_hot" element={<GetCacheProductPage/>}/>
 
         {/* 商品类型列表 */}
         <Route path="/categorylist" element={<CategoryListPage/>} />
 
         <Route path="/inventory_update" element={<InventoryUpdatePage/>} />
 
-
+        
         {/* 记录 */}
         <Route path="/cginfo" element={<AllProcurementDetailsPage/>}/>
         {/* 采购申请 */}

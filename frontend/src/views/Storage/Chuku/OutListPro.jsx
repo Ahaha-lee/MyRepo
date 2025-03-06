@@ -3,8 +3,10 @@ import MainLayout from '../../../utils/MainLayOut/MainLayout.jsx'
 import { ListApi, OutboundRecordsApiPro} from '../../../api/storage';
 import { getPageStatus } from './Status.jsx';
 import { InfoModalPro } from './OutDetailInfo';
-import { Pagination } from '../../../utils/SlicePage';
+import { Pagination } from '../../../utils/Common/SlicePage';
 import { useNavigate } from 'react-router-dom';
+import { title } from 'process';
+import { CommonTable } from '../../../utils/Common/CommonTable.jsx';
 export function AllOutDecalarationDetailsPage() {
     return(
         <div>
@@ -111,43 +113,36 @@ export function AllODeclarationList({ Results, fetchDetails,fetchRecords,pagesta
     const [modalType, setModalType] = useState(null);
     const [outdetails, setOutdetails] = useState({});
     const [recordDetails, setRecordDetails]=useState({});
-    const [selectAllChecked, setSelectAllChecked]=useState(false);
-    const [checkboxStates, setCheckboxStates] = useState({ });
-
-    useEffect(() => {
-        inicheck();
-      }, [Results]);
-      // 初始化页面商品勾选状态 为flase
-      const inicheck=()=>{
-        const initialStates = Results.reduce((acc, declarations) => {
-          acc[declarations.recordID] = false;
-          return acc;
-          }, {}); 
-            setCheckboxStates(initialStates);
-      }
-       // 处理全选框点击事件的函数
-       const handleSelectAllClick = () => {
-        setSelectAllChecked(!selectAllChecked);
-        const newCheckboxStates = {};
-        Results.forEach((declaration) => {
-          newCheckboxStates[declaration.ProductID] = !selectAllChecked;
-        });
-        setCheckboxStates(newCheckboxStates);
-        // setPcheckstatus(newCheckboxStates);
-       }
     
-      //  页面小框单独点击事件函数
-       const handleCheckboxChange = (id) => {
-        setCheckboxStates(prevStates => ({
-          ...prevStates,
-          [id]: !prevStates[id]
-        }));
-        // setPcheckstatus(pre=>({
-        //   ...pre,
-        //   [id]:!pre[id]
-        // }))
-      };
-    console.log(checkboxStates)    
+    const columns = [
+        {
+          title: "申请表ID",
+          key: "recordID"
+        },
+        {
+          title: "标题",
+          key: "title"
+        },
+        {
+          title: "理货员姓名",
+          key: "applyStaffName"
+        },
+        {
+          title: "商品名称",
+          key: "outProductName"
+        },
+        {
+          title: "状态",
+          key:"isEnd",
+          render: (value, record) => matchstatus(record.recordID)
+        },
+      ];
+
+      const tableActions=(record)=>(
+        <>
+        <button onClick={() => handleFetchDetails(record.recordID)}>查看详情</button>
+        </>
+      )
     const handleFetchDetails = async (recordid) => {
         try {
             const details = await fetchDetails(recordid);
@@ -186,53 +181,14 @@ export function AllODeclarationList({ Results, fetchDetails,fetchRecords,pagesta
     };
     return (
         <div>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>
-                        {/* 页面全选 */}
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={selectAllChecked}
-                            onChange={handleSelectAllClick}
-                        />
-                        </th>
-                        <th scope="col">#</th>
-                        <th scope="col">申请表ID</th>
-                        <th scope="col">标题</th>
-                        <th scope="col">理货员姓名</th>
-                        <th scope="col">商品名称</th>
-                        <th scope="col">状态</th>
-                        <th scope="col">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Results.map((result, index) => (
-                        <tr key={result.recordID}>
-                            <td>
-                                {/* 页面单选 */}
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    checked={checkboxStates[result.recordID]} 
-                                    onChange={() => handleCheckboxChange(result.recordID)}
-                                />
-                            </td>
-                            <td scope="row">{index + 1}</td>
-                            <td>{result.recordID}</td>
-                            <td>{result.title}</td>
-                            <td>{result.applyStaffName}</td>
-                            <td>{result.outProductName}</td>
-                            <td>{matchstatus(result.recordID)}</td>
-                            <td>
-                                <button onClick={() => handleFetchDetails(result.recordID)}>查看详情</button>
-                            
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+          <CommonTable
+              columns={columns}
+              data={Results}
+              checkable={true}
+            //   onCheckChange={handleCheckboxChange}
+              indexColumn={true}
+              actions={tableActions}
+              idField={"recordID"}/>
             {modalType === "info" && (
                 <InfoModalPro 
                     isOpen={isOpen} 

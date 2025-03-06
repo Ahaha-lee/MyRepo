@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { getLocalStorage } from "../../components/localstorage";
-import { SearchVipApi, VipMemberApi } from "../../api/vip";
+import { SearchVipApi, VipGrade, VipMemberApi } from "../../api/vip";
 import Modal from 'react-modal';
 import { ErrorPage } from "../Employees/error";
 import { AVipDash } from "./dashtable";
 import React from "react";
 import MainLayout from '../../utils/MainLayOut/MainLayout'
-
 
 export function AddVipPage (){
   return(
@@ -18,33 +17,56 @@ export function AddVipPage (){
 export const AddVipMembership = () => {
   const [message, setMessage] = useState('');  // 错误信息
   const [reminder, setReminder] = useState(''); // 提醒消息
-  const handler = getLocalStorage('session').name;
+  const handler = getLocalStorage('session', true).name;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [gradeId, setGradeId] = useState('');
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    getOptions();
+  }, []); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-      VipMemberApi.vip({
-        type: 'add',
-        data: {
-          Name: name,
-          Phone: phone,
-          RegiHandler: handler
-        },
-      }).then(res => {
-        console.log("注册会员返回数据", res);
-        setReminder(res.message);
-        setTimeout(() => {
-          setReminder('');
-        }, 3000);
-      }).catch(error => {
-        if (error.response && error.response.data){
-         console.log("错误信息",error.response.data.errormessage);
-          setMessage(error.response.data.errormessage);
-        }else{
-          setMessage(error.message);
-        }
+    VipMemberApi.vip({
+      type: 'add',
+      data: {
+        Name: name,
+        Phone: phone,
+        RegiHandler: handler,
+        Grade: gradeId
+      },
+    }).then(res => {
+      console.log("注册会员返回数据", res);
+      setReminder(res.message);
+      setTimeout(() => {
+        setReminder('');
+      }, 3000);
+    }).catch(error => {
+      if (error.response && error.response.data) {
+        console.log("错误信息", error.response.data.errormessage);
+        setMessage(error.response.data.errormessage);
+      } else {
+        setMessage(error.message);
+      }
+    });
+  };
+
+  const getOptions = async () => {
+    try {
+      const res = await VipGrade.get({
+        params: {}
       });
+      const data = res.data;
+      const grades = data.map(item => ({
+        GradeId: item.GradeId,
+        GradeName: item.GradeName
+      }));
+      setOptions(grades);
+    } catch (error) {
+      console.error('grades请求错误:', error);
+    }
   };
 
   const VipHandle = (e) => {
@@ -60,39 +82,59 @@ export const AddVipMembership = () => {
     <div>
       <form onSubmit={handleSubmit}>
         <div>
-            <h2 className="text-center">会员注册</h2>
-            <div className="mb-3">
-              <label htmlFor="name" className="form-label">注册会员姓名：</label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                name="name"
-                value={name}
-                placeholder="请输入注册会员姓名"
-                onChange={VipHandle}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="phone" className="form-label">注册会员电话：</label>
-              <input
-                type="tel" // 修改为 tel
-                className="form-control"
-                id="phone"
-                name="phone"
-                value={phone}
-                placeholder="请输入会员手机号码"
-                onChange={VipHandle}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary">提交</button>
-            {message && <p className="text-danger">{message}</p>}
-            {reminder && <p className='text-success'>{reminder}</p>}
+          <h2 className="text-center">会员注册</h2>
+          <div className="mb-3">
+            <label htmlFor="name" className="form-label">注册会员姓名：</label>
+            <input
+              type="text"
+              className="form-control"
+              id="name"
+              name="name"
+              value={name}
+              placeholder="请输入注册会员姓名"
+              onChange={VipHandle}
+            />
           </div>
+          <div className="mb-3">
+            <label htmlFor="phone" className="form-label">注册会员电话：</label>
+            <input
+              type="tel" 
+              className="form-control"
+              id="phone"
+              name="phone"
+              value={phone}
+              placeholder="请输入会员手机号码"
+              onChange={VipHandle}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="dropdown" className="form-label">请选择会员等级:</label>
+            <select 
+              id="dropdown" 
+              className="form-select" 
+              value={gradeId} 
+              onChange={(e) => setGradeId(e.target.value)}
+            >
+              {options.length > 0 ? (
+                options.map((option, index) => (
+                  <option key={index} value={option.GradeId} className="form-option">
+                    {option.GradeName}
+                  </option>
+                ))
+              ) : (
+                <option disabled>还未设置等级规则，请先设置等级规则</option>
+              )}
+            </select>
+          </div>
+          <button type="submit" className="btn btn-primary">提交</button>
+          {message && <p className="text-danger">{message}</p>}
+          {reminder && <p className='text-success'>{reminder}</p>}
+        </div>
       </form>
     </div>
   );
 };
+
 
 export function DeleteVipPage(){
   return(

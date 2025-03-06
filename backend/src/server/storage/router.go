@@ -49,6 +49,10 @@ func StorageRoutesGorm(server *gin.Engine, db *gorm.DB) {
 		storageGroupPro.DELETE("/product/:delete_id", storCon.CRUDForProductsCon(services))
 		storageGroupPro.PUT("/product/:update_id", storCon.CRUDForProductsCon(services))
 
+		storageGroupPro.GET("/product/hot/:search__id", storCon.ProductCacheCon(services))
+		storageGroupPro.POST("/product/hot/preload", storCon.PreloadProductsByBarcodesCon(services))
+		storageGroupPro.GET("/product/hot/all", storCon.GetAllProductsCacheCon(services))
+
 		// 商品种类信息的增删改查
 		storageGroupPro.POST("/category/insert", storCon.CRUDForCatgoryCon(services))
 		storageGroupPro.GET("/category/:search_id/:page", storCon.CRUDForCatgoryCon(services))

@@ -3,8 +3,11 @@ package server
 import (
 	"log"
 	login "mygo/server/login"
+	payment "mygo/server/payment"
 	storage "mygo/server/storage"
 	vip "mygo/server/vip"
+	stormodels "mygo/storage/models"
+	storrepo "mygo/storage/repositories"
 	"time"
 
 	"database/sql"
@@ -73,14 +76,30 @@ func Server() error {
 		MaxAge:           12 * time.Hour,                                      // 预检请求的缓存时间
 	}
 
+	// 初始化缓存配置
+	cacheConfig := stormodels.CacheConfig{
+		MaxSize:         1000,           // 最多缓存1000个商品
+		CleanupInterval: time.Hour * 24, // 每24小时清理一次
+		MinAccessCount:  5,              // 最少访问5次才保留
+		ExpirationTime:  24 * time.Hour, // 24小时未访问则过期
+	}
+
+	// 初始化缓存，这里会触发：
+	// 1. preloadHotProducts() - 预加载热门商品
+	// 2. 启动清理协程 - 定期执行 CleanCache()
+	if err := storrepo.InitCache(dbGorm, cacheConfig); err != nil {
+		log.Fatal(err)
+	}
 	// 使用自定义 CORS 中间件
 	server.Use(cors.New(corsConfig))
 
 	// 路由
 	login.LoginRoutes(server, db)             // 登录注册路由
 	vip.VipRoutes(server, db)                 // 会员模块
+	vip.VipRoutesGorm(server, dbGorm)         //会员模块2.0
 	storage.StorageRoutes(server, db)         //库存模块
 	storage.StorageRoutesGorm(server, dbGorm) //库存模块2.0
+	payment.PaymentRoutes(server, dbGorm)
 
 	// 启动服务器
 	if err := server.Run(":8081"); err != nil {

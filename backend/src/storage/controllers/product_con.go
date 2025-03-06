@@ -21,14 +21,13 @@ func CRUDForProductsCon(server *storser.StorageGormService) gin.HandlerFunc {
 		if c.Request.Method == "POST" {
 			action := c.Param("action")
 			if action == "insert" {
-
-				input := stormodels.ProductStruct{}
-				if err := c.ShouldBindJSON(&input); err != nil {
+				input := []*stormodels.ProductStruct{}           // 修改为指针切片
+				if err := c.ShouldBindJSON(&input); err != nil { // 传递指针
 					c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误", "errormessage": err.Error()})
 					return
 				}
 
-				if err := server.InsertProductInfoServ(c, &input); err != nil {
+				if err := server.InsertProductInfoServ(c, input); err != nil { // 传递指针切片
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "插入数据失败", "errormessage": err.Error()})
 					return
 				}
@@ -47,7 +46,6 @@ func CRUDForProductsCon(server *storser.StorageGormService) gin.HandlerFunc {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "数据删除错误", "errormessage": err.Error()})
 					return
 				}
-
 			}
 		} else if c.Request.Method == "GET" {
 			// 获取数据
@@ -187,4 +185,44 @@ func CRUDForCatgoryCon(server *storser.StorageGormService) gin.HandlerFunc {
 		}
 	}
 
+}
+
+func PreloadProductsByBarcodesCon(server *storser.StorageGormService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var id []int
+		if err := c.ShouldBindJSON(&id); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误", "errormessage": err.Error()})
+			return
+		}
+		err := server.PreloadProductsServ(c, id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "预加载失败", "errormessage": err.Error()})
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "预加载成功"})
+	}
+}
+
+func GetAllProductsCacheCon(server *storser.StorageGormService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		products, err := server.GetProductCacheServ(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "获取缓存失败", "errormessage": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, products)
+	}
+}
+func ProductCacheCon(server *storser.StorageGormService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		barcode := c.Param("search__id")
+
+		product, err := server.GetProductSev(barcode)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "数据获取失败", "errormessage": err.Error()})
+			return
+		}
+		if product != nil {
+			c.JSON(http.StatusOK, gin.H{"message": "数据获取成功", "product": product})
+		}
+	}
 }

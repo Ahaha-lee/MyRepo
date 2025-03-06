@@ -1,9 +1,11 @@
 import React, { useState ,useEffect} from 'react';
 import MainLayout from '../../../utils/MainLayOut/MainLayout';
-import { Pagination } from '../../../utils/SlicePage';
+import { Pagination } from '../../../utils/Common/SlicePage';
 import {InventoryApi} from '../../../api/storage/inventory';
 import { InventoryDetailInfoModal } from './InventoryDetailInfo';
 import { useNavigate } from 'react-router-dom';
+import { title } from 'process';
+import { CommonTable } from '../../../utils/Common/CommonTable';
 
 
 export  const InventoryListPage = () => {
@@ -76,42 +78,45 @@ export const InventoryListForm = () => {
 }   
 export const InventoryList=({Results,feachdetail}) => {
     console.log("Results",Results)
-    const [selectAllChecked, setSelectAllChecked]=useState(false);
-    const [checkboxStates, setCheckboxStates] = useState({ });
     const [inventoryDetails, setInventoryDetails] = useState({});
     const [isOpen, setIsOpen] = useState(false);
     const [modalType, setModalType] = useState(null)
     const navigate=useNavigate();
 
-    useEffect(() => {
-        inicheck();
-      }, [Results]);
-      // 初始化页面商品勾选状态 为flase
-      const inicheck=()=>{
-        const initialStates = Results.reduce((acc, product) => {
-          acc[product.Inventory_id] = false;
-          return acc;
-          }, {}); 
-            setCheckboxStates(initialStates);
+  
+    const columns=[
+      {
+      title:"商品 ID",
+      key:"Inventory_id"
+      },
+      {
+      title:"商品名称",
+      key:"Inv_productname"
+      },
+      {
+      title:"商品条码",
+      key:"Inv_barcode"
+      },
+      {
+      title:"商品状态",
+      key:"Inv_status"
+      },
+      {
+      title:"库存现有数量",
+      key:"Stocknow_quantity"
+      },
+      {
+      title:"商品数量单位",
+      key:"Inv_unit"
       }
-       // 处理全选框点击事件的函数
-       const handleSelectAllClick = () => {
-        setSelectAllChecked(!selectAllChecked);
-        const newCheckboxStates = {};
-        Results.forEach((product) => {
-          newCheckboxStates[product.Inventory_id] = !selectAllChecked;
-        });
-        setCheckboxStates(newCheckboxStates);
-       }
-    
-      //  页面小框单独点击事件函数
-       const handleCheckboxChange = (product_id) => {
-        setCheckboxStates(prevStates => ({
-          ...prevStates,
-          [product_id]: !prevStates[product_id]
-        }));
-      };
+    ]
 
+    const tableActions=(record)=>(
+      <>
+        <button onClick={() => handleFetchDetails("inventtoryinfo", record.Inventory_id)}>查看详情 </button>
+        <button onClick={() => handleUpdateProduct(record.Inventory_id)}>修改 </button>
+      </>
+    )
       const handleFetchDetails = async (action, product_id) => {
         const details = await feachdetail(product_id);
         setInventoryDetails(details);
@@ -136,55 +141,14 @@ export const InventoryList=({Results,feachdetail}) => {
     return(
     <div>
       <div className="container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">
-              {/* 页面全选 */}
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={selectAllChecked}
-                onChange={handleSelectAllClick}
-              />
-            </th>
-            <th scope="col">#</th>
-            <th scope="col">商品ID</th>
-            <th scope="col">商品名称</th>
-            <th scope="col">商品条码</th>
-            <th scope='col'>商品状态</th>
-            <th scope='col'>库存现有数量</th>
-            <th scope="col">商品数量单位</th>
-            <th scope="col">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Results.map((result, index) => (
-            <tr key={result.Inventory_id}>
-              <td>
-                {/* 页面单选 */}
-                <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={checkboxStates[result.ProductID]}
-                    onChange={() => handleCheckboxChange(result.Inventory_id)}
-                />
-              </td>
-              <td>{index + 1}</td>
-              <td>{result.Inventory_id}</td>
-              <td>{result.Inv_productname }</td>
-              <td>{result.Inv_barcode}</td>
-              <td>{result.Inv_status}</td>
-              <td>{result.Stocknow_quantity}</td>
-              <td>{result.Inv_unit}</td>
-              <td>
-                <button onClick={() => handleFetchDetails("inventtoryinfo", result.Inventory_id)}>查看详情 </button>
-                <button onClick={() => handleUpdateProduct(result.Inventory_id)}>修改 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <CommonTable
+        columns={columns}
+        data={Results}
+        checkable={true}
+        // onCheckChange={setPcheckstatus}
+        actions={tableActions}
+        idField={"Inventory_id"}
+      />
 
       {modalType==="inventtoryinfo" && (
         <InventoryDetailInfoModal 

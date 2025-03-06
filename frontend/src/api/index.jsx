@@ -1,17 +1,17 @@
-import { isDeleteExpression } from "typescript";
-import { CategoryAddModal } from "../views/Storage/Product/CategoryAdd";
-import { InventoryList } from "../views/Storage/Inventory/InventoryList";
+import { preload } from "react-dom";
 
 // api公用数据
 export const BaseApi = {
     baseURL: "http://localhost:8081/api",
     register: "/users/register",
     login: "/users/login",
-    addVip:"/vip",
+    addVip:"/vip/insert",
     deletevip:"/vip/:delete_id",
     updatevip:"/vip/:update_id",
-    searchvip:'/vip/:search_id',
-    viplist:"/vip/list",
+    viplist:"/vip/:search_id/:page",
+
+    vipgraderule:"/vip_grades/insert",
+    getgradeinfo:"/vip_grades/getinfo",
 
     procurementlst:"/storage/cg/:search_id/:page",//查询
     procurementupdate:"/storage/cg_declaration/:update_id",//修改采购申请表
@@ -30,6 +30,9 @@ export const BaseApi = {
     ckck:"/storage/ck/ck/:update_id",
 
     productsearch:"/storage/product/:search_id/:page",// 查询商品
+    hotproduct:"/storage/product/hot/:search_id",//cache
+    preload:"/storage/product/hot/preload",
+    getcacheallinfo:"/storage/product/hot/all",
     addproduct:"/storage/product/insert",//添加商品信息
     deleteproduct:"/storage/product/:delete_id", //删除商品信息
     batchdeleteproduct:"/storage/product/batchdelete",//product批量删除
@@ -37,7 +40,17 @@ export const BaseApi = {
 
     categorysearch:"/storage/category/:search_id/:page" ,//查询类型
     categoryadd: "/storage/category/insert",
+    categorydelete:"/storage/catrgoey/:delete_id",
 
     inventorylist:"/storage/inventory/:search_id/:page",//商品库存信息查询
     inventoryupdate:"/storage/inventory/:update_id",
+
+
+    discountsearch: "/payment/discount/:search_id/:page",
+    discountdelete: "/payment/discount/delete",
+    discountinsert:"/payment/discount/insert",
+    discountupdate: "/payment/discount/:update_id",
+   
+    discounttypesearch:"/payment/discount/type/:search_id/:page",
+    discounttypeinsert:"/payment/discount/type/insert",
 };

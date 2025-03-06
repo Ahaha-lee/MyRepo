@@ -1,28 +1,26 @@
 import { useContext, useEffect, useState } from "react";
-import { CategoryApi, ProductApi } from "../../../api/storage/product";
-import MainLayout from '../../../utils/MainLayOut/MainLayout.jsx'
+import { CategoryApi, ProductApi, ProductCacheApi } from "../../../api/storage/product";
+import MainLayout from '../../../utils/MainLayOut/MainLayout.jsx';
 import { InfoModal, InfoModalCateGory } from "./ProductDetailInfo";
 import { useNavigate } from "react-router-dom";
-import { Pagination } from "../../../utils/SlicePage.jsx";
+import { Pagination } from "../../../utils/Common/SlicePage.jsx";
 import React from 'react';
-const MyContext = React.createContext();
-export function ProductListPage() {
-  return (
-    <MainLayout rightContent={<ProductListForm />} />
-  );
-}
+import { GetCacheProduct } from "./ProductOperation.jsx";
+import { CommonTable } from "../../../utils/Common/CommonTable.jsx";
 
-export function ProductListForm() {
+export const MyContext = React.createContext();
+
+export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [productid, setProductid] = useState(0);
-  const [pagecount,setPagecount] = useState(1)
-  const navigate = useNavigate();
-  const [totalNum, setTotalNum] = useState();  
-  const[pcheckstatus,setPcheckstatus]=useState({});
- 
+  const [pagecount, setPagecount] = useState(1);
+  const [totalNum, setTotalNum] = useState();
+  const [pcheckstatus, setPcheckstatus] = useState({});
+  const [applicableItems, setApplicableItems] = useState([]);
+
   const getlist = () => {
     ProductApi.getinfo({
-      params: { search_id: 0 ,page:pagecount}
+      params: { search_id: 0, page: pagecount }
     })
       .then(res => {
         console.log("productlist返回的数据", res);
@@ -33,22 +31,18 @@ export function ProductListForm() {
         console.error('错误的信息:', error);
       });
   };
-  const totalPages = Math.ceil(totalNum / 10);
 
-  const searchproduact = async () => {
-    await getinfo(productid,"search");
-  };
-  const getinfo = async (product_id,action) => {
+  const getinfo = async (product_id, action) => {
     try {
       const res = await ProductApi.getinfo({
-        params: { search_id: product_id,page:pagecount}
+        params: { search_id: product_id, page: pagecount }
       });
       console.log('productdetail返回的数据', res);
-      if (action==="search"){
-      setProducts(res.data);
-      setTotalNum(res.total_num);
+      if (action === "search") {
+        setProducts(res.data);
+        setTotalNum(res.total_num);
       }
-      const details = res.data[0]; // 获取第一个数据项的详细信息
+      const details = res.data[0];
       return details;
     } catch (err) {
       console.log("错误信息", err);
@@ -68,116 +62,168 @@ export function ProductListForm() {
     }
   };
 
-  const deleteProduct = async () => {
+  const checkboxProduct = async (action) => {
     const newObj = [];
     for (const key in pcheckstatus) {
-        if (pcheckstatus[key] === true) {
-            newObj.push(key);
-        }
+      if (pcheckstatus[key] === true) {
+        newObj.push(key);
+      }
     }
-    const intArray = newObj.map(Number); // 转换为整数数组
+    const intArray = newObj.map(Number);
     try {
+      if (action === "delete") {
         const res = await ProductApi.batchdeleteinfo({
-            data:  intArray  
+          data: intArray
         });
+        intArray.length = 0;
         console.log("product删除成功", res);
         getlist();
-
+      } else if (action == "preload") {
+        const res = await ProductCacheApi.addinfo(intArray);
+        intArray.length = 0;
+        console.log("预加载成功", res);
+      } else if (action === "showkApplicableItems") {
+        setApplicableItems(intArray);
+      }
     } catch (error) {
-        console.error('错误信息:', error);
+      console.error('错误信息:', error);
     }
-};
-
+  };
 
   useEffect(() => {
     getlist();
   }, [pagecount]);
 
-  return ( 
+  return (
+    <MyContext.Provider value={{
+      products, setProducts,
+      productid, setProductid,
+      pagecount, setPagecount,
+      totalNum, setTotalNum,
+      pcheckstatus, setPcheckstatus,
+      applicableItems, setApplicableItems,
+      getinfo, getCategory, checkboxProduct,
+      getlist
+    }}>
+      {children}
+    </MyContext.Provider>
+  );
+}
+
+export function ProductListPage() {
+  return (
+    <MainLayout rightContent={<ProductProvider><ProductListForm action="productlist" /></ProductProvider>} />
+  );
+}
+
+export function ProductListForm({ action }) {
+  const { products, productid, setProductid, pagecount, setPagecount, totalNum, checkboxProduct,getinfo,getlist} = useContext(MyContext);
+  const navigate = useNavigate();
+  const totalPages = Math.ceil(totalNum / 10);
+
+  useEffect(() => {
+    getlist();
+  }, [pagecount]);
+  const searchproduact = async () => {
+    await getinfo(productid, "search");
+  };
+
+  return (
     <>
-    <div className="mb-3">
-            <label className="form-label">查询ID:</label>
-            <input 
-                type="text" 
-                className="form-control"
-                style={{ width: '30%' }}
-                value={productid} 
-                onChange={(e) => setProductid(e.target.value)} 
-            /> 
-            <button className="btn btn-primary" onClick={searchproduact}>查询</button>
-        </div>
-    <div className="mb-3">
-      <button className="btn " type="button" onClick={()=>navigate("/storage/product_add")}>商品新增</button>
-      <button className="btn " type="button" onClick={()=>deleteProduct()}>删除商品</button>
-    </div>
-    <div>
-      <MyContext.Provider v value={{ pcheckstatus, setPcheckstatus, }}>
-          <ProductList Results={products} fetchDetails={getinfo} fetchCategory={getCategory} page={pagecount} />
-      </MyContext.Provider>
-    </div>
-    <Pagination totalPages={totalPages} onPageChange={setPagecount} />
+      <div className="mb-3">
+        <label className="form-label">查询ID:</label>
+        <input
+          type="text"
+          className="form-control"
+          style={{ width: '30%' }}
+          value={productid}
+          onChange={(e) => setProductid(e.target.value)}
+        />
+        <button className="btn btn-primary" onClick={searchproduact}>查询</button>
+      </div>
+      {action === "productlist" ?
+        <div className="mb-3">
+          <button className="btn " type="button" onClick={() => navigate("/storage/product_add")}>商品新增</button>
+          <button className="btn " type="button" onClick={() => navigate("/storage/product_batchadd")}>批量新增</button>
+          <button className="btn " type="button" onClick={() => checkboxProduct("delete")}>删除商品</button>
+          <button className="btn " type="button" onClick={() => checkboxProduct("preload")}>缓存预加载</button>
+          <button className="btn " type="button" onClick={() => navigate("/storage/product_hot")}>查看缓存商品</button>
+        </div> : <></>}
+      {action === "producapplicable" ?
+        <div>
+          <button className="btn " type="button">查看优惠商品列表中的商品</button>
+          <button className="btn " type="button" onClick={() => checkboxProduct("showkApplicableItems")}>保存已勾选数据到商品优惠列表</button>
+        </div> : <></>}
+      <div>
+        <ProductList action={action === "productlist" ? "list" : action} />
+      </div>
+      <Pagination totalPages={totalPages} onPageChange={setPagecount} />
     </>
   );
 }
 
-export function ProductList({ Results, fetchDetails, fetchCategory,page}) {
+export function GetCacheProductPage() {
+  return (
+    <MainLayout rightContent={<GetCacheProduct />} />
+  );
+}
+
+export function ProductList({ action }) {
+  const { products, getinfo, getCategory, pcheckstatus, setPcheckstatus } = useContext(MyContext);
   const [isOpen, setIsOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [productDetails, setProductDetails] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
-  const [selectAllChecked, setSelectAllChecked]=useState(false);
-  const [checkboxStates, setCheckboxStates] = useState({ });
-  const {pcheckstatus,setPcheckstatus}=useContext(MyContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    inicheck();
-  }, [Results]);
-  // 初始化页面商品勾选状态 为flase
-  const inicheck=()=>{
-    console.log("res",Results)
-    const initialStates = Results.reduce((acc, product) => {
-      acc[product.ProductID] = false;
-      return acc;
-      }, {}); 
-        setCheckboxStates(initialStates);
-  }
-   // 处理全选框点击事件的函数
-   const handleSelectAllClick = () => {
-    setSelectAllChecked(!selectAllChecked);
-    const newCheckboxStates = {};
-    Results.forEach((product) => {
-      newCheckboxStates[product.ProductID] = !selectAllChecked;
-    });
-    setCheckboxStates(newCheckboxStates);
-    setPcheckstatus(newCheckboxStates);
-   }
+  const columns = [
+    {
+      title: '商品ID',
+      key: 'ProductID'
+    },
+    {
+      title: '商品名称',
+      key: 'ProductName'
+    },
+    {
+      title: '商品条码',
+      key: 'ProBarcode'
+    },
+    {
+      title: '商品描述',
+      key: 'DetailedlyDesc'
+    },
+    {
+      title: '商品种类',
+      key: 'Category',
+      render: (value, record) => (
+        <a href="#" onClick={() => handleFetchCategory("categoryinfo", value)}>
+          {value}
+        </a>
+      )
+    }
+  ];
 
-  //  页面小框单独点击事件函数
-   const handleCheckboxChange = (product_id) => {
-    setCheckboxStates(prevStates => ({
-      ...prevStates,
-      [product_id]: !prevStates[product_id]
-    }));
-    setPcheckstatus(pre=>({
-      ...pre,
-      [product_id]:!pre[product_id]
-    }))
-  };
+  const tableActions = (record) => (
+    <>
+      <button onClick={() => handleFetchDetails("productinfo", record.ProductID)}>查看详情</button>
+      {action === "list" ? <button onClick={() => handleUpdateProduct(record.ProductID)}>修改</button> : <></>}
+    </>
+  );
 
   const handleFetchDetails = async (action, product_id) => {
-    const details = await fetchDetails(product_id);
+    const details = await getinfo(product_id);
     setProductDetails(details);
     handleNavigate(action);
   };
 
   const handleUpdateProduct = async (productId) => {
-    const updateProduct = await fetchDetails(productId);
+    const updateProduct = await getinfo(productId);
     navigate('/storage/product_update', { state: { product: updateProduct } });
-};
+  };
 
   const handleFetchCategory = async (action, category_id) => {
-    const details = await fetchCategory(category_id);
+    const details = await getCategory(category_id);
     setCategoryDetails(details);
     handleNavigate(action);
   };
@@ -197,59 +243,16 @@ export function ProductList({ Results, fetchDetails, fetchCategory,page}) {
   return (
     <div>
       <div className="container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">
-              {/* 页面全选 */}
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={selectAllChecked}
-                onChange={handleSelectAllClick}
-              />
-            </th>
-            <th scope="col">#</th>
-            <th scope="col">商品ID</th>
-            <th scope="col">商品名称</th>
-            <th scope="col">商品条码</th>
-            <th scope="col">商品描述</th>
-            <th scope="col">商品种类</th>
-            <th scope="col">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Results.map((result, index) => (
-            <tr key={result.ProductID}>
-              <td>
-                {/* 页面单选 */}
-                <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={checkboxStates[result.ProductID]}
-                    onChange={() => handleCheckboxChange(result.ProductID)}
-                />
-              </td>
-              <td>{index + 1}</td>
-              <td>{result.ProductID}</td>
-              <td>{result.ProductName}</td>
-              <td>{result.ProBarcode}</td>
-              <td>{result.DetailedlyDesc}</td>
-              <td>
-                <a href="#" onClick={() => handleFetchCategory("categoryinfo", result.Category)}>
-                  {result.Category}
-                </a>
-              </td>
-              <td>
-                <button onClick={() => handleFetchDetails("productinfo", result.ProductID)}>查看详情 </button>
-                <button onClick={() => handleUpdateProduct(result.ProductID)}>修改 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <CommonTable
+          columns={columns}
+          data={products}
+          checkable={true}
+          onCheckChange={setPcheckstatus}
+          actions={tableActions}
+          idField={"ProductID"}
+        />
       </div>
-      
+
       {modalType === "productinfo" && (
         <InfoModal
           isOpen={isOpen}
@@ -264,8 +267,6 @@ export function ProductList({ Results, fetchDetails, fetchCategory,page}) {
           categoryDetails={categoryDetails}
         />
       )}
-  
-  </div>
+    </div>
   );
 }
-

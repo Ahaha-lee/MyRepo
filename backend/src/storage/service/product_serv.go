@@ -17,8 +17,8 @@ func NewStorageGormService(storagegormrepo *storrepo.StorageGormRepository) *Sto
 	}
 }
 
-func (s *StorageGormService) InsertProductInfoServ(ctx context.Context, input *stormodels.ProductStruct) error {
-	err := s.storagegormrepo.InsertProductRepo(ctx, input)
+func (s *StorageGormService) InsertProductInfoServ(ctx context.Context, input []*stormodels.ProductStruct) error {
+	err := s.storagegormrepo.InsertProductsRepo(ctx, input) // 调用 InsertProductsRepo
 	if err != nil {
 		log.Println("InsertProductInfoServ出错1", err)
 		return err
@@ -86,4 +86,37 @@ func (s *StorageGormService) DeleteCategoryServ(ctx context.Context, categoryid 
 		return err
 	}
 	return nil
+}
+
+//product cache
+
+//商品预加载的serv
+
+func (s *StorageGormService) PreloadProductsServ(ctx context.Context, ID []int) error {
+	err := storrepo.PreloadProductsByID(ID)
+	if err != nil {
+		log.Println("PreloadProductsServ出错", err)
+		return err
+	}
+	return nil
+}
+
+func (s *StorageGormService) GetProductCacheServ(ctx context.Context) ([]stormodels.ProductCache, error) {
+	product, err := storrepo.GetAllProductsCache()
+	if err != nil {
+		log.Println("GetProductServ出错", err)
+		return product, err
+	}
+	return product, nil
+}
+
+// GetProduct 获取商品信息
+
+func (s *StorageGormService) GetProductSev(id string) (*[]stormodels.ProductStruct, error) {
+	// 从缓存或数据库获取商品
+	product, err := storrepo.GetProduct(id)
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
 }

@@ -1,9 +1,12 @@
-import { useState,useEffect } from "react";
+import { useState,useEffect,useContext} from "react";
 import MainLayout from "../../../utils/MainLayOut/MainLayout"
 import { CategoryAddModal } from "./CategoryAdd";
-import { Pagination } from "../../../utils/SlicePage";
+import { Pagination } from "../../../utils/Common/SlicePage";
 import { CategoryApi } from "../../../api/storage/product";
 import { InfoModalCateGory } from "./ProductDetailInfo";
+import React from "react";
+import { CommonTable } from "../../../utils/Common/CommonTable";
+const MyContext=React.createContext();
 export function CategoryListPage(){
   return (
     <div>
@@ -17,8 +20,9 @@ export function CategoryListForm() {
   const [categoryid, setCotegoryid] = useState();
   const [pagecount,setPagecount] = useState(1)
   const [totalNum, setTotalNum] = useState();  
- const [isOpen, setIsOpen] = useState(false);
- const [modalType, setModalType] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const[pcheckstatus,setPcheckstatus]=useState({});
   const getlist = () => {
    CategoryApi.getinfo({
       params: { search_id: '0' ,page:pagecount}
@@ -61,7 +65,24 @@ export function CategoryListForm() {
   };
 
 
-
+// const deleteCategory = async () => {
+//     const newObj = [];
+//     for (const key in pcheckstatus) {
+//         if (pcheckstatus[key] === true) {
+//             newObj.push(key);
+//         }
+//     }
+//     const intArray = newObj.map(Number); // 转换为整数数组
+//     try {
+//         const res = await CategoryApi.deletebatch({
+//             data:  intArray  
+//         });
+//         console.log("category删除成功", res);
+//         getlist();
+//     } catch (error) {
+//         console.error('错误信息:', error);
+//     }
+// };
 
   useEffect(() => {
     getlist();
@@ -85,8 +106,11 @@ export function CategoryListForm() {
     <button className="btn " type="button">删除种类</button>
     </div>
     <hr/>
-    <CategoryList Results={categories} fetchDetails={getinfo} />
-    <Pagination totalPages={totalPages} onPageChange={setPagecount} />
+    <MyContext.Provider v value={{ pcheckstatus, setPcheckstatus}}>
+      <CategoryList Results={categories} fetchDetails={getinfo} />
+    </MyContext.Provider>
+ 
+      <Pagination totalPages={totalPages} onPageChange={setPagecount} />
 
     {isOpen && modalType === "addcategory" && (<CategoryAddModal
       isOpen={isOpen}
@@ -102,35 +126,27 @@ export function CategoryList({Results,fetchDetails}){
   const [isOpen, setIsOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
-  const [selectAllChecked, setSelectAllChecked]=useState(false);
-  const [checkboxStates, setCheckboxStates] = useState({ });
-  useEffect(()=>{
-    inicheck()
-  },[])
-  const inicheck=()=>{
-    const initialStates = Results.reduce((acc, categories) => {
-      acc[categories.ProductID] = false;
-      return acc;
-      }, {}); 
-        setCheckboxStates(initialStates);
-  }
-   // 处理全选框点击事件的函数
-   const handleSelectAllClick = () => {
-    setSelectAllChecked(!selectAllChecked);
-    const newCheckboxStates = {};
-    Results.forEach((product) => {
-      newCheckboxStates[product.ProductID] = !selectAllChecked;
-    });
-    setCheckboxStates(newCheckboxStates);
-   }
-
-  //  页面小框单独点击事件函数
-   const handleCheckboxChange = (product_id) => {
-    setCheckboxStates(prevStates => ({
-      ...prevStates,
-      [product_id]: !prevStates[product_id]
-    }));
-  };
+  const {pcheckstatus,setPcheckstatus}=useContext(MyContext);
+  
+  const columns=[
+    {
+      title:'类型ID',
+      key:'CategoryID'
+    },
+    {
+      title:'类型名称',
+      key:'CategoryName'
+    },
+    {
+      title:'类型描述',
+      key:'CategoryDesc',
+    }
+  ]
+  const tableActions=(record)=>(
+    <>
+    <button onClick={()=>handleFetchDetails("categoryinfo",record.CategoryID)}>查看详情</button>
+    </>
+  )
 
   const handleFetchDetails = async (action, category_id) => {
     const details = await fetchDetails(category_id);
@@ -153,49 +169,14 @@ export function CategoryList({Results,fetchDetails}){
   return (
     <div>
       <div className="container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">
-              {/* 页面全选 */}
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={selectAllChecked}
-                onChange={handleSelectAllClick}
-              />
-            </th>
-            <th scope="col">#</th>
-            <th scope="col">类型ID</th>
-            <th scope="col">类型名称</th>
-            <th scope="col">类型描述</th>
-            <th scope="col">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Results.map((result, index) => (
-            <tr key={result.ProductID}>
-              <td>
-                <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={checkboxStates[result.ProductID]}
-                    onChange={() => handleCheckboxChange(result.ProductID)}
-                />
-              </td>
-              <td>{index + 1}</td>
-              <td>{result.CategoryID}</td>
-              <td>{result.CategoryName}</td>
-              <td>{result.CategoryDesc}</td>
-              <td>
-                <a href="#" onClick={() =>  handleFetchDetails("categoryinfo", result.CategoryID)}>查看详情
-                </a>
-              </td>
-             
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <CommonTable
+        columns={columns}
+        data={Results}
+        checkable={true}
+        onCheckChange={setPcheckstatus}
+        actions={tableActions}
+        idField={"CategoryID"}
+        />
       {modalType === "categoryinfo" && (
         <InfoModalCateGory
           isOpen={isOpen}

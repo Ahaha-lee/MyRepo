@@ -29,10 +29,11 @@ func (r *VipRepository) FindVipRepo(ctx context.Context, id string) (*vipmodels.
 	var vip vipmodels.VIP
 	err := r.db.QueryRowContext(ctx, "SELECT * FROM vipmember_data WHERE Phone = ? or Name = ?", id, id).
 		Scan(
-			&vip.VIPID,
+			&vip.VipId,
 			&vip.Name,
 			&vip.Phone,
 			&vip.JoinDate,
+			&vip.Grade,
 			&vip.NowPoints,
 			&vip.UsedPoints,
 			&vip.RegiHandler,

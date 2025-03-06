@@ -21,8 +21,8 @@ func (r *VipRepository) InsertVIPinfoRepo(ctx context.Context, newvip *vipmodels
 		return fmt.Errorf("该手机号已存在")
 	}
 
-	query := "INSERT INTO vipmember_data (Name, Phone,NowPoints, UsedPoints,RegiHandler) VALUES ( ?, ?,?, ?, ?)"
-	_, err = r.db.Exec(query, newvip.Name, newvip.Phone, 0, 0, newvip.RegiHandler)
+	query := "INSERT INTO vipmember_data (Name, Phone,Grade,NowPoints, UsedPoints,RegiHandler) VALUES ( ?,?,?,?,?,?)"
+	_, err = r.db.Exec(query, newvip.Name, newvip.Phone, newvip.Grade, 0, 0, newvip.RegiHandler)
 	if err != nil {
 		fmt.Println("InsertVIPinfoRepo出错1", err)
 		return fmt.Errorf("插入VIP信息失败")

@@ -1,20 +1,6 @@
 import { Link } from 'react-router-dom';
-import { VIPDashForm } from './VIPInfoDash';
 import React from 'react';
-import MainLayout from '../../utils/MainLayOut/MainLayout'
 
-export function MembersPage() {
-   return(
-    <div>
-      <MainLayout rightContent={<VIPMembersForm/>}></MainLayout>
-    </div>
-   )
-}
-export function VIPDashboardPage() {
-    return(
-        <MainLayout rightContent={<VIPDashForm/>}></MainLayout>
-    )
- }
 
 export function VIPMembersForm() {
     return (

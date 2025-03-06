@@ -6,9 +6,64 @@ import { VIPPointsApi } from '../../api/vip';
 import MainLayout from '../../utils/MainLayOut/MainLayout'
 export function ChangePointsPage(){
   return(
-    <MainLayout rightContent={<ChangePoints/>}></MainLayout>
+    <MainLayout rightContent={<VIPPointsForm/>}></MainLayout>
   );
 }
+
+export const VIPPointsForm=()=>{
+  return(
+    <div>
+      {/* <div> <VIPPointsRules /></div> */}
+      {/* <hr/> */}
+      <div><ChangePoints/></div>
+    </div>
+  );
+}
+
+// export const VIPPointsRules = () => {
+//   const [discount, setDiscount] = useState('');
+//   const [message, setMessage] = useState('');
+
+//   const handleDiscountChange = (e) => {
+//     const value = e.target.value;
+//     if (parseFloat(value) >= 0 && parseFloat(value) <= 100) {
+//       setDiscount(value);
+//       setMessage('');
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const response = await VIPPointsApi.setDiscount({
+//         data: { discount: parseFloat(discount) }
+//       });
+//       console.log("积分比例设置成功", response);
+//     } catch (error) {
+//       console.log("错误信息", error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <form onSubmit={handleSubmit}>
+//         <div className="mb-3">
+//           <label htmlFor="discount" className="form-label">设置积分折扣 (%):</label>
+//           <input
+//             type="text"
+//             id="discount"
+//             name="discount"
+//             value={discount}
+//             placeholder="请输入积分比例值"
+//             onChange={handleDiscountChange}
+//           />
+//         </div>
+//         <button type="submit" className="btn btn-primary">提交</button>
+//         {message && <p><span className="text-danger">{message}</span></p>}
+//       </form>
+//     </div>
+//   );
+// };
 
 export const ChangePoints = () => {
   const [phone, setPhone] = useState('');
@@ -47,7 +102,7 @@ export const ChangePoints = () => {
     
     const { updateNowPoints, updateUsedPoints } = data;
   
-    let type = null;
+    let type;
     if (updateNowPoints) {
       type = "add";
     } else if (updateUsedPoints) {

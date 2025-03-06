@@ -1,4 +1,4 @@
-import { postRequest,getRequest,deleteRequest,putRequest} from "../../utils/request";
+import { postRequest,getRequest,deleteRequest,putRequest} from "../../utils/Common/request";
 import { BaseApi } from "..";
 
 
