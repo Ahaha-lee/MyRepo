@@ -1,105 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DiscountTypeApi } from "../../api/payment/discount";
-import { CommonTable } from "../../utils/Common/CommonTable";
 import MainLayout from "../../utils/MainLayOut/MainLayout";
-import { useEffect } from "react";
 import { Pagination } from "../../utils/Common/SlicePage";
 
-
-
-
-export function TypeListPage(){
-    return(
+export function TypeListPage() {
+    return (
         <div>
             <MainLayout rightContent={<TypeListForm />} />
         </div>
-    )
+    );
 }
 
-export function TypeListForm(){
-    const [discounttype,setDiscountType] = useState([]);
-    const [pagecount,setPagecount]=useState(0);
-    const [page,setPage]=useState(1);
-    const [search,setSearch]=useState("");
-    const [totalNum,setTotalNum]=useState(0);
-    useEffect(()=>{
+export function TypeListForm() {
+    const [discounttype, setDiscountType] = useState([]);
+    const [pagecount, setPagecount] = useState(0);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const [totalNum, setTotalNum] = useState(0);
+
+    useEffect(() => {
         getDiscountType(0);
-    },[pagecount])
+    }, [pagecount]);
+
     const getDiscountType = async (search_id) => {
-        try{
-            DiscountTypeApi.get(
-            {params:{
-                search:search_id,
-                page:page
-            }}).then((res)=>{
-                console.log("list返回的数据",res);
-                setDiscountType(res.discountTypes);
-                setTotalNum(res.total_num);
-            })
-        }catch(error){
+        try {
+            const res = await DiscountTypeApi.get({
+                params: {
+                    search: search_id,
+                    page: page,
+                },
+            });
+            console.log("list返回的数据", res);
+            setDiscountType(res.discountTypes);
+            setTotalNum(res.total_num);
+        } catch (error) {
             console.error('请求错误:', error);
         }
-    }
-    const totalPages = Math.ceil(totalNum / 10);
-    return(
-        <div>
-             <div className="mb-3">
-              <label className="form-label">查询ID:</label>
-              <input 
-                  type="text" 
-                  className="form-control"
-                  style={{ width: '30%' }}
-                  value={search} 
-                  onChange={(e) => setSearch(e.target.value)} 
-              /> 
-              <button className="btn btn-primary" onClick={() => getDiscountType(search)}>查询</button>
-          </div>
-        <div>
-            <button className="btn">优惠类型新增</button>
-        </div>
-        <hr/>
+    };
 
-        <>
-        <TypeList Results={discounttype} fetchDetails={getDiscountType}/>
-        </>
-   <Pagination totalPages={totalPages} onPageChange={setPagecount} />
+    const totalPages = Math.ceil(totalNum / 10);
+
+    return (
+        <div>
+            <hr />
+            <TypeList Results={discounttype} />
+            <Pagination totalPages={totalPages} onPageChange={setPagecount} />
+            <p>注意：系统限制满足与两种商品类型的使用，后续会持续更新。</p>
         </div>
-    )
+    );
 }
 
-export function TypeList({Results,fetchDetails}){
-    const columns=[
-        {
-            title: 'ID',
-            key:"Type_id"
-        },
-        {
-            title: '名称',
-            key:"Type_name"
-        },
-        {
-            title: '描述',
-            key:"Type_desc"
-        },
-        {
-            title: '操作',
-            key:"operation",
-            // render:(record)=>(
-            //     <>
-            //     <button onClick={()=>handleFetchDetails("typeinfo",record.Type_id)}>查看详情</button>
-            //     </>
-            // )
-        }
-    ]
-    return(
+export function TypeList({ Results }) {
+    return (
         <div>
-            <CommonTable
-               columns={columns}
-               data={Results}
-               checkable={true}
-            //    actions={tableActions}
-               idField={"Type_id"}
-            />
+            <table className="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Results.map((item) => (
+                        <tr key={item.Type_id}>
+                            <td>{item.Type_id}</td>
+                            <td>{item.Type_name}</td>
+                            <td>{item.Type_desc}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
-    )
+    );
 }

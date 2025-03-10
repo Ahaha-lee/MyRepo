@@ -33,11 +33,11 @@ func (CategoryStruct) TableName() string {
 type ProductStats struct {
 	ProductBarcode string `gorm:"primaryKey"`
 	VisitCount     int
-	LastVisitTime  time.Time
+	LastVisitTime  time.Time `gorm:"autoIncrement:true"`
 	DailyVisits    int
 	WeeklyVisits   int
 	MonthlyVisits  int
-	UpdatedAt      time.Time
+	UpdatedAt      time.Time `gorm:"autoIncrement:true"`
 }
 
 // ProductCache 商品缓存结构

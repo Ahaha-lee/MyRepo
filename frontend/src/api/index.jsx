@@ -1,3 +1,4 @@
+import { permission } from "process";
 import { preload } from "react-dom";
 
 // api公用数据
@@ -49,8 +50,11 @@ export const BaseApi = {
     discountsearch: "/payment/discount/:search_id/:page",
     discountdelete: "/payment/discount/delete",
     discountinsert:"/payment/discount/insert",
-    discountupdate: "/payment/discount/:update_id",
    
     discounttypesearch:"/payment/discount/type/:search_id/:page",
     discounttypeinsert:"/payment/discount/type/insert",
+
+    permissioninfosearch:"/system/permission/getinfo/:search_id",
+    permissionandroleinfo:"/system/permissionroleinfo",
+    roleinfosearch:"/system/role/getinfo/:search_id"
 };

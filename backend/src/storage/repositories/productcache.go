@@ -181,6 +181,7 @@ func PreloadProductsByID(id []int) error {
 	if result.Error != nil {
 		return fmt.Errorf("获取商品详情失败: %v", result.Error)
 	}
+
 	// 2. 提取所有的 barcode
 	for _, product := range products {
 		barcodes = append(barcodes, product.ProBarcode)
@@ -194,16 +195,42 @@ func PreloadProductsByID(id []int) error {
 		return fmt.Errorf("获取商品统计失败: %v", result.Error)
 	}
 
-	// 3. 构建统计数据映射
+	// 4. 检查是否有统计数据，如果没有则插入新的数据
+	if len(stats) == 0 {
+		for _, barcode := range barcodes {
+			newStat := stormodels.ProductStats{
+				ProductBarcode: barcode,
+				VisitCount:     0,
+				DailyVisits:    0,
+				WeeklyVisits:   0,
+				MonthlyVisits:  0,
+			}
+
+			// 插入新的统计数据
+			if err := db.Table("product_stats").Create(&newStat).Error; err != nil {
+				return fmt.Errorf("插入商品统计失败: %v", err)
+			}
+			log.Printf("stas数据插入错误: %s", barcode)
+		}
+
+		// 重新查询以获取刚插入的数据
+		result = db.Table("product_stats").
+			Where("product_barcode IN ?", barcodes).
+			Find(&stats)
+		if result.Error != nil {
+			return fmt.Errorf("获取商品统计失败: %v", result.Error)
+		}
+	}
+
+	// 4. 构建统计数据映射
 	statsMap := make(map[string]stormodels.ProductStats)
 	for _, stat := range stats {
 		statsMap[stat.ProductBarcode] = stat
 	}
 
-	// 4. 加载到缓存
+	// 5. 加载到缓存
 	for _, product := range products {
 		if stat, ok := statsMap[product.ProBarcode]; ok {
-
 			// 直接将产品添加到缓存
 			log.Printf("Adding product to cache: %+v", product)
 			// 创建新的 ProductCache
@@ -218,7 +245,6 @@ func PreloadProductsByID(id []int) error {
 		}
 	}
 
-	// log.Printf("成功预加载 %d 个商品到缓存", len(products))
 	return nil
 }
 

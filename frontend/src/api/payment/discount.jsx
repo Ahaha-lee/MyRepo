@@ -13,7 +13,7 @@ export const DiscoutApi = {
     },
     delete: async (data) => {
         try{
-            const res = await postRequest(BaseApi.discountdelete, data);
+            const res = await postRequest(BaseApi.baseURL+BaseApi.discountdelete, data);
             return res;
         }catch(error){
             console.error('请求错误:', error);
@@ -53,3 +53,4 @@ export const DiscountTypeApi = {
         }
     },
 }
+

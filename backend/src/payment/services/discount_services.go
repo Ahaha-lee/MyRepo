@@ -4,6 +4,7 @@ import (
 	"context"
 	paymentmodels "mygo/payment/models"
 	payrepo "mygo/payment/repositories"
+	"time"
 )
 
 type PaymentService struct {
@@ -16,17 +17,21 @@ func NewPaymentService(paymentrepo *payrepo.PaymentRepository) *PaymentService {
 	}
 }
 
-func (s *PaymentService) GetDiscountinfoServ(ctx context.Context, searchid int, page int) ([]*paymentmodels.DiscountStruct, int, error) {
+func (s *PaymentService) GetDiscountinfoServ(ctx context.Context, searchid int, page int) ([]paymentmodels.DiscountStruct, int, error) {
 	discounts, totalnum, err := s.paymentgormrepo.GetDiscountinfoRepo(ctx, searchid, page)
 	if err != nil {
 		return nil, -1, err
 	}
 	var discountValues []paymentmodels.DiscountStruct
+	nowtime := time.Now()
 	for _, d := range discounts {
+		if nowtime.After(d.StartDate) && nowtime.Before(d.EndDate) {
+			d.Status = 1.00
+		}
 		discountValues = append(discountValues, *d) // 解引用指针
 	}
 
-	return discounts, totalnum, nil
+	return discountValues, totalnum, nil
 }
 
 func (s *PaymentService) InsertDiscountInfoServ(ctx context.Context, discount *paymentmodels.DiscountStruct) error {

@@ -189,12 +189,12 @@ func CRUDForCatgoryCon(server *storser.StorageGormService) gin.HandlerFunc {
 
 func PreloadProductsByBarcodesCon(server *storser.StorageGormService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var id []int
-		if err := c.ShouldBindJSON(&id); err != nil {
+		var ids Productids
+		if err := c.ShouldBindJSON(&ids); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误", "errormessage": err.Error()})
 			return
 		}
-		err := server.PreloadProductsServ(c, id)
+		err := server.PreloadProductsServ(c, ids.Data)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "预加载失败", "errormessage": err.Error()})
 		}

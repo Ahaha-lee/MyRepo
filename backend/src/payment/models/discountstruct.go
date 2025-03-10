@@ -57,7 +57,7 @@ type DiscountStruct struct {
 	StartDate      time.Time
 	EndDate        time.Time
 	UpdateDate     time.Time `gorm:"autoIncrement:true"`
-	Status         bool      `gorm:"autoIncrement:true"`
+	Status         int64     `gorm:"-"`
 }
 
 func (DiscountStruct) TableName() string {

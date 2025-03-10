@@ -1,137 +1,127 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { SystemmProvider } from './Info';
+import MainLayout from '../../utils/MainLayOut/MainLayout';
+import { SysMycontext } from './Info';
+import { useContext } from 'react';
 
-const initialRoles = ['管理员', '编辑', '查看者'];
-const permissions = {
-    '收银员常规操作': ['允许收银', '开启钱箱', '购物车删减商品', '交接班显示明细'],
-    '价格权限': ['单品改价', '整单改价', '显示进货价/利润', '禁止赠送商品', '禁止手动兑换积分'],
-    '盘点与库存权限': ['盘点权限', '明盘(显示库存)', '查询连锁库存', '修改商品库存', '禁止报损', '提交报损', '商品与货流权限'],
-    '用户管理': ['注册用户'],
-    '财务管理': ['查看报表', '修改删除报表']
-};
 
-export default function Permissions() {
-    const [roles, setRoles] = useState(initialRoles);
-    const [rolePermissions, setRolePermissions] = useState({
-        '管理员': ['读取', '写入', '删除'],
-        '编辑': ['读取', '写入'],
-        '查看者': ['读取']
-    });
-    const [newRole, setNewRole] = useState('');
-    const [newRolePermissions, setNewRolePermissions] = useState([]);
 
-    const handlePermissionChange = (role, permission) => {
-        setRolePermissions(prevState => {
-            const newPermissions = prevState[role].includes(permission)
-                ? prevState[role].filter(p => p !== permission)
-                : [...prevState[role], permission];
-            return { ...prevState, [role]: newPermissions };
-        });
-    };
+export function PermissionassignmentPage() {
+    return(
+        <SystemmProvider>
+             <MainLayout rightContent={<PermissionsAndRole/>} />
+        </SystemmProvider>
+    )
+}
 
-    const handleAddRole = () => {
-        if (newRole && !roles.includes(newRole)) {
-            setRoles([...roles, newRole]);
-            setRolePermissions({ ...rolePermissions, [newRole]: newRolePermissions });
-            setNewRole('');
-            setNewRolePermissions([]);
+export function PermissionsAndRole() {
+    const [newRoles, setNewRoles] = useState([]);
+    const [permission, setPermission] = useState([]);
+    useEffect(() => {
+        permissioninfo();
+    }, []);
+
+    const context = useContext(SysMycontext);
+    if (!context) {
+        console.error("SysMycontext错误");
+        return null; // 或者其他处理
+    }
+    const { getPermissionInfo, permissionandarole } = context;
+
+    const permissioninfo = async () => {
+        try {
+            const info = await getPermissionInfo(0);
+            setPermission(info.permission);
+        } catch (error) {
+            console.error("获取权限信息失败:", error);
         }
     };
+    // 对权限进行分组
+    const groupedPermissions = permission.reduce((acc, curr) => {
+        const category = curr.PermissionCategory;
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(curr);
+        return acc;
+    }, {});
 
-    const handleToggleSelectAll = (role, category) => {
-        const allSelected = permissions[category].every(permission => rolePermissions[role]?.includes(permission));
-        setRolePermissions(prevState => {
-            const newPermissions = allSelected
-                ? prevState[role].filter(p => !permissions[category].includes(p))
-                : [...new Set([...prevState[role], ...permissions[category]])];
-            return { ...prevState, [role]: newPermissions };
-        });
-    };
 
-    const handleDeleteRole = (role) => {
-        setRoles(prevState => prevState.filter(r => r !== role));
-        setRolePermissions(prevState => {
-            const newState = { ...prevState };
-            delete newState[role];
-            return newState;
-        });
-    };
 
-    const handleNewRolePermissionChange = (permission) => {
-        setNewRolePermissions(prevState => {
-            const newPermissions = prevState.includes(permission)
-                ? prevState.filter(p => p !== permission)
-                : [...prevState, permission];
-            return newPermissions;
-        });
-    };
+    console.log(permission);
 
     return (
         <div className="container mt-5">
             <h2 className="mb-4">权限分配</h2>
             <table className="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>角色</th>
-                        <th>权限</th>
+            <thead>
+                <tr>
+                    <th>角色</th>
+                    <th>权限</th>
+                </tr>
+            </thead>
+            <tbody>
+                {permissionandarole.map((item, index) => (
+                    <tr key={index}>
+                        <td>{item.Rolename}</td>
+                        <td>
+                            {item.Permissionname?.join(', ') || '权限为空'}
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {roles.map(role => (
-                        <tr key={role}>
-                            <td>{role}</td>
-                            <td>
-                                {rolePermissions[role]?.join(', ') || '无权限'}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
+                ))}
+            </tbody>
             </table>
+ 
+        <div className="mb-4">
             <div className="mb-4">
             <input
-                    type="text"
-                    className="form-control"
-                    placeholder="请输入新增角色"
-                    value={newRole}
-                    onChange={(e) => setNewRole(e.target.value)}
-                />
-                <div className="mt-4">
-                <h5>选择权限</h5>
+                type="text"
+                className="form-control"
+                placeholder="请输入新增角色名称"
+                value={newRoles}
+                onChange={(e) => setNewRoles(e.target.value)}
+            />
+            <button className="btn btn-primary" >添加角色</button>
+            <div className="container mt-4">
+                <h2>权限管理</h2>
                 <table className="table table-bordered">
-                    <thead>
+                    <thead className="thead-light">
                         <tr>
-                            <th>权限分类</th>
-                            <th>权限</th>
-                            <th>操作</th>
+                            <th scope="col">该类全选</th>
+                            <th scope="col">权限类别</th>
+                            <th scope="col">权限ID</th>
+                            <th scope="col">权限名称</th>
+                            <th scope="col">权限描述</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {Object.keys(permissions).map(category => (
-                            <tr key={category}>
-                                <td>{category}</td>
-                                <td>
-                                    {permissions[category].map(permission => (
-                                        <div key={permission}>
-                                            <input
-                                                type="checkbox"
-                                                checked={newRolePermissions.includes(permission)}
-                                                onChange={() => handleNewRolePermissionChange(permission)}
-                                            />
-                                            {permission}
-                                        </div>
-                                    ))}
-                                </td>
-                                <td>
-                                    <button className="btn btn-sm btn-secondary" onClick={() => handleToggleSelectAll(category)}>
-                                        {permissions[category].every(permission => newRolePermissions.includes(permission)) ? '取消全选' : '全选'}
-                                    </button>
-                                </td>
-                            </tr>
+                        {Object.entries(groupedPermissions).map(([category, perms]) => (
+                            <React.Fragment key={category}>
+                                {perms.map((perm, index) => (
+                                    <tr key={perm.PermissionId}>
+                                        {index === 0 && ( // 只在第一行显示类别
+                                            <td rowSpan={perms.length}>
+                                                <input type="checkbox" />
+                                            </td>
+                                        )}
+                                        {index === 0 && ( // 只在第一行显示权限类别
+                                            <td rowSpan={perms.length}>{category}</td>
+                                        )}
+                                        <td>{perm.PermissionId}</td>
+                                        <td>
+                                            <input type="checkbox" /> {/* 在权限名称前添加勾选框 */}
+                                            {perm.PermissionName}
+                                        </td>
+                                        <td>{perm.PermissionDesc}</td>
+                                    </tr>
+                                ))}
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>
-                <button className="btn btn-primary mt-2" onClick={handleAddRole}>添加角色</button>
-            </div>
             </div>
         </div>
+    </div>
+    </div>
     );
 }

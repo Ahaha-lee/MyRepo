@@ -17,7 +17,11 @@ type Permission struct {
 
 // 角色权限用户账号联系
 type EmployeeRolePermission struct {
-	EmployeeId   float64
 	RoleId       float64
 	PermissionId float64
+}
+
+type PermissionAndRoleRelation struct {
+	Rolename       string
+	Permissionname []string
 }

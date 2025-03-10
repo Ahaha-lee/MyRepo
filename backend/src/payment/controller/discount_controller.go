@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"log"
 	paymodels "mygo/payment/models"
 	payserv "mygo/payment/services"
 	"net/http"
@@ -8,6 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type Discountids struct {
+	Data []int `json:"data"`
+}
 
 func CRUDForDiscountRules(service *payserv.PaymentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -19,17 +24,14 @@ func CRUDForDiscountRules(service *payserv.PaymentService) gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			var discountValues []paymodels.DiscountStruct
-			for _, d := range discounts {
-				discountValues = append(discountValues, *d) // 解引用指针
-			}
-			c.JSON(http.StatusOK, gin.H{"message": "数据获取成功", "discounts": discountValues, "totalnum": totalnum})
+			c.JSON(http.StatusOK, gin.H{"message": "数据获取成功", "discounts": discounts, "totalnum": totalnum})
 		} else if c.Request.Method == "POST" {
 			action := c.Param("action")
 			if action == "insert" {
 				var discount paymodels.DiscountStruct
 				if err := c.ShouldBindJSON(&discount); err != nil {
 					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+					log.Printf("CRUDForDiscountRules: %v", err)
 					return
 				}
 				err := service.InsertDiscountInfoServ(c.Request.Context(), &discount)
@@ -38,12 +40,14 @@ func CRUDForDiscountRules(service *payserv.PaymentService) gin.HandlerFunc {
 				}
 				c.JSON(http.StatusCreated, gin.H{"message": "数据插入成功", "discount": discount})
 			} else if action == "delete" {
-				var ids []int
-				if err := c.ShouldBindJSON(&ids); err != nil {
+				var ids Discountids
+				log.Println("delete", ids)
+				if err := c.BindJSON(&ids); err != nil {
 					c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误", "errormessage": err.Error()})
 					return
 				}
-				err := service.DeleteDiscountInfoServ(c.Request.Context(), ids)
+
+				err := service.DeleteDiscountInfoServ(c.Request.Context(), ids.Data)
 				if err != nil {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败", "errormessage": err.Error()})
 					return

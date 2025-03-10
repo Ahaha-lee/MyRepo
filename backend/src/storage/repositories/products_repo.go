@@ -61,46 +61,51 @@ func (r *StorageGormRepository) InsertProductsRepo(ctx context.Context, inputs [
 
 	return nil
 }
+
+// SearchProductRepo 函数实现
 func (r *StorageGormRepository) SearchProductRepo(ctx context.Context, productid int, page int) ([]stormodels.ProductStruct, int, error) {
-	var product []stormodels.ProductStruct
+	const pageSize = 10
+	var products []stormodels.ProductStruct
 	var count int64
-	pageSize := 10
 	offset := (page - 1) * pageSize
 
-	if productid == 0 {
-		// 查询所有记录
-		resultCount := r.db.Model(&stormodels.ProductStruct{}).Count(&count)
-		if resultCount.Error != nil {
-			log.Fatalln("SearchProductRepo获取产品数量失败:", resultCount.Error)
-			return nil, -1, resultCount.Error
-		}
-
-		// 分页查询所有产品
-		result := r.db.Limit(pageSize).Offset(offset).Find(&product)
-		if result.Error != nil {
-			log.Println("SearchProductRepo分页查询所有产品失败", result.Error)
-			return nil, -1, result.Error
-		}
-	} else if productid > 0 {
-
-		// 查询符合条件的记录数
-		productidStr := strconv.Itoa(productid) // 将 productid 转换为字符串
-		resultCount := r.db.Model(&stormodels.ProductStruct{}).Where("product_id LIKE ? OR product_name LIKE ?", "%"+productidStr+"%", "%"+productidStr+"%").Count(&count)
-		if resultCount.Error != nil {
-			log.Fatalln("SearchProductRepo获取产品数量失败:", resultCount.Error)
-			return nil, -1, resultCount.Error
-		}
-
-		// 分页查询符合条件的产品信息
-		result := r.db.Where("product_id LIKE ? OR product_name LIKE ?", "%"+productidStr+"%", "%"+productidStr+"%").Limit(pageSize).Offset(offset).Find(&product)
-		if result.Error != nil {
-			log.Fatalln("SearchProductRepo数据失败:", result.Error)
-			return nil, -1, result.Error
-		}
-
+	// 构建基础查询
+	query := r.db.Model(&stormodels.ProductStruct{})
+	if productid != 0 {
+		searchPattern := "%" + strconv.Itoa(productid) + "%"
+		query = query.Where("product_id = ? OR product_name LIKE ?", productid, searchPattern)
 	}
 
-	return product, int(count), nil
+	// 获取总数
+	if err := query.Count(&count).Error; err != nil {
+		log.Printf("SearchProductRepo 查询数量失败: %v", err)
+		return nil, 0, fmt.Errorf("查询产品数量失败: %w", err)
+	}
+
+	// 分页查询
+	result := query.Order("product_id ASC").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&products)
+
+	// 如果没有找到产品，尝试查找特定的 productid
+	if result.Error != nil || len(products) == 0 {
+		if productid != 0 {
+			// 尝试单独查找 productid
+			var singleProduct stormodels.ProductStruct
+			if err := r.db.First(&singleProduct, productid).Error; err == nil {
+				products = append(products, singleProduct)
+				count++ // 更新总数
+			}
+		}
+	}
+
+	if result.Error != nil {
+		log.Printf("SearchProductRepo 分页查询失败: %v", result.Error)
+		return nil, 0, fmt.Errorf("分页查询失败: %w", result.Error)
+	}
+
+	return products, int(count), nil
 }
 
 func (r *StorageGormRepository) UpdateProductRepo(ctx context.Context, productid int, product *stormodels.ProductStruct) error {

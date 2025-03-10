@@ -69,6 +69,7 @@ export function ProductProvider({ children }) {
         newObj.push(key);
       }
     }
+    console.log("newObj", newObj);
     const intArray = newObj.map(Number);
     try {
       if (action === "delete") {
@@ -79,9 +80,10 @@ export function ProductProvider({ children }) {
         console.log("product删除成功", res);
         getlist();
       } else if (action == "preload") {
-        const res = await ProductCacheApi.addinfo(intArray);
+        const res = await ProductCacheApi.addinfo(
+          {data:intArray});
         intArray.length = 0;
-        console.log("预加载成功", res);
+        console.log("product预加载成功", res);
       } else if (action === "showkApplicableItems") {
         setApplicableItems(intArray);
       }
@@ -117,7 +119,7 @@ export function ProductListPage() {
 }
 
 export function ProductListForm({ action }) {
-  const { products, productid, setProductid, pagecount, setPagecount, totalNum, checkboxProduct,getinfo,getlist} = useContext(MyContext);
+  const {  productid, setProductid, pagecount, setPagecount, totalNum, checkboxProduct,getinfo,getlist} = useContext(MyContext);
   const navigate = useNavigate();
   const totalPages = Math.ceil(totalNum / 10);
 
@@ -130,36 +132,32 @@ export function ProductListForm({ action }) {
 
   return (
     <>
-      <div className="mb-3">
-        <label className="form-label">查询ID:</label>
-        <input
-          type="text"
-          className="form-control"
-          style={{ width: '30%' }}
-          value={productid}
-          onChange={(e) => setProductid(e.target.value)}
-        />
-        <button className="btn btn-primary" onClick={searchproduact}>查询</button>
-      </div>
-      {action === "productlist" ?
         <div className="mb-3">
-          <button className="btn " type="button" onClick={() => navigate("/storage/product_add")}>商品新增</button>
-          <button className="btn " type="button" onClick={() => navigate("/storage/product_batchadd")}>批量新增</button>
-          <button className="btn " type="button" onClick={() => checkboxProduct("delete")}>删除商品</button>
-          <button className="btn " type="button" onClick={() => checkboxProduct("preload")}>缓存预加载</button>
-          <button className="btn " type="button" onClick={() => navigate("/storage/product_hot")}>查看缓存商品</button>
-        </div> : <></>}
-      {action === "producapplicable" ?
+            <label className="form-label">查询ID:</label>
+            <input
+                type="text"
+                className="form-control"
+                style={{ width: '30%' }}
+                value={productid}
+                onChange={(e) => setProductid(e.target.value)}
+            />
+            <button className="btn btn-primary" onClick={searchproduact}>查询</button>
+        </div>
+        {action === "productlist" ? (
+            <div className="mb-3">
+                <button className="btn " type="button" onClick={() => navigate("/storage/product_add")}>商品新增</button>
+                <button className="btn " type="button" onClick={() => navigate("/storage/product_batchadd")}>批量新增</button>
+                <button className="btn " type="button" onClick={() => checkboxProduct("delete")}>删除商品</button>
+                <button className="btn " type="button" onClick={() => checkboxProduct("preload")}>缓存预加载</button>
+                <button className="btn " type="button" onClick={() => navigate("/storage/product_hot")}>查看缓存商品</button>
+            </div>
+        ) : null}
         <div>
-          <button className="btn " type="button">查看优惠商品列表中的商品</button>
-          <button className="btn " type="button" onClick={() => checkboxProduct("showkApplicableItems")}>保存已勾选数据到商品优惠列表</button>
-        </div> : <></>}
-      <div>
-        <ProductList action={action === "productlist" ? "list" : action} />
-      </div>
-      <Pagination totalPages={totalPages} onPageChange={setPagecount} />
+            <ProductList action={action === "productlist" ? "list" : action} />
+        </div>
+        <Pagination totalPages={totalPages} onPageChange={setPagecount} />
     </>
-  );
+);
 }
 
 export function GetCacheProductPage() {
@@ -175,6 +173,7 @@ export function ProductList({ action }) {
   const [productDetails, setProductDetails] = useState(null);
   const [categoryDetails, setCategoryDetails] = useState(null);
   const navigate = useNavigate();
+
 
   const columns = [
     {
@@ -239,7 +238,6 @@ export function ProductList({ action }) {
     setModalType(null);
     setIsOpen(false);
   };
-
   return (
     <div>
       <div className="container">

@@ -1,48 +1,37 @@
 package sysmanage
 
 import (
+	"context"
+	"log"
 	sysmodels "mygo/sysmanage/models"
-
-	"gorm.io/gorm"
 )
 
 // CreateRole 新增角色
-func (repo *SystemMamageRepo) CreateRole(role *sysmodels.Role) error {
-	return repo.db.Create(role).Error
-}
-
-// GetRoleByID 根据 ID 查询角色
-func (r *SystemMamageRepo) GetRoleByID(id uint) (*sysmodels.Role, error) {
-	var role sysmodels.Role
-	err := r.db.First(&role, id).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &role, nil
+func (r *SystemMamageRepo) CreateRole(role *sysmodels.Role) error {
+	return r.db.Create(role).Error
 }
 
 // GetRoles 分页查询角色列表
-func (r *SystemMamageRepo) GetRoles(page, pageSize int) ([]*sysmodels.Role, int64, error) {
+func (r *SystemMamageRepo) GetRoleList(con context.Context, search_id int) ([]*sysmodels.Role, error) {
 	var roles []*sysmodels.Role
-	offset := (page - 1) * pageSize
+	var err error
 
-	// 执行查询
-	err := r.db.Offset(offset).Limit(pageSize).Find(&roles).Error
-	if err != nil {
-		return nil, 0, err
+	if search_id == 0 {
+		err = r.db.
+			Model(&[]sysmodels.Role{}).
+			Find(&roles).Error
+	} else if search_id > 0 {
+		// 查询特定记录
+		err = r.db.
+			Model(&sysmodels.Role{}).
+			Where("role_id = ?", search_id).
+			Find(&roles).Error
 	}
-
-	// 获取总记录数
-	var total int64
-	err = r.db.Model(&sysmodels.Role{}).Count(&total).Error
 	if err != nil {
-		return nil, 0, err
+		log.Println("GetRoleList:", err)
+		return nil, err
 	}
-
-	return roles, total, nil
+	return roles, nil
 }
 
 // UpdateRole 更新角色信息

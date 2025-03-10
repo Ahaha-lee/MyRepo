@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../utils/MainLayOut/MainLayout';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
 import { Pagination } from '../../utils/Common/SlicePage';
 import { CommonTable } from '../../utils/Common/CommonTable';
 import { DiscoutApi } from '../../api/payment/discount';
 import { DiscountTypeApi } from '../../api/payment/discount';
-import { DiscountRuleModal,DiscountTypeModal,DiscountRuleCheckapplicableModal } from './DiscountModel';
+import { DiscountRuleModal, SelfCheck} from './DiscountModel';
 import { useLocation } from 'react-router-dom';
-import { use } from 'react';
 
-const MyContext = React.createContext();
+
+
 export function DiscountInfoPage() {
     return(
     <div>
@@ -34,6 +33,7 @@ export function DiscountOperationForm() {
       getlist("searchlist",0); 
       gettype(0);
   }, [pagecount])
+
 
   const getlist = (action,search_id) => {
     if (search_id === undefined || search_id === null) return; // 防止无效的查询
@@ -71,7 +71,23 @@ export function DiscountOperationForm() {
     }
    }
 
-   const deleteDiscountrule = async (search_id) => {
+   const deleteDiscountrule = async() => {
+    try{
+        const newObj = [];
+        for (const key in pcheckstatus) {
+            if (pcheckstatus[key] === true) {
+            newObj.push(key);
+            }
+        }
+        const intArray = newObj.map(Number);
+        console.log("newObj", intArray);
+        const res = await DiscoutApi.delete({
+            data: intArray
+        });
+        console.log("删除返回的数据",res);
+    }catch(error){
+        console.error('请求错误:',error);
+    }
 
   }
   return ( 
@@ -89,29 +105,23 @@ export function DiscountOperationForm() {
           </div>
           <div className="mb-3">
               <button className="btn" type="button" onClick={() => navigate('/payment/discount/addrule')}>优惠规则新增</button>
-              <button className="btn" type="button">优惠规则删除</button>
+              <button className="btn" type="button" onClick={()=>deleteDiscountrule()}>优惠规则删除</button>
 
           </div>
           <div>
-              <MyContext.Provider value={{ pcheckstatus, setPcheckstatus }}>
-                  <DiscountInfoList Results={discount} Typeinfo={discounttype} fetchDetails={getlist} fetchtype={gettype}/>
-              </MyContext.Provider>
+                  <DiscountInfoList Results={discount} Typeinfo={discounttype} fetchDetails={getlist} setPcheckstatus={setPcheckstatus}/>
           </div>
           <Pagination totalPages={totalPages} onPageChange={setPagecount} />
       </>
   );
 }
 
-export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
+export function DiscountInfoList({Results,Typeinfo,setPcheckstatus}) {
      const [isOpen, setIsOpen] = useState(false);
       const [modalType, setModalType] = useState(null);
       const [discountDetails, setDiscounDetails] = useState(null);
-      const [typeDetails, setTTypeDetails] = useState(null);
-      const {pcheckstatus,setPcheckstatus}=useContext(MyContext);
-      const [discounttype,setDiscountType] = useState([]);
 
       const navigate = useNavigate();
-    
       const columns = [
         {
           title: '优惠规则ID',
@@ -143,21 +153,23 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
         },
       
         {
-          title: '商品种类',
+          title: '优惠种类',
           key: 'Category',
-          render: (value, record) => (
-            <a href="#" onClick={() => handleFetchType("discounttypeinfo",record.RuleTypeid
-            )}>
-                {Typeinfo.find(item => item.Type_id=== record.RuleTypeid)?.Type_name}
-            </a>
-          )
+          render: (value, record) => {
+            const typeName = Typeinfo.find(item => item.Type_id === record.RuleTypeid)?.Type_name;
+            return (
+                <div> {typeName}</div>
+            );
+        }
         }
       ];
+  
+
     
       const tableActions = (record) => (
         <>
           <button onClick={() => handleNavigate("discountinfo",record.DiscountruleId)}>查看详情</button> 
-          <button onClick={() => handleUpdateDiscountrule(record.DiscountruleId)}>修改</button>
+          {/* <button onClick={() => handleUpdateDiscountrule(record.DiscountruleId)}>修改</button> */}
         </>
       );
     
@@ -166,14 +178,6 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
         navigate('/payment/discount/updaterule', { state: { discountrule: details[0] } });
     };
     
-      const handleFetchType = async (action, type_id) => {
-        Typeinfo.forEach(Typeinfo => {
-            if (Typeinfo.Type_id === type_id) {
-                setTTypeDetails(Typeinfo);
-            }
-        });
-        handleNavigate(action);
-      };
     const getdetails = (search_id) => {
         const matchingResults = Results.filter(result => result.DiscountruleId == search_id);
         matchingResults.forEach(matchingResult => {
@@ -190,7 +194,7 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
         {
             getdetails(search_id);
         }
-        setModalType(action);
+        setModalType(action)
       };
     
       const closeModal = () => {
@@ -205,7 +209,7 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
                 columns={columns}
                 data={Results}
                 checkable={true}
-                // onCheckChange={setPcheckstatus}
+                onCheckChange={setPcheckstatus}
                 actions={tableActions}
                 idField={"DiscountruleId"}
               />
@@ -218,13 +222,7 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
                   diacountDetails={discountDetails}
                 />
             )}
-            {modalType=="discounttypeinfo" && (
-                <DiscountTypeModal
-                  isOpen={isOpen}
-                  onRequestClose={closeModal}
-                  typedetails={typeDetails}
-                />
-            )}
+          
           
          </div>
         </>
@@ -234,6 +232,13 @@ export function DiscountInfoList({Results,Typeinfo,fetchDetails,fetchtype}) {
     
 }
 
+
+
+
+
+
+
+//分界线
 export function DiscountRuleAddPage() {
     return (
         <>
@@ -241,7 +246,6 @@ export function DiscountRuleAddPage() {
         </>
     );
 }
-
 
 
 export function DiscountRuleUpdatePage() {
@@ -261,299 +265,251 @@ export function DiscountRuleUpdatePage() {
 
 
 
-export function DiscountInfoinsertOrUpdate({existingDiscountRule}) {
 
-    const [applicableitems,setApplicableitems]=useState()
-    const [discounttype,setDiscountType]=useState([]);
+export function DiscountInfoinsertOrUpdate({ existingDiscountRule }) {
+    const [applicableitems, setApplicableitems] = useState();
     const [isOpen, setIsOpen] = useState(false);
-    const [modalType, setModalType]=useState(null);
-    const [products,setProducts]=useState([]);
-    const [selectionType,setSelectionType]=useState()
-    const handleNavigate = async (action,search_id) => {
+    const [modalType, setModalType] = useState(null);
+    const [selecttype, setSelecttype] = useState(null);
+
+    const handleNavigate = async (action) => {
         if (!isOpen) {
-          setIsOpen(true);
+            setIsOpen(true);
         }
         setModalType(action);
-      };
-    
-      const closeModal = () => {
-        setModalType(null);
-        setIsOpen(false);
-      };
-
-    
-    const formatDateForInput = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toISOString().slice(0, 16); // 格式化 YYYY-MM-DDTHH:MM
     };
 
-    const [formData, setFormData] = useState({
-        RuleTypeid: existingDiscountRule?.RuleTypeid || "",
-        Minprice: existingDiscountRule?.Minprice || "",
-        DiscountRate: existingDiscountRule?.DiscountRate || "",
-        DiscountAmount: existingDiscountRule?.DiscountAmount || "",
-        Isvip: existingDiscountRule?.Isvip ,
-        DiscountItems: applicableitems,
-        StartDate: formatDateForInput(existingDiscountRule?.StartDate),
-        EndDate: formatDateForInput(existingDiscountRule?.EndDate),
-    });
+    const closeModal = () => {
+        setIsOpen(false);
+    };
+
+    const handleItemsSubmit = (selectedIds) => {
+        console.log('已选择的产品 ID:', selectedIds);
+        setApplicableitems(selectedIds); // 存储选中的产品 ID
+        closeModal();
+    };
+
+    const handleSubmit = async () => {
+        // 确保日期格式正确
+        const newFormData = {
+            ...formData,
+            StartDate: formatDateTime(formData.StartDate),
+            EndDate: formatDateTime(formData.EndDate)
+        };
+
+        if (existingDiscountRule) {
+            // 更新
+            try {
+                const res = await DiscoutApi.add(newFormData);
+                console.log("更新返回的数据", res);
+            } catch (error) {
+                console.error('请求错误:', error);
+            }
+        } else {
+            // 新增
+            try {
+                const res = await DiscoutApi.add(newFormData);
+                console.log("新增返回的数据", res);
+            } catch (error) {
+                console.error('请求错误:', error);
+            }
+        }
+    };
+
+    const handleChange2 = (select) => {
+        setSelecttype(select);
+        if (select === 'custom') {
+            handleNavigate("applicableitems");
+        } else {
+            setApplicableitems("全部商品");
+        }
+    };
+        // 格式化日期时间为后端需要的格式
+        const formatDateTime = (dateTime) => {
+            if (!dateTime) return "";
+            const date = new Date(dateTime);
+            return date.toISOString();
+        };
     
+        // 格式化日期时间为 input 元素需要的格式
+        const formatDateTimeForInput = (dateTime) => {
+            if (!dateTime) return "";
+            const date = new Date(dateTime);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        };
 
     useEffect(() => {
-        getDiscountType(0);
-    }, []);
-    const handleChange = (event) => {
-        const { name, type, checked, value } = event.target;
-     
-        setFormData(prevData => ({
-            ...prevData,
+        formData.DiscountItems = applicableitems;
+    }, [applicableitems]);
+
+    const [formData, setFormData] = useState({
+        RuleType: existingDiscountRule?.RuleType || "",
+        Minprice: existingDiscountRule?.Minprice || 0,
+        DiscountRate: existingDiscountRule?.DiscountRate || 0,
+        DiscountAmount: existingDiscountRule?.DiscountAmount || 0,
+        Isvip: existingDiscountRule?.Isvip,
+        DiscountItems: existingDiscountRule?.DiscountItems || "",
+        StartDate: formatDateTimeForInput(existingDiscountRule?.StartDate) || "",
+        EndDate: formatDateTimeForInput(existingDiscountRule?.EndDate) || "",
+    });
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
             [name]: type === 'checkbox' ? checked : value
         }));
     };
-    const handleChange2=(select)=>{
-        if (select === 'custom') {
-            setSelectionType(select);
-            handleNavigate("applicableitems");
-        }else if (select === 'all') {
-            setSelectionType(select);
-            setApplicableitems("全部商品")
-        }
-    }
-    
-    console.log("formdata",formData);
-   
-  
 
-    
-    const updateApplibaleItems = async({itemsarray}) => {
-    //     const newitems = []; 
-    //         // 将输入的字符串转换为数组
-    //         const itemsArray = formdata.ApplicableItems.split(/[,，]/).map(item => item.trim());
-    //         console.log(itemsArray)
-    //     for (let i = 0; i <itemsArray.length; i++) {
-    //         const data = {
-    //             // DiscountRuleID:id,
-    //             ProductBarcode:itemsArray[i],       
-    //         };
-    //         console.log(data);//解决异步问题
-    //         newitems.push(data); 
-    //     }
-    //     setApplicableitems((prev) => [...(prev||[]), ...newitems]);
-    //     const values2={
-    //         "type": "applicableItems",
-    //         "items":newitems
-    //     }
-    //     console.log(values2)
-    //     const response1= await fetch(`/api/arrayinsert`,{
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify(values2),
-    //     });
-    //     console.log("values",JSON.stringify(values2))
-    
-    //     if (!response1.ok) {
-    //       throw new Error('插入数据失败');
-    //     }
-    };
-  
-     const handleItemsSubmit=()=>{
 
-    }
-
-    
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-
-             const isVipString = formData.Isvip; 
-             const isVip = (isVipString === 'true'); 
-            
-                const values = {
-                RuleTypeid: parseInt(formData.RuleTypeid),
-                Minprice: parseFloat(formData.Minprice),
-                DiscountRate: parseFloat(formData.DiscountRate),
-                DiscountAmount: parseFloat(formData.DiscountAmount),
-                Isvip: isVip,
-                DiscountItems: applicableitems,
-                StartDate: new Date(formData.StartDate).toISOString(), 
-                EndDate: new Date(formData.EndDate).toISOString(), 
-            };
-            if (existingDiscountRule) {
-        
-                console.log("更新成功");
-            } else {
-                DiscoutApi.add(values).then(res=>{
-                    console.log("添加成功",res);
-                })
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-    const getDiscountType = async (search_id) => {
-        try{
-            DiscountTypeApi.get({
-                search:search_id,
-                page:1
-            }).then((res)=>{
-                console.log("typelist返回的数据",res);
-                setDiscountType(res.discountTypes);
-            })
-        }catch(error){
-            console.error('请求错误:', error);
-        }
-    }
 
     return (
-        <div className="container mt-5">
-        <form onSubmit={handleSubmit}>
-            {existingDiscountRule ? (
-                <h3 className="mb-4">优惠表优惠信息数据修改：</h3>
-            ) : (
-                <h3 className="mb-4">优惠表优惠信息填写：</h3>
-            )}
-    
-            <div className="mb-3">
-                <label className="form-label">优惠类型：</label>
-                <select
-                    className="form-control"
-                    name="RuleTypeid"
-                    value={formData.RuleTypeid}
-                    onChange={handleChange}
-                >
-                    <option value="">请选择优惠类型</option>
-                    {discounttype.map((type, index) => (
-                        <option key={index} value={type.Type_id}>
-                            {type.Type_name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-    
-            <div className="mb-3">
-                <label className="form-label">最低价格：</label>
-                <input
-                    type='number'
-                    className="form-control"
-                    name="Minprice"
-                    placeholder='顾客购买商品享受优惠的最低金额'
-                    value={formData.Minprice}
-                    onChange={handleChange}
-                />
-            </div>
-    
-            <div className="mb-3">
-                <label className="form-label">折扣率：</label>
-                <input
-                    type='number'
-                    className="form-control"
-                    name="DiscountRate"
-                    placeholder='优惠折扣，例如 输入0.9即9折'
-                    value={formData.DiscountRate}
-                    onChange={handleChange}
-                />
-            </div>
-    
-            <div className="mb-3">
-                <label className="form-label">满减金额：</label>
-                <input
-                    type='number'
-                    className="form-control"
-                    name="DiscountAmount"
-                    placeholder="满减类型所属属性，例如顾客购物金额满500元就可以减去100"
-                    value={formData.DiscountAmount}
-                    onChange={handleChange}
-                />
-            </div>
-    
-            <div className="mb-3">
-                <label className="form-label">是否为会员专享：</label>
-                <div className="form-check">
-                    <input
-                        type="radio"
-                        className="form-check-input"
-                        name="Isvip"
-                        value={true}
-                        checked={formData.Isvip === true}
-                        onChange={handleChange}
-                        id="vipYes"
-                    />
-                    <label className="form-check-label" htmlFor="vipYes">是</label>
-                </div>
-                <div className="form-check">
-                    <input
-                        type="radio"
-                        className="form-check-input"
-                        name="Isvip"
-                        value={false}
-                        checked={formData.Isvip === false}
-                        onChange={handleChange}
-                        id="vipNo"
-                    />
-                    <label className="form-check-label" htmlFor="vipNo">否</label>
-                </div>
-            </div>
-    
-            <div className="mb-3">
-            <label className="form-label">开始时间：</label>
-            <input
-                type='datetime-local'
+    <div className="container mt-5">
+    <form onSubmit={handleSubmit}>
+        {existingDiscountRule ? (
+            <h3 className="mb-4">优惠表优惠信息数据修改：</h3>
+        ) : (
+            <h3 className="mb-4">优惠表优惠信息新增：</h3>
+        )}
+
+        <div className="mb-3">
+            <label className="form-label">优惠类型：</label>
+            <select
                 className="form-control"
-                name="StartDate"
-                value={formatDateForInput(formData.StartDate)}
+                name="RuleType"
+                value={formData.RuleType}
+                onChange={handleChange}
+            >
+                <option value="">请选择优惠类型</option>
+                <option value="discount">折扣</option>
+                <option value="fullReduction">满减</option>
+            </select>
+        </div>
+
+        <div className="mb-3">
+            <label className="form-label">最低价格：</label>
+            <input
+                type='number'
+                className="form-control"
+                name="Minprice"
+                placeholder='顾客购买商品享受优惠的最低金额'
+                value={formData.Minprice}
                 onChange={handleChange}
             />
         </div>
 
         <div className="mb-3">
-            <label className="form-label">结束时间：</label>
+            <label className="form-label">折扣率：</label>
             <input
-                type='datetime-local'
+                type='number'
                 className="form-control"
-                name="EndDate"
-                value={formatDateForInput(formData.EndDate)}
+                name="DiscountRate"
+                placeholder='优惠折扣，例如 输入0.9即9折'
+                value={formData.DiscountRate}
                 onChange={handleChange}
             />
         </div>
+
+        <div className="mb-3">
+            <label className="form-label">满减金额：</label>
+            <input
+                type='number'
+                className="form-control"
+                name="DiscountAmount"
+                placeholder="满减类型所属属性，例如顾客购物金额满500元就可以减去100"
+                value={formData.DiscountAmount}
+                onChange={handleChange}
+            />
+        </div>
+
+        <div className="mb-3">
+            <label className="form-label">是否为会员专享：</label>
+            <div className="form-check">
+                <input
+                    type="radio"
+                    className="form-check-input"
+                    name="Isvip"
+                    value={true}
+                    checked={formData.Isvip === true}
+                    onChange={handleChange}
+                    id="vipYes"
+                />
+                <label className="form-check-label" htmlFor="vipYes">是</label>
+            </div>
+            <div className="form-check">
+                <input
+                    type="radio"
+                    className="form-check-input"
+                    name="Isvip"
+                    value={false}
+                    checked={formData.Isvip === false}
+                    onChange={handleChange}
+                    id="vipNo"
+                />
+                <label className="form-check-label" htmlFor="vipNo">否</label>
+            </div>
+        </div>
+
+        <div className="mb-3">
+                <label className="form-label">开始时间：</label>
+                <input
+                    type='datetime-local'
+                    className="form-control"
+                    name="StartDate"
+                    value={formData.StartDate}
+                    onChange={handleChange}
+                />
+        </div>
+        <div className="mb-3">
+                <label className="form-label">结束时间：</label>
+                <input
+                    type='datetime-local'
+                    className="form-control"
+                    name="EndDate"
+                    value={formData.EndDate}
+                    onChange={handleChange}
+                />
+       </div>
         <div className="mb-3">
             <label className="form-label">选择优惠商品：</label><br />
             <div className="btn-group" role="group" aria-label="Selection Type">
                 <button
                     type="button"
-                    className={`btn ${selectionType === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
+                    className={`btn ${selecttype === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => handleChange2('custom')}
                 >
                     自定义选择商品
                 </button>
                 <button
                     type="button"
-                    className={`btn ${selectionType === 'all' ? 'btn-primary' : 'btn-secondary'}`}
-                    onClick={()=>handleChange2('all')}
+                    className={`btn ${selecttype === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => handleChange2('all')}
                 >
                     全部商品
                 </button>
             </div>
+            <div>
+            <label className="form-label">优惠商品：</label>
+            {applicableitems}
+            </div>
         </div>
-    
-            <button type="submit" className="btn btn-primary">
-                {existingDiscountRule ? '更新' : '提交'}
-            </button>
-        </form>
-        {modalType=="applicableitems"&& (
-            <DiscountRuleCheckapplicableModal
-                isOpen={isOpen}
-                onRequestClose={closeModal}
-                // onSubmit={updateApplibaleItems}
-            />
-            )
-        
-        }
-    </div>
-        
+        <button type="submit" className="btn btn-primary">
+            {existingDiscountRule ? '更新' : '提交'}
+        </button>
+     </form>
+     {modalType === "applicableitems" && (
+                <SelfCheck
+                    isOpen={isOpen}
+                    onRequestClose={closeModal}
+                    handle={handleItemsSubmit}
+                />
+            )}
+        </div>
     );
 }
 

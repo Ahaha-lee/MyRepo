@@ -5,6 +5,7 @@ import (
 	login "mygo/server/login"
 	payment "mygo/server/payment"
 	storage "mygo/server/storage"
+	system "mygo/server/system"
 	vip "mygo/server/vip"
 	stormodels "mygo/storage/models"
 	storrepo "mygo/storage/repositories"
@@ -100,6 +101,7 @@ func Server() error {
 	storage.StorageRoutes(server, db)         //库存模块
 	storage.StorageRoutesGorm(server, dbGorm) //库存模块2.0
 	payment.PaymentRoutes(server, dbGorm)
+	system.Systemrouteres(server, dbGorm) //系统管理模块
 
 	// 启动服务器
 	if err := server.Run(":8081"); err != nil {
