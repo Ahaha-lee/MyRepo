@@ -33,8 +33,7 @@ func GetProduct(id string) ([]stormodels.ProductStruct, error) {
 		log.Println("GetProduct: Found in cache:", cacheData.Product)
 
 		// 将产品包装到数组中
-		products := []stormodels.ProductStruct{cacheData.Product}
-		return products, nil
+		return []stormodels.ProductStruct{cacheData.Product}, nil
 	}
 
 	// 缓存中没有，从数据库查询
@@ -43,13 +42,22 @@ func GetProduct(id string) ([]stormodels.ProductStruct, error) {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// 使用模糊查询
-		if err := tx.Where("pro_barcode LIKE ?", "%"+id+"%").Find(&product).Error; err != nil {
+		log.Println("GetProduct: Searching in database:")
+		if err := tx.Where("pro_barcode LIKE ?", "%"+id+"%").First(&product).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				log.Printf("Product not found in database for ID: %s", id)
+				return err
+			}
 			log.Printf("Failed to get product info: %v", err)
 			return err
 		}
 
 		// 获取统计信息
-		if err := tx.Where("product_barcode", id).Find(&stats).Error; err != nil {
+		if err := tx.Where("product_barcode = ?", id).First(&stats).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				log.Printf("Product stats not found in database for ID: %s", id)
+				return nil // 统计信息不存在不应阻止返回产品信息
+			}
 			log.Printf("Failed to get product stats: %v", err)
 			return err
 		}
@@ -58,13 +66,16 @@ func GetProduct(id string) ([]stormodels.ProductStruct, error) {
 	})
 
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("product not found for ID: %s", id)
+		}
 		log.Println("GetProduct error:", err)
 		return nil, err
 	}
 
-	// 更新访问统计（移到这里，确保在数据库查询成功后立即更新）
-	updateProductStats(id) // 移除 go 关键字，确保同步执行
-	log.Println(stats)
+	// 更新访问统计（同步执行）
+	updateProductStats(id)
+
 	// 检查是否需要加入缓存
 	if shouldAddToCache(stats.VisitCount, 10) {
 		log.Printf("Adding product to cache: %+v", product)

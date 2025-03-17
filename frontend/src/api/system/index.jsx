@@ -15,7 +15,7 @@ export const PermissionApi = {
 }
 
 
-export const oleApi = {
+export const roleApi = {
     getinfo: async (data) => {
         try{
             const res = await getRequest(BaseApi.baseURL + BaseApi.roleinfosearch, data);

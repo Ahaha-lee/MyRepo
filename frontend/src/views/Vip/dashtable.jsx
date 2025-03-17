@@ -1,5 +1,7 @@
 import React from "react";
 export function VipDash({Results}){
+    console.log(Results)
+    
     return (
         <div className="d-flex" style={{width:'100%'}}>
             <table class="table">

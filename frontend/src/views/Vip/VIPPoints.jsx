@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { VipDash } from './dashtable';
+import { AVipDash } from './dashtable';
 import { VIPPointsApi } from '../../api/vip'; 
 import MainLayout from '../../utils/MainLayOut/MainLayout'
 export function ChangePointsPage(){
@@ -136,7 +136,7 @@ export const ChangePoints = () => {
     }
   };
   
-
+console.log(changeResult)
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -187,7 +187,7 @@ export const ChangePoints = () => {
               />
             </div>
             <button type="submit" className="btn btn-primary">提交</button>
-            {changeResult && <VipDash Results={changeResult} />} {/* 显示更新后的会员信息 */}
+            {changeResult && <AVipDash Results={changeResult} />} {/* 显示更新后的会员信息 */}
             {message && <p><span className="text-danger">{message}</span></p>} {/* 显示操作结果信息 */}
           </div>
       </form>

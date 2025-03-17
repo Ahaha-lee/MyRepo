@@ -77,7 +77,7 @@ export const AddVipMembership = () => {
       setPhone(value);
     }
   };
-
+ console.log("1",gradeId)
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -114,7 +114,7 @@ export const AddVipMembership = () => {
               className="form-select" 
               value={gradeId} 
               onChange={(e) => setGradeId(e.target.value)}
-            >
+            > 
               {options.length > 0 ? (
                 options.map((option, index) => (
                   <option key={index} value={option.GradeId} className="form-option">

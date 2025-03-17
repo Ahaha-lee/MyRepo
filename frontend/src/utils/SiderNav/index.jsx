@@ -26,9 +26,9 @@ export default function SiderNav() {
             </button>
             <div className="collapse" id="vip-collapse">
                 <ul className="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li className="text-secondary">
+                    {/* <li className="text-secondary">
                         <a href="/vip/summarize" className="link-dark rounded text-decoration-none text-start">会员概览</a>
-                    </li>
+                    </li> */}
                     <li className="text-secondary">
                         <a href="/vip/info" className="link-dark rounded text-decoration-none text-start">会员信息</a>
                     </li>
@@ -132,12 +132,12 @@ export default function SiderNav() {
                     </li>
                     {/* 库存商品管理 */}
                     <li>
-                    <button className="btn btn-toggle align-items-center rounded collapsed text-start" 
+                    {/* <button className="btn btn-toggle align-items-center rounded collapsed text-start" 
                             data-bs-toggle="collapse" 
                             data-bs-target="#inventory-collapse" 
                             aria-expanded="false">
                         库存商品管理
-                    </button>
+                    </button> */}
                     <div className="collapse" id="inventory-collapse">
                         {/* <ul className="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                             <li className="text-secondary">
@@ -174,12 +174,12 @@ export default function SiderNav() {
                 <li className="text-secondary">
                         <a href="/payment/cash" className="link-dark rounded text-decoration-none text-start">收银员主页面</a>
                     </li>
-                    <li className="text-secondary">
+                    {/* <li className="text-secondary">
                         <a href="/cash/overview" className="link-dark rounded text-decoration-none text-start">收银概览</a>
-                    </li>
-                    <li className="text-secondary">
+                    </li> */}
+                    {/* <li className="text-secondary">
                         <a href="/cash/reports" className="link-dark rounded text-decoration-none text-start">收银报表</a>
-                    </li>
+                    </li> */}
                     <li className="text-secondary">
                         <a href="/payment/discount" className="link-dark rounded text-decoration-none text-start">商品优惠管理</a>
                     </li>

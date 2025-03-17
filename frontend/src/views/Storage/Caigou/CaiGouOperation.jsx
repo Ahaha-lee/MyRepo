@@ -22,7 +22,9 @@ export const CaiGouOpertionForm = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                InboundRecordsApi.getinfo().then((res) => {
+                InboundRecordsApi.getinfo({
+                    page: 1
+                }).then((res) => {
                 console.log('list返回的数据', res)
                 setProcurebrief(res.data);
                 });

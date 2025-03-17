@@ -4,6 +4,7 @@ import '../../../css/storage.css';
 import { ProcurementInfo } from '../dashtable';
 import { getLocalStorage } from '../../../components/localstorage';
 import { StautesOperation } from './Status';
+import { use } from 'react';
 
 export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) => {
     const [CheckResult, setCheckResult] = useState('通过');
@@ -11,8 +12,9 @@ export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
     const handler = getLocalStorage('session',true).name
     const [time,setTime]=useState(new Date())
     const record_id = procureDetails.recordID
+    const [status,setStatus]=useState()
 
-    
+
     const handleSubmit = () => {       
         const checkData =( {
             CheckStaffID:10, 
@@ -24,8 +26,7 @@ export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
         const action="sh"
         onSubmit(checkData,action,record_id);        
     };
-
-
+  
     return (
        <>
         <Modal isOpen={isOpen} onRequestClose={onRequestClose} 
@@ -85,7 +86,6 @@ export const CheckModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
                 <button className="btn btn-primary mx-4" onClick={onRequestClose}>取消</button>
                 <button className="btn btn-primary mx-4" 
                         onClick={handleSubmit}
-                        // disabled={} 
                         title='不可重复审核'>确认审核</button>
             </div>
         </div>

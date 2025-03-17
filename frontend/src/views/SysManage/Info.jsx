@@ -1,4 +1,4 @@
-import { PermissionAndRoleApi, PermissionApi } from "../../api/system";
+import { PermissionAndRoleApi, roleApi, PermissionApi } from "../../api/system";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const SysMycontext = createContext();
@@ -20,9 +20,9 @@ export function SystemmProvider({ children }) {
     };
 
     // 获取角色信息
-    const getRoleInfo = async (id) => {
+    const getRoleInfo = async () => {
         try {
-            const res = await PermissionApi.getinfo({ search_id: id });
+            const res = await roleApi.getinfo();
             console.log("角色数据返回成功", res);
             return res; // 返回角色信息
         } catch (error) {
@@ -33,8 +33,8 @@ export function SystemmProvider({ children }) {
     // 获取权限和角色信息
     const getPermissionAndRole = async () => {
         try {
-            const res = await PermissionAndRoleApi.getinfo({});
-            console.log("角色数据返回成功", res);
+            const res = await PermissionAndRoleApi.getinfo({search_id: 0});
+            console.log("角色权限数据返回成功", res);
             setPermissionandarole(res.permissionandrole);
         } catch (error) {
             console.log("角色数据返回失败", error);

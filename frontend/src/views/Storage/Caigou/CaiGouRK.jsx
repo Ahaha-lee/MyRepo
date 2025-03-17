@@ -4,7 +4,6 @@ import { getLocalStorage } from '../../../components/localstorage';
 import { ProcurementInfo } from '../dashtable';
 import { InboundRecordsApiPro } from '../../../api/storage';
 import { CheckData } from '../dashtable';
-import axios from 'axios';
 
 
 
@@ -15,10 +14,11 @@ export const PutinModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
     const [CheckDetails, setCheckDetails] = useState();
     const [error, setError] = useState(null);
     const [time,setTime]=useState(new Date());
-    const[status,setStatus]=useState("");
+    const[status,setStatus]=useState(false);
 
     const record_id = procureDetails.recordID
     const handler = getLocalStorage('session',true).name;
+
 
     //入库审核的时候要看审核时候的数据
     useEffect (()=>{
@@ -60,6 +60,8 @@ export const PutinModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
 
         onSubmit(putinData,action,record_id);
     };
+
+
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
@@ -118,7 +120,7 @@ export const PutinModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
                 <button className="btn btn-primary mx-4" onClick={onRequestClose}>取消</button>
                 <button className="btn btn-primary mx-4"
                  onClick={handleSubmit}
-                 disabled={status.putinresult!=""}>确认入库</button>
+                 >确认入库</button>
             </div>
         </div>
         </Modal>

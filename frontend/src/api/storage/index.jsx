@@ -67,10 +67,10 @@ export const  CGOperationApi={
 
 //是状态为未完成的采购申请表  后续还要是要联立records来获取状态
 export const InboundRecordsApi={
-    getinfo:async () => {
+    getinfo:async (data) => {
         try {
             var response;
-            response = await getRequest(BaseApi.baseURL + BaseApi.inboundrecordslist,{params:{page:'1'}});
+            response = await getRequest(BaseApi.baseURL + BaseApi.inboundrecordslist,data);
             return response; 
         } catch (error) {
             console.error('请求错误:', error);

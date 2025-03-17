@@ -271,7 +271,7 @@ export function DiscountInfoinsertOrUpdate({ existingDiscountRule }) {
     const [isOpen, setIsOpen] = useState(false);
     const [modalType, setModalType] = useState(null);
     const [selecttype, setSelecttype] = useState(null);
-
+    const navigate = useNavigate();
     const handleNavigate = async (action) => {
         if (!isOpen) {
             setIsOpen(true);
@@ -360,11 +360,17 @@ export function DiscountInfoinsertOrUpdate({ existingDiscountRule }) {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+
+        // 如果是数字输入，转换为浮点数；如果是复选框，使用 checked
+        const newValue = (type === 'number') ? parseFloat(value) : (type === 'radio' ? checked : value);
+
         setFormData(prevState => ({
             ...prevState,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: newValue
         }));
     };
+
+
 
 
 
@@ -501,7 +507,9 @@ export function DiscountInfoinsertOrUpdate({ existingDiscountRule }) {
         <button type="submit" className="btn btn-primary">
             {existingDiscountRule ? '更新' : '提交'}
         </button>
+        <button className="btn" type="button" onClick={() => navigate('/payment/discount')}>返回</button>
      </form>
+     
      {modalType === "applicableitems" && (
                 <SelfCheck
                     isOpen={isOpen}

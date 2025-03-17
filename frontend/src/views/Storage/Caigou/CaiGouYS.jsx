@@ -17,7 +17,6 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}
     const [time,setTime]=useState(new Date());
     const record_id=procureDetails.recordID;
     const [status,setStatus]=useState() 
-    
 
     
     const handleSubmit = async () => {
@@ -32,7 +31,7 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}
         const action ="ys";
         onSubmit(examineData,action,record_id);
     };
-    
+
     // 验收的时候要看审核 和入库记录
     useEffect (()=>{
         const fetchCheckData=() => {
@@ -67,6 +66,7 @@ export const ExamineModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}
         fetchCheckData();
 
     },[])
+  
 
   
     return (

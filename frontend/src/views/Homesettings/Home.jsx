@@ -1,13 +1,19 @@
-import React from "react";
-export function AdminHomePage(){
-      return (
+import React from 'react';
+import MainLayout from '../../utils/MainLayOut/MainLayout';
+
+
+export function AdminHomePage() {
+    return (
+        <>
+            <MainLayout rightContent={<PageForm />} />
+        </>
+    );
+}
+
+export function PageForm() {
+    return (
         <div>
-          <div className="row g-0">
-          <div className="col-2"></div>
-          <div className="col-10">
-          <h1 className="text-center">Admin Home Page</h1>
-          </div>
-          </div>
+            <h1 className="text-center">欢迎！</h1>
         </div>
-      );
+    );
 }

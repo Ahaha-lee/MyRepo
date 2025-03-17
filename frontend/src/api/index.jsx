@@ -17,8 +17,8 @@ export const BaseApi = {
     procurementlst:"/storage/cg/:search_id/:page",//查询
     procurementupdate:"/storage/cg_declaration/:update_id",//修改采购申请表
     outdeclarationlist:"/storage/ck/:search_id/:page",
-    inboundrecordslist:"/storage/cg/operate/:page",  //入库记录中未完成的的procurement
-    outstoragelist:"/storage/ck/operate",   //出库记录中未完成的outdeclaration
+    inboundrecordslist:"/storage/cg/operate/1",  //入库记录中未完成的的procurement
+    outstoragelist:"/storage/ck/operate/1",   //出库记录中未完成的outdeclaration
     inboundrecords:"/storage/cg/records/:search_id/:page",  //纯纯的入库记录
     outboundrecords:"/storage/ck/records/:search_id/:page",//纯纯的出库记录
     status:"/storage/:action/record/status_:record_id/:page",
@@ -56,5 +56,5 @@ export const BaseApi = {
 
     permissioninfosearch:"/system/permission/getinfo/:search_id",
     permissionandroleinfo:"/system/permissionroleinfo",
-    roleinfosearch:"/system/role/getinfo/:search_id"
+    roleinfosearch:"/system/role/getinfo/0"
 };

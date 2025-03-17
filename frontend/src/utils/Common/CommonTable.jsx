@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 
-export function 
-CommonTable({ 
+export function CommonTable({ 
   columns, 
-  data = [], // 设置默认值为一个空数组
+  data = [], 
   checkable = false,
   onCheckChange,
   indexColumn = true,
@@ -17,17 +16,23 @@ CommonTable({
     if (checkable) {
       initializeCheckboxStates();
     }
-  }, [checkable]); // 添加 checkable 作为依赖项
+  }, [checkable, data]); // 添加 data 作为依赖项
 
   const initializeCheckboxStates = () => {
-    const initialStates = data.reduce((acc, item) => {
-      acc[item[idField]] = false;
+    const initialStates = (data || []).reduce((acc, item) => {
+      acc[item[idField]] = checkboxStates[item[idField]] || false; // 保持之前的勾选状态
       return acc;
     }, {});
     setCheckboxStates(initialStates);
+    updateSelectAllChecked(initialStates);
     if (onCheckChange) {
       onCheckChange(initialStates);
     }
+  };
+
+  const updateSelectAllChecked = (states) => {
+    const allChecked = (data || []).every(item => states[item[idField]]);
+    setSelectAllChecked(allChecked);
   };
 
   const handleSelectAllClick = () => {
@@ -35,13 +40,16 @@ CommonTable({
     setSelectAllChecked(newSelectAllState);
     
     const newCheckboxStates = {};
-    data.forEach((item) => {
+    (data || []).forEach((item) => {
       newCheckboxStates[item[idField]] = newSelectAllState;
     });
     
-    setCheckboxStates(newCheckboxStates);
+    setCheckboxStates((prevStates) => ({
+      ...prevStates,
+      ...newCheckboxStates
+    }));
     if (onCheckChange) {
-      onCheckChange(newCheckboxStates);
+      onCheckChange({ ...checkboxStates, ...newCheckboxStates });
     }
   };
 
@@ -51,7 +59,7 @@ CommonTable({
       [itemId]: !checkboxStates[itemId]
     };
     setCheckboxStates(newStates);
-    
+    updateSelectAllChecked(newStates);
     if (onCheckChange) {
       onCheckChange(newStates);
     }
@@ -65,7 +73,7 @@ CommonTable({
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -94,7 +102,8 @@ CommonTable({
                   type="checkbox"
                   checked={selectAllChecked}
                   onChange={handleSelectAllClick}
-                  disabled={data.length === 0} // 禁用全选框
+                  disabled={(data || []).length === 0}
+                  style={{ backgroundColor: 'white' }} // 全选框初始为白色
                 />
               </th>
             )}
@@ -106,8 +115,8 @@ CommonTable({
           </tr>
         </thead>
         <tbody>
-          {data.length > 0 ? (
-            data.map((item, index) => (
+          {(data || []).length > 0 ? (
+            (data || []).map((item, index) => (
               <tr key={item[idField] || index}>
                 {checkable && (
                   <td>
@@ -132,10 +141,10 @@ CommonTable({
                 )}
               </tr>
             ))
-          ) :(
+          ) : (
             <tr>
               <td colSpan={checkable ? columns.length + 1 : columns.length}>
-                暂无数据
+                表格为空
               </td>
             </tr>
           )}
