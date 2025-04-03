@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Modal from 'react-modal';
 
 export function CommonTable({ 
   columns, 
@@ -11,6 +12,8 @@ export function CommonTable({
 }) {
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [checkboxStates, setCheckboxStates] = useState({});
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalImage, setModalImage] = useState('');
 
   useEffect(() => {
     if (checkable) {
@@ -90,6 +93,22 @@ export function CommonTable({
     return value;
   };
 
+  const getImagePath = (path) => {
+    // 将本地路径转换为服务器 URL
+    const relativePath = path.replace(/\\/g, '/').replace('E:/DingggCode/MyRepo/frontend', '');
+    return `http://localhost:3001/${relativePath}`;
+  };
+
+  const openModal = (imagePath) => {
+    setModalImage(imagePath);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalImage('');
+  };
+
   return (
     <div className="container">
       <table className="table">
@@ -131,7 +150,16 @@ export function CommonTable({
                 {indexColumn && <td>{index + 1}</td>}
                 {columns.map((column, colIndex) => (
                   <td key={colIndex}>
-                    {column.render ? column.render(item[column.key], item) : formatValue(item[column.key])}
+                    {column.key === 'ImagePath' ? (
+                      <img 
+                        src={getImagePath(item[column.key])} 
+                        alt="" 
+                        style={{ width: '80px', height: '80px', cursor: 'pointer' }} 
+                        onClick={() => openModal(getImagePath(item[column.key]))}
+                      />
+                    ) : (
+                      column.render ? column.render(item[column.key], item) : formatValue(item[column.key])
+                    )}
                   </td>
                 ))}
                 {actions && (
@@ -150,6 +178,43 @@ export function CommonTable({
           )}
         </tbody>
       </table>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Image Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '60%', // 模态框宽度设为60%，可按需调整
+            maxWidth: '500px', // 最大宽度，防止过大
+            maxHeight: '70vh', // 最大高度，根据视口高度设置
+          }
+        }}
+      >
+        <img 
+          src={modalImage} 
+          alt="Enlarged" 
+          style={{ 
+            width: '100%', 
+            height: 'auto', // 让高度自适应，避免拉伸变形
+            display: 'block', // 使图片以块级元素显示
+            margin: '0 auto', // 水平居中图片
+          }} 
+        />
+        <button 
+          onClick={closeModal} 
+          style={{
+            display: 'block', // 按钮以块级元素显示
+            margin: '10px auto 0', // 水平居中按钮，上边距10px
+          }}
+        >关闭</button>
+      </Modal>
     </div>
   );
 }

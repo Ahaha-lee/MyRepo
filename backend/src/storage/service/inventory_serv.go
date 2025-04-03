@@ -15,7 +15,15 @@ func (s *StorageGormService) UpdateInventoryServ(ctx context.Context, inventoryi
 	}
 	return nil
 }
-
+func (s *StorageGormService) UpdateInventoryQuantitiesServ(ctx context.Context, inventoryid string, quantities *stormodels.QuantitiesStruct) error {
+	err := s.storagegormrepo.UpdateInventoryQuantities(ctx, inventoryid, quantities)
+	if err != nil {
+		log.Println("UpdateInventoryQuantitiesServ出错1", err)
+		return err
+	}
+	log.Println("UpdateInventoryQuantitiesServ成功")
+	return nil
+}
 func (s *StorageGormService) DeleteInventoryServ(ctx context.Context, inventoryid int) error {
 	err := s.storagegormrepo.DeleteInventoryRepo(ctx, inventoryid)
 	if err != nil {

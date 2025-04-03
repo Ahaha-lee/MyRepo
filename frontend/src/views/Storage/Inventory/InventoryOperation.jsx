@@ -18,6 +18,7 @@ export function InventoryUpdatePage(){
 }
 
 export function InventoryUpdateForm({inventoryinfo}){
+    console.log(inventoryinfo)
     const [formdata, setFormData] = useState({
         Inv_barcode      :"",
         Inv_productname  :"",
@@ -29,8 +30,9 @@ export function InventoryUpdateForm({inventoryinfo}){
         Inv_location     :"",
         Stock_minquantity :"",
         Inv_status       :"",
+        ImagePath       :""
     });
-
+  
     useEffect(() => {
         if (inventoryinfo) {
             setFormData({
@@ -43,10 +45,12 @@ export function InventoryUpdateForm({inventoryinfo}){
                 Stockout_quantity :inventoryinfo.Stockout_quantity,
                 Inv_location: inventoryinfo.Inv_location,
                 Stock_minquantity :inventoryinfo.Stock_minquantity,
-                Inv_status:inventoryinfo.Inv_status    
+                Inv_status:inventoryinfo.Inv_status,   
+                ImagePath:inventoryinfo.ImagePath, 
             });
         }
     }, [inventoryinfo]);
+
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData(prevData => ({
@@ -110,6 +114,14 @@ export function InventoryUpdateForm({inventoryinfo}){
                         name="Inv_barcode"
                         readOnly
                     />
+                </div>
+                <div className="col-md-12">
+                    <label htmlFor="ImagePath" className="form-label">商品图片(不可修改，如需修改请前往商品信息管理处修改):</label>
+                    {formdata.ImagePath && (
+                        <div className="mb-3">
+                            <img src={`http://localhost:3001/${formdata.ImagePath}`} alt="Product" style={{ width: '50%', height: '100px' }} />
+                        </div>
+                    )}
                 </div>
                 <div className="col-md-12">
                     <label>商品种类:</label>

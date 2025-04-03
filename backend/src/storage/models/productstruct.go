@@ -12,6 +12,7 @@ type ProductStruct struct {
 	ProductUnit    string `gorm:"autoIncrement:true"`
 	DetailedlyDesc string
 	ProLocation    string
+	ImagePath      string
 }
 
 // 定义表明

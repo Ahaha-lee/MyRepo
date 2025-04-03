@@ -11,9 +11,14 @@ export function AdminHomePage() {
 }
 
 export function PageForm() {
-    return (
-        <div>
-            <h1 className="text-center">欢迎！</h1>
-        </div>
-    );
+  return (
+      <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh'
+      }}>
+          <img src="http://localhost:3001/images/adminpage.png" alt="map" />
+      </div>
+  );
 }

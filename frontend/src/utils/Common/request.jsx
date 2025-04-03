@@ -35,26 +35,41 @@ export const getRequest = async (url, { params }) => {
 
 
 //封装Post请求
-export const postRequest = async (url, data) => {
+export const postRequest = async (url, data = {}) => {
   try {
-    const token=gettoken()
-    // 将 data 转换为 JSON 字符串
-    const jsonData = JSON.stringify(data);
-    console.log("jsondata",jsonData)
-    
-    // 发送 POST 请求
-    const response = await apiClient.post(url, jsonData, {
-      headers: {
-        'Content-Type': 'application/json' ,
-        "Authorization":token
+      let finalUrl = url;
+      let requestData;
+
+      // 检查 data 中是否包含 params
+      if (data.params) {
+          // 替换 URL 中的路径参数
+          for (const key in data.params) {
+              if (data.params.hasOwnProperty(key)) {
+                  finalUrl = finalUrl.replace(`:${key}`, encodeURIComponent(data.params[key]));
+              }
+          }
+          // 如果有 params，使用 data.data 作为请求数据
+          requestData = JSON.stringify(data.data);
+      } else {
+          // 如果没有 params，直接使用 data 作为请求数据
+          requestData = JSON.stringify(data);
       }
-    });
-    return response.data;
+
+      const token = gettoken();
+
+      // 发送 POST 请求
+      const response = await apiClient.post(finalUrl, requestData, {
+          headers: {
+              'Content-Type': 'application/json',
+              "Authorization": token
+          }
+      });
+      return response.data;
   } catch (error) {
-    console.error('POST请求错误:', error.message);
-    throw error; 
+      console.error('POST请求错误:', error.message);
+      throw error;
   }
-};
+};  
 
 
 // 封装 PUT 请求

@@ -68,13 +68,13 @@ export function AllProcurementForm() {
         getPageStatus(pagecount)
         .then(data => {
                 setPagestatus(data);
+                console.log("获取状态数据成功:", data);
             })
         .catch(err => {
                 console.error("获取状态数据出错:", err);
             });
     }
-
-   
+    
     useEffect(() => {
         getlist();
         getStatus();

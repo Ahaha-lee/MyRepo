@@ -65,13 +65,13 @@ export const VIPPointsForm=()=>{
 //   );
 // };
 
-export const ChangePoints = () => {
+export const ChangePoints = ({points}) => {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [reminder,setReminder]=useState('');
   const [changeResult, setChangeResult] = useState(null); // 存储更新后的会员信息
   const [data, setData] = useState({
-    value: '',
+    value: points ? points : 0,
     updateNowPoints: false,
     updateUsedPoints: false,
   });

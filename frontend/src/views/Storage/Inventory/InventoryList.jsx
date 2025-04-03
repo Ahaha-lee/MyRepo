@@ -4,7 +4,6 @@ import { Pagination } from '../../../utils/Common/SlicePage';
 import {InventoryApi} from '../../../api/storage/inventory';
 import { InventoryDetailInfoModal } from './InventoryDetailInfo';
 import { useNavigate } from 'react-router-dom';
-import { title } from 'process';
 import { CommonTable } from '../../../utils/Common/CommonTable';
 
 
@@ -76,87 +75,107 @@ export const InventoryListForm = () => {
         </div>
       );
 }   
-export const InventoryList=({Results,feachdetail}) => {
-    console.log("Results",Results)
-    const [inventoryDetails, setInventoryDetails] = useState({});
-    const [isOpen, setIsOpen] = useState(false);
-    const [modalType, setModalType] = useState(null)
-    const navigate=useNavigate();
+export const InventoryList = ({ Results, feachdetail }) => {
+  const [inventoryDetails, setInventoryDetails] = useState({});
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const navigate = useNavigate();
 
-  
-    const columns=[
+  const lowStockItems = Results.filter(item => item.Stocknow_quantity < item.Stock_minquantity);
+
+  const columns = [
       {
-      title:"商品 ID",
-      key:"Inventory_id"
+          title: "商品 ID",
+          key: "Inventory_id"
       },
       {
-      title:"商品名称",
-      key:"Inv_productname"
+          title: "商品图片",
+          key: "ImagePath"
       },
       {
-      title:"商品条码",
-      key:"Inv_barcode"
+          title: "商品名称",
+          key: "Inv_productname"
       },
       {
-      title:"商品状态",
-      key:"Inv_status"
+          title: "商品条码",
+          key: "Inv_barcode"
       },
       {
-      title:"库存现有数量",
-      key:"Stocknow_quantity"
+          title: "商品状态",
+          key: "Inv_status"
       },
       {
-      title:"商品数量单位",
-      key:"Inv_unit"
+          title: "库存现有数量",
+          key: "Stocknow_quantity"
+      },
+      {
+          title: "商品数量单位",
+          key: "Inv_unit"
       }
-    ]
+  ];
 
-    const tableActions=(record)=>(
+  const tableActions = (record) => (
       <>
-        <button onClick={() => handleFetchDetails("inventtoryinfo", record.Inventory_id)}>查看详情 </button>
-        <button onClick={() => handleUpdateProduct(record.Inventory_id)}>修改 </button>
+          <button onClick={() => handleFetchDetails("inventtoryinfo", record.Inventory_id)}>查看详情</button>
+          <button onClick={() => handleUpdateProduct(record.Inventory_id)}>修改</button>
       </>
-    )
-      const handleFetchDetails = async (action, product_id) => {
-        const details = await feachdetail(product_id);
-        setInventoryDetails(details);
-        handleNavigate(action);
-      };
+  );
 
-      const handleUpdateProduct = async (productId) => {
-        const updateProduct = await feachdetail(productId);
-        navigate('/storage/inventory_update', { state: { product: updateProduct } });
-    };
-      const handleNavigate = async(action) => {
-        if (!isOpen) {
-            setIsOpen(true);
-        }
-        setModalType(action);
-    };
-    const closeModal = () => {
-        setModalType(null);
-        setIsOpen(false);
-      };
+  const handleFetchDetails = async (action, product_id) => {
+      const details = await feachdetail(product_id);
+      setInventoryDetails(details);
+      handleNavigate(action);
+  };
 
-    return(
-    <div>
-      <div className="container">
-      <CommonTable
-        columns={columns}
-        data={Results}
-        checkable={true}
-        // onCheckChange={setPcheckstatus}
-        actions={tableActions}
-        idField={"Inventory_id"}
-      />
+  const handleUpdateProduct = async (productId) => {
+      const updateProduct = await feachdetail(productId);
+      navigate('/storage/inventory_update', { state: { product: updateProduct } });
+  };
 
-      {modalType==="inventtoryinfo" && (
-        <InventoryDetailInfoModal 
-            Result={inventoryDetails} 
-            isOpen={isOpen} 
-            onRequestClose={closeModal} />
-       )}
+  const handleNavigate = async (action) => {
+      if (!isOpen) {
+          setIsOpen(true);
+      }
+      setModalType(action);
+  };
+
+  const closeModal = () => {
+      setModalType(null);
+      setIsOpen(false);
+  };
+
+  return (
+      <div>
+          <div className="container">
+              {lowStockItems.length > 0 && (
+                  <div className="alert alert-warning">
+                      以下商品库存低于最低库存量：
+                      <ul>
+                          {lowStockItems.map(item => (
+                              <li key={item.Inventory_id}>
+                                  {item.Inv_productname} (现有库存: {item.Stocknow_quantity}, 最低库存: {item.Stock_minquantity})
+                              </li>
+                          ))}
+                      </ul>
+                  </div>
+              )}
+              <CommonTable
+                  columns={columns}
+                  data={Results}
+                  checkable={true}
+                  // onCheckChange={setPcheckstatus}
+                  actions={tableActions}
+                  idField={"Inventory_id"}
+              />
+
+              {modalType === "inventtoryinfo" && (
+                  <InventoryDetailInfoModal
+                      Result={inventoryDetails}
+                      isOpen={isOpen}
+                      onRequestClose={closeModal}
+                  />
+              )}
+          </div>
       </div>
-    </div>
-    )
-}
+  );
+};

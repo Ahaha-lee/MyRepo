@@ -289,6 +289,15 @@ export function ProductDetailInfo({Result}){
                     <div className="form-control">{Result.ProductName}</div>
                 </div>
                 <div className="col-md-6">
+                    <label>商品图片:</label>
+                    <div className="form-control"> <img
+                    src={`http://localhost:3001/${Result.ImagePath}`}
+                    alt="展示图片"
+                    style={{ width: '100%', height: 'auto' }}
+                />
+                </div>
+                </div>
+                <div className="col-md-6">
                     <label>商品条码:</label>
                     <div className="form-control">{Result.ProBarcode}</div>
                 </div>
@@ -351,7 +360,9 @@ export function CategoryInfo({Results}) {
 }
 
 //inventory
-export function InventoryInfo({Result}) {    
+export function InventoryInfo({Result}) {   
+    
+    console.log("InventoryInfo",Result)
 
     return (
         <div className="container">
@@ -363,6 +374,16 @@ export function InventoryInfo({Result}) {
                 <div className="col-md-6">
                     <label>商品名称:</label>
                     <div className="form-control">{Result.Inv_productname}</div>
+                </div>
+            </div>
+            <div className="eow">
+                    <label>商品图片:</label>
+                    <div className="form-control"> 
+                    <img
+                    src={`http://localhost:3001/${Result.ImagePath}`}
+                    alt="展示图片（已下架商品无商品图片）"
+                    style={{ width: '100%', height: '360px' }}
+                />
                 </div>
             </div>
             <div className="row">
@@ -388,7 +409,7 @@ export function InventoryInfo({Result}) {
                 </div>
                 <div className="col-md-6">
                     <label>库存现有数量:</label>
-                    <div className="form-control">{Result.Stockall_quantity}</div>
+                    <div className="form-control">{Result.Stocknow_quantity}</div>
                 </div>
             </div>
             <div className="row">
@@ -396,11 +417,6 @@ export function InventoryInfo({Result}) {
                     <label>库存出库数量:</label>
                     <div className="form-control">{Result.Stockout_quantity}</div>
                 </div>
-                <div className="col-md-6">
-                    <label>库存出库数量:</label>
-                    <div className="form-control">{Result.Stockout_quantity}</div>
-                </div>
-               
             </div>
             <div className="row">
                 <div className="col-md-6">

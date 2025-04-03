@@ -8,7 +8,8 @@ import { CheckData } from '../dashtable';
 
 
 export const PutinModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) => {
-    const [putinQuantities, setPutinQuantities] = useState(); // 初始值为 0
+    const quantity = procureDetails.cGQuantity
+    const [putinQuantities, setPutinQuantities] = useState(quantity);
     const [putinResult, setPutinResult] = useState("通过");
     const [putinOpinion, setPutinOpinion] = useState("");
     const [CheckDetails, setCheckDetails] = useState();
@@ -91,7 +92,7 @@ export const PutinModal = ({ isOpen, onRequestClose, procureDetails, onSubmit}) 
                     id="putinQuantities"
                     className="form-control"
                     value={putinQuantities}
-                    onChange={(e) => setPutinQuantities(parseFloat(e.target.value) || 0)} // 确保输入为数字
+                    onChange={(e) => setPutinQuantities(parseFloat(e.target.value) || quantity)} // 确保输入为数字
                 />
             </div>
             <div className="form-group">

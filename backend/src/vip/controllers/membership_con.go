@@ -42,3 +42,18 @@ func DeleteVIP(service *vipserv.VipService) gin.HandlerFunc {
 	}
 
 }
+
+func ChangeVIPGrade(service *vipserv.VipService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		vipPhone := c.Param("search_id")
+		fmt.Println("search_id", vipPhone)
+		err := service.UpdateVIPServ(c, vipPhone)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "会员等级修改失败", "errormessage": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "会员等级修改成功"})
+
+	}
+
+}

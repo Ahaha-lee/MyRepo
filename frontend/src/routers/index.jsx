@@ -11,6 +11,7 @@ import { VIPRouter } from './vip_router';
 import { StorageRouter } from './storage_router';
 import { PaymentRouter } from './payment_router';
 import { SysRouter } from './sysmanage_router';
+import { OrderRouter } from './order_router';
 export default function AppRouter(){
 
     return(
@@ -34,6 +35,8 @@ export default function AppRouter(){
             <Route path='/payment/*' element={<PaymentRouter/>}/>
 
             <Route path='/sysmanage/*' element={<SysRouter/>}/>
+
+            <Route path='/order/*' element={<OrderRouter/>}/>
         </Routes>
 
         </Router>

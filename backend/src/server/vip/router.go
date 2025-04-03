@@ -23,6 +23,8 @@ func VipRoutes(server *gin.Engine, db *sql.DB) {
 		vipGroup.PUT("/:update_id", vip.UpdateVipPoints(services))     // 修改会员积分
 		vipGroup.DELETE("/:delete_id", vip.DeleteVIP(services))        // 删除会员
 
+		vipGroup.PUT("/grade/:search_id", vip.ChangeVIPGrade(services)) // 修改会员等级
+
 	}
 }
 

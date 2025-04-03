@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"log"
 	stormodels "mygo/storage/models"
 	storserv "mygo/storage/service"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,5 +44,26 @@ func CRUDForInventoryCon(server *storserv.StorageGormService) gin.HandlerFunc {
 			}
 			c.JSON(http.StatusOK, gin.H{"message": "查询数据成功", "data": result, "total_num": total})
 		}
+	}
+}
+
+func CRUDForInventoryQuantitiesCon(server *storserv.StorageGormService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 提取路径参数
+		idStr := c.Param("update_id")
+		// 去除前后空格
+		trimmedIdStr := strings.TrimSpace(idStr)
+		log.Println("idStr:", trimmedIdStr)
+		var quantities stormodels.QuantitiesStruct
+		if err := c.ShouldBindJSON(&quantities); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "无效的JSON格式"})
+			return
+		}
+		log.Println("更新库存数量", quantities)
+		if err := server.UpdateInventoryQuantitiesServ(c, trimmedIdStr, &quantities); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "更新库存失败"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "库存更新成功"})
 	}
 }

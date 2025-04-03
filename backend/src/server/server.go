@@ -2,13 +2,6 @@ package server
 
 import (
 	"log"
-	login "mygo/server/login"
-	payment "mygo/server/payment"
-	storage "mygo/server/storage"
-	system "mygo/server/system"
-	vip "mygo/server/vip"
-	stormodels "mygo/storage/models"
-	storrepo "mygo/storage/repositories"
 	"time"
 
 	"database/sql"
@@ -17,39 +10,89 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
-	"gorm.io/driver/mysql" // 确保正确导入 mysql 驱动
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
+	login "mygo/server/login"
+	order "mygo/server/order"
+	payment "mygo/server/payment"
+	storage "mygo/server/storage"
+	system "mygo/server/system"
+	vip "mygo/server/vip"
+	stormodels "mygo/storage/models"
+	storrepo "mygo/storage/repositories"
 )
 
+// 连接普通 SQL 数据库并检查连接
 func DataBaseConnect() *sql.DB {
 	dsn := "root:123456@tcp(127.0.0.1:3306)/dingguaguadb"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		fmt.Println("数据库连接失败", err)
+		log.Printf("数据库连接失败: %v\n", err)
 		return nil
 	}
 
-	// 测试连接是否成功
 	if err := db.Ping(); err != nil {
+		log.Printf("数据库连接测试失败: %v\n", err)
 		return nil
 	}
 
 	return db
 }
 
+// 连接 Gorm 数据库并检查连接
 func DataBaseConnectGorm() *gorm.DB {
 	dsn := "root:123456@tcp(127.0.0.1:3306)/dingguaguadb?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Println("DataBaseConnectGorm", err)
+		log.Printf("DataBaseConnectGorm 失败: %v\n", err)
 		return nil
 	}
+
+	// 获取底层 *sql.DB 并检查连接
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Printf("获取底层 *sql.DB 失败: %v\n", err)
+		return nil
+	}
+	if err := sqlDB.Ping(); err != nil {
+		log.Printf("Gorm 数据库连接测试失败: %v\n", err)
+		return nil
+	}
+
 	return db
 }
+
+// 初始化 CORS 配置
+func initCORS() cors.Config {
+	return cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+}
+
+// 初始化缓存配置
+func initCacheConfig() stormodels.CacheConfig {
+	return stormodels.CacheConfig{
+		MaxSize:         1000,
+		CleanupInterval: time.Hour * 24,
+		MinAccessCount:  5,
+		ExpirationTime:  24 * time.Hour,
+	}
+}
+
 func Server() error {
 	// 连接数据库
 	db := DataBaseConnect()
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Printf("关闭普通数据库连接失败: %v\n", err)
+		}
+	}()
 
 	// 试用 Gorm
 	dbGorm := DataBaseConnectGorm()
@@ -62,50 +105,37 @@ func Server() error {
 	if err != nil {
 		return fmt.Errorf("获取底层 *sql.DB 失败: %v", err)
 	}
-	defer dbsql.Close()
+	defer func() {
+		if err := dbsql.Close(); err != nil {
+			log.Printf("关闭 Gorm 底层数据库连接失败: %v\n", err)
+		}
+	}()
 
 	// 服务器
 	server := gin.Default()
 
-	// 自定义 CORS 配置
-	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},                   // 允许的源
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // 允许的方法
-		AllowHeaders:     []string{"Authorization", "Content-Type"},           // 允许的请求头
-		ExposeHeaders:    []string{"Content-Length"},                          // 允许暴露的响应头
-		AllowCredentials: true,                                                // 是否允许带上凭证
-		MaxAge:           12 * time.Hour,                                      // 预检请求的缓存时间
-	}
-
-	// 初始化缓存配置
-	cacheConfig := stormodels.CacheConfig{
-		MaxSize:         1000,           // 最多缓存1000个商品
-		CleanupInterval: time.Hour * 24, // 每24小时清理一次
-		MinAccessCount:  5,              // 最少访问5次才保留
-		ExpirationTime:  24 * time.Hour, // 24小时未访问则过期
-	}
-
-	// 初始化缓存，这里会触发：
-	// 1. preloadHotProducts() - 预加载热门商品
-	// 2. 启动清理协程 - 定期执行 CleanCache()
-	if err := storrepo.InitCache(dbGorm, cacheConfig); err != nil {
-		log.Fatal(err)
-	}
 	// 使用自定义 CORS 中间件
-	server.Use(cors.New(corsConfig))
+	server.Use(cors.New(initCORS()))
+
+	// 初始化缓存
+	cacheConfig := initCacheConfig()
+	if err := storrepo.InitCache(dbGorm, cacheConfig); err != nil {
+		log.Fatalf("初始化缓存失败: %v\n", err)
+	}
 
 	// 路由
-	login.LoginRoutes(server, db)             // 登录注册路由
-	vip.VipRoutes(server, db)                 // 会员模块
-	vip.VipRoutesGorm(server, dbGorm)         //会员模块2.0
-	storage.StorageRoutes(server, db)         //库存模块
-	storage.StorageRoutesGorm(server, dbGorm) //库存模块2.0
+	login.LoginRoutes(server, db)
+	vip.VipRoutes(server, db)
+	vip.VipRoutesGorm(server, dbGorm)
+	storage.StorageRoutes(server, db)
+	storage.StorageRoutesGorm(server, dbGorm)
 	payment.PaymentRoutes(server, dbGorm)
-	system.Systemrouteres(server, dbGorm) //系统管理模块
+	system.Systemrouteres(server, dbGorm)
+	order.OrderRoutes(server, dbGorm)
 
 	// 启动服务器
 	if err := server.Run(":8081"); err != nil {
-		log.Fatalf("无法启动服务器: %v", err)
+		log.Fatalf("无法启动服务器: %v\n", err)
 		return err
 	}
 

@@ -34,7 +34,7 @@ func (r *VipRepository) GetVIPInfoRepo(ctx context.Context, id int, page int) ([
 		offset := (page - 1) * 10
 		rows, err = r.db.QueryContext(ctx, query, offset, 10)
 		if err != nil {
-			fmt.Println("GetVIPInfoRepo出错5", err)
+			fmt.Println("", err)
 			return nil, -1, err
 		}
 	} else if id > 0 {

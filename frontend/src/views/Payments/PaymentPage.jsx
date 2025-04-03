@@ -3,6 +3,9 @@ import { ProductApi, ProductCacheApi } from '../../api/storage/product';
 import { DiscoutApi } from '../../api/payment/discount';
 import {VIPListApi} from '../../api/vip/index'
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal';
+import { ChangePoints } from '../Vip/VIPPoints';
+import { OrderApi } from '../../api/order';
 
 export const CashierContext = createContext();
 
@@ -91,23 +94,7 @@ export const CashierProvider = ({ children }) => {
             console.error('获取缓存商品信息错误:', error);
         }
     };
-    const calculateDiscountedPrice = (product) => {
-        let finalPrice = product.RetailPrice;
-        const applicableDiscounts = discountRules.filter(discount => discount.RuleTypeid === 0);
-        console.log("app",applicableDiscounts)
-        
-        if (applicableDiscounts.length > 0) {
-            applicableDiscounts.forEach(discount => {
-                const { DiscountRate, DiscountItems } = discount;
-                if (DiscountItems === "全部商品" || DiscountItems.split(',').map(id => id.trim()).includes(product.ProductID.toString())) {
-                    finalPrice *= DiscountRate;
-                }
-            });
-        }  
-        return finalPrice;  
-    };
-    
-    
+
     const calculateTotals = () => {
         const total = cart.items.reduce((sum, item) => sum + item.RetailPrice * item.quantity, 0);
         let discountedTotal = 0;
@@ -142,6 +129,23 @@ export const CashierProvider = ({ children }) => {
             discountedTotal,
         }));
     };
+    
+    const calculateDiscountedPrice = (product) => {
+        let finalPrice = product.RetailPrice;
+        const applicableDiscounts = discountRules.filter(discount => discount.RuleTypeid === 0);
+        console.log("app",applicableDiscounts)
+        
+        if (applicableDiscounts.length > 0) {
+            applicableDiscounts.forEach(discount => {
+                const { DiscountRate, DiscountItems } = discount;
+                if (DiscountItems === "全部商品" || DiscountItems.split(',').map(id => id.trim()).includes(product.ProductID.toString())) {
+                    finalPrice *= DiscountRate;
+                }
+            });
+        }  
+        return finalPrice;  
+    };
+    
     
     const addToCart = (product) => {
         setCart(prevCart => {
@@ -205,31 +209,22 @@ export const CashierProvider = ({ children }) => {
      
 
     
-    const checkout = async (vip) => {
+    const checkout = async () => {
         try {
-    
-            // 如果是会员，修改积分
-            // if (vip) {
-            //    navigate("/vip/points")
-            // }
-    
-            // 清空购物车
             setCart({
                 items: [],
                 total: 0,
                 discountedTotal: 0,
             });
-             window.alert("结账成功")
     
         } catch (error) {
             console.error('Checkout error:', error);
         }
     }
-    console.log(cart);
 
     return (
         <CashierContext.Provider value={{ products, members, cart, addToCart, removeFromCart, updateQuantity, calculateTotals, 
-         checkout,productCache, setProductCache, fetchProducts, discountRules, fetchProductCache, }}>
+         checkout,productCache, setProductCache, fetchProducts, discountRules, fetchProductCache,calculateDiscountedPrice,fetchMembers, }}>
             {children}
         </CashierContext.Provider>
     );
@@ -242,22 +237,70 @@ export const useCashier = () => {
 
 // 收银前台页面组件
 export function PaymentPageForm() {
-    const { products, cart, addToCart, removeFromCart, updateQuantity, checkout, fetchProducts, errormessage } = useCashier();
+    const { products, cart, addToCart, removeFromCart, updateQuantity, checkout, fetchProducts, fetchMembers, discountRules, members } = useCashier();
     const [searchTerm, setSearchTerm] = useState('');
-    const [isMember, setIsMember] = useState(false)
+    const [isMember, setIsMember] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const handleCheckout = async () => {
+        if (isMember) {
+            setIsModalOpen(true);
+        } else {
+            await sendOrderToBackend(cart);
+            await checkout();
+        }
+    };
 
+    const closeModal = async () => {
+        setIsModalOpen(false);
+        await sendOrderToBackend(cart);
+        await checkout();
+    };
     const handleSearch = () => {
         fetchProducts(searchTerm);
     };
 
-    const handleCheckout = () => {
-        if (isMember) {
-            checkout(true); // 会员结账
-        } else {
-            checkout(false); // 非会员结账
+    const sendOrderToBackend = async (cart) => {
+        try {
+            const categorizedinfo = categorizeCartData(cart);
+            const response = await OrderApi.orderinsert(categorizedinfo);
+            console.log(categorizedinfo)
+            console.log('订单数据传递成功:', response);
+        } catch (error) {
+            console.error('订单数据传递失败:', error);
         }
     };
+
+    
+    const categorizeCartData = (cart) => {
+        // 获取会员ID
+        const memberId = isMember ? members.VipId : -1;
+    
+        // 分类整理 cart 数据的逻辑
+        const orderIndex = {
+            VipId: memberId, // 使用真正的会员ID
+            CashierID: 1, // 假设收银员ID为1
+            OrderTotalPrice: cart.discountedTotal,
+        };
+
+        const orderProducts = cart.items.map(item => {
+            // 将适用的折扣规则ID作为字符串数组并用逗号隔开
+            const discountIds = discountRules.map(discount => discount.DiscountruleId).join(',');
+    
+            return {
+                ProductBarcode: item.ProBarcode,
+                ProductRetailprice: item.RetailPrice,
+                ProductDiscountruleid: discountIds, // 使用适用的折扣ID
+                ProductQuantities: item.quantity
+            };
+        });
+    
+        return {
+            order_index:orderIndex,
+            order_products:orderProducts
+        };
+    };
+   
 
     return (
         <div className="d-flex">
@@ -274,12 +317,13 @@ export function PaymentPageForm() {
                     <button className="btn btn-primary" onClick={() => handleSearch()}>搜索</button>
                 </div>
                 <div className="input-group mb-3">
-                    顾客为会员：（默认非会员）<input 
-                       type='radio'
-                       className='formcontrol'
-                       value={true}
-                       onChange={(e)=>setIsMember(e.target.value)}
-                       />
+                    顾客为会员：（默认非会员）
+                    <input
+                        type='radio'
+                        className='formcontrol'
+                        value={true}
+                        onChange={(e) => setIsMember(e.target.value)}
+                    />
                 </div>
 
                 <div className="mb-4">
@@ -289,7 +333,6 @@ export function PaymentPageForm() {
                                 <th>商品编号</th>
                                 <th>商品名称</th>
                                 <th>零售价(元)</th>
-                                <th>折扣价(元)</th>
                                 <th>条码</th>
                                 <th>操作</th>
                             </tr>
@@ -299,7 +342,6 @@ export function PaymentPageForm() {
                                 <tr key={product.ProductID}>
                                     <td>{product.ProductID}</td>
                                     <td>{product.ProductName}</td>
-                                    <td>{product.RetailPrice}</td>
                                     <td>{product.RetailPrice}</td>
                                     <td>{product.ProBarcode}</td>
                                     <td>
@@ -351,13 +393,32 @@ export function PaymentPageForm() {
                     <div>
                         
                     </div>
-                    <button className="btn btn-primary mt-2" onClick={()=>handleCheckout()}>结账</button>
+                    <button className="btn btn-primary mt-2" onClick={() => handleCheckout()}>结账</button>
                 </div>
             </div>
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                style={{
+                    content: {
+                        top: '50%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '60%',
+                        maxWidth: '500px',
+                        maxHeight: '70vh',
+                    }
+                }}
+            >
+                <ChangePoints points={cart.total.toFixed(2)} />
+                <button onClick={closeModal} className="btn btn-secondary mt-3">关闭</button>
+            </Modal>
         </div>
     );
 }
-
 // 显示优惠规则的组件
 export function DiscountRules() {
     const { discountRules } = useCashier();
@@ -384,28 +445,27 @@ export function DiscountRules() {
 
 export function HotProductPage() {
     const [Results, setResults] = useState([]);
-    const { products, cart, addToCart, removeFromCart, updateQuantity, checkout, fetchProducts } = useCashier();
+    const { addToCart, calculateDiscountedPrice } = useCashier(); // 从上下文中获取 calculateDiscountedPrice 函数
 
     useEffect(() => {
         getlist();
     }, []);
 
-    const getlist = () => {
+    const getlist = async () => {
         try {
-            ProductCacheApi.getallinfo().then((res) => {
-                console.log("缓存返回的数据:", res);
+            const res = await ProductCacheApi.getallinfo();
+            console.log("缓存返回的数据:", res);
 
-                if (!res) {
-                    console.log("缓存为空");
-                    return
-                }
+            if (!res) {
+                console.log("缓存为空");
+                return;
+            }
 
-                // 提取 product 信息并组成新数组
-                const productsArray = res.map((item) => item.Product);
+            // 提取 product 信息并组成新数组
+            const productsArray = res.map((item) => item.Product);
 
-                // 设置结果
-                setResults(productsArray);
-            });
+            // 设置结果
+            setResults(productsArray);
         } catch (error) {
             console.error('错误信息:', error);
         }
@@ -426,10 +486,10 @@ export function HotProductPage() {
                                 <div className="card-body d-flex flex-column">
                                     <h5 className="card-title">{product.ProductName}</h5>
                                     <p className="card-text">
-                                        <strong>零售价:</strong> ${product.RetailPrice.toFixed(2)}
+                                        <strong>零售价:</strong> ¥{product.RetailPrice.toFixed(2)}
                                     </p>
                                     <p className="card-text text-danger">
-                                        <strong>折扣价:</strong> ${(product.RetailPrice * 0.7).toFixed(2)}
+                                        <strong>折扣价:</strong> ¥{calculateDiscountedPrice(product).toFixed(2)}
                                     </p>
                                     <p className="card-text">
                                         <strong>条码:</strong> {product.ProBarcode}
@@ -447,3 +507,4 @@ export function HotProductPage() {
         </div>
     );
 }
+

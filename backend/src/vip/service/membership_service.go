@@ -35,3 +35,13 @@ func (s *VipService) DeleteVIPServ(ctx context.Context, vipphone string) (int64,
 	}
 	return rowsAffected, err
 }
+
+func (s *VipService) UpdateVIPServ(ctx context.Context, vipid string) error {
+	err := s.viprepo.UpdateVIPGradeRepo(ctx, vipid)
+	if err != nil {
+		log.Println("UpdateVIPServ出错1:service更新会员失败", err)
+		return err
+	}
+	return nil
+
+}

@@ -26,6 +26,7 @@ func NewStorageGormRepository(db *gorm.DB) *StorageGormRepository {
 func (r *StorageGormRepository) InsertProductsRepo(ctx context.Context, inputs []*stormodels.ProductStruct) error {
 	// 创建一个切片来存储已存在的条形码
 	existingBarcodes := make(map[string]struct{})
+	log.Printf("InsertProductsRepo: %v", inputs)
 
 	// 检查每个产品的条形码是否已存在
 	for _, input := range inputs {

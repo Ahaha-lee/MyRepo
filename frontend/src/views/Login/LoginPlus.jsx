@@ -2,8 +2,8 @@ import { Component, useState } from "react";
 import { LoginApi } from "../../api/login";
 import { setLocalStorage } from "../../components/localstorage";
 import { initialSession } from "../../components/initial/ini_login";
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Color } from "antd/es/color-picker";
 
 export class LoginPage extends Component {
     componentDidMount() {
@@ -12,19 +12,26 @@ export class LoginPage extends Component {
     }
     render() {
         return (
-        <div className="row">
-            <div className="col-4"></div>
-            <div className="col-4">
-                <div className="d-flex justify-content-center align-items-center"  style={{ height: '80vh' }}>
-                    <LoginForm />
+            <div className="row" style={{
+                minHeight: '100vh',
+                position: 'relative',
+                backgroundImage: `url('http://localhost:3001/images/3000page.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                opacity: 0.7
+            }}>
+                <div className="col-4"></div>
+                <div className="col-4">
+                    <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+                        <LoginForm />
+                    </div>
                 </div>
+                <div className="col-4"></div>
             </div>
-            <div className="col-4"></div>
-          </div>
-        ); 
+        );
     }
 }
-
 function LoginForm() {
     const [state, setState] = useState({
         name: '',
@@ -51,22 +58,21 @@ function LoginForm() {
             employeeID: Number(state.employeeID),
             password: state.password,
         })
-        .then(res => {
+       .then(res => {
             console.log("登录返回数据", res);
             userdata(res.user);
-            if (res.user.name==="Tom" ) {
-                navigate("/admin"); // 登录成功后跳转到 /admin}else 
-            }else if (res.user.name ==="Jerry" )
-            {
+            if (res.user.name === "Tom") {
+                navigate("/admin");
+            } else if (res.user.name === "Jerry") {
                 navigate("/payment/cash");
             }
         })
-        .catch(error => {
+       .catch(error => {
             console.log("请求错误", error);
 
             if (error.response && error.response.data) {
                 setState(prevState => ({
-                    ...prevState,
+                   ...prevState,
                     errors: error.response.data.errormessage
                 }));
                 alertErrors();
@@ -78,15 +84,15 @@ function LoginForm() {
     const registerHandle = (e) => {
         const { name, value } = e.target;
         setState(prevState => ({
-            ...prevState,
+           ...prevState,
             [name]: value
         }));
     }
 
     const { name, password, employeeID } = state;
     return (
-        <div style={{ width: '80%' }}>
-            <h3 className="text-center">顶呱呱收银系统</h3>
+        <div className="bg-white p-5 rounded shadow-lg mx-auto my-5" style={{ width: '400px' }}>
+            <h3 className="text-center mb-4" style={{ color: 'black', fontSize: '24px' }}>顶呱呱收银系统</h3>
             <form onSubmit={onsubmit}>
                 <div className="mb-3">
                     <label htmlFor="employeeID" className="form-label">账号：</label>
@@ -112,7 +118,10 @@ function LoginForm() {
                         onChange={registerHandle}
                     />
                 </div>
-                <button type="submit" className="btn btn-primary btn-lg btn-block">登录</button>
+                <div className="d-flex justify-content-between">
+                    <button type="submit" className="btn btn-primary btn-lg">登录</button>
+                    <button type="button" className="btn btn-primary btn-lg" onClick={() => navigate('/register')}>注册</button>
+                </div>
             </form>
         </div>
     );

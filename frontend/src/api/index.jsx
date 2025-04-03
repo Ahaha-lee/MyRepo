@@ -14,6 +14,8 @@ export const BaseApi = {
     vipgraderule:"/vip_grades/insert",
     getgradeinfo:"/vip_grades/getinfo",
 
+    vipgraderulechange:"/vip/grade/:search_id",
+
     procurementlst:"/storage/cg/:search_id/:page",//查询
     procurementupdate:"/storage/cg_declaration/:update_id",//修改采购申请表
     outdeclarationlist:"/storage/ck/:search_id/:page",
@@ -46,6 +48,8 @@ export const BaseApi = {
     inventorylist:"/storage/inventory/:search_id/:page",//商品库存信息查询
     inventoryupdate:"/storage/inventory/:update_id",
 
+    invquantitie:"/storage/quantities/:update_id",
+
 
     discountsearch: "/payment/discount/:search_id/:page",
     discountdelete: "/payment/discount/delete",
@@ -56,5 +60,10 @@ export const BaseApi = {
 
     permissioninfosearch:"/system/permission/getinfo/:search_id",
     permissionandroleinfo:"/system/permissionroleinfo",
-    roleinfosearch:"/system/role/getinfo/0"
+    roleinfosearch:"/system/role/getinfo/0",
+   
+    orderindexinfoget:"/order/:search_id/:page",
+    orderinfoinsert:"/order/insert",
+    ordercontentinfoget:"/order/products/:search_id",
+
 };

@@ -64,5 +64,7 @@ func StorageRoutesGorm(server *gin.Engine, db *gorm.DB) {
 		storageGroupPro.PUT("/inventory/:update_id", storCon.CRUDForInventoryCon(services))
 		storageGroupPro.DELETE("/inventory/:delete_id", storCon.CRUDForInventoryCon(services))
 
+		storageGroupPro.POST("/quantities/:update_id", storCon.CRUDForInventoryQuantitiesCon(services))
+
 	}
 }

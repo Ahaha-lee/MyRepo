@@ -329,7 +329,6 @@ func (r *StorageRepository) GetCGOperationStatusRepo(ctx context.Context, record
 			} else {
 				recordStatus["examineresult"] = ""
 			}
-
 			recordStatus["isend"] = idata
 			status = append(status, recordStatus)
 		}

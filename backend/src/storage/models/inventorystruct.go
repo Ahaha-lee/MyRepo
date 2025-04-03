@@ -12,8 +12,19 @@ type InventoryStruct struct {
 	Inv_location      string
 	Stock_minquantity float64
 	Inv_status        string
+	ImagePath         string `gorm:"autoIncrement:true"`
 }
 
 func (InventoryStruct) TableName() string {
+	return "inventory_data"
+}
+
+type QuantitiesStruct struct {
+	Stockall_quantity float64
+	Stocknow_quantity float64
+	Stockout_quantity float64
+}
+
+func (QuantitiesStruct) TableName() string {
 	return "inventory_data"
 }

@@ -75,5 +75,14 @@ export const VipGrade={
             throw error;
         }
     },
+    change: async (data) => {
+        try {
+            const response = await putRequest(BaseApi.baseURL+BaseApi.vipgraderulechange,data);
+            return response;
+        }catch (error) {
+            console.error('请求错误:', error);
+            throw error;
+        }
+    },
 
 }

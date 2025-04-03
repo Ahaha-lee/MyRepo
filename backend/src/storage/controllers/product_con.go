@@ -27,6 +27,11 @@ func CRUDForProductsCon(server *storser.StorageGormService) gin.HandlerFunc {
 					return
 				}
 
+				// 打印 input 的详细信息
+				for _, product := range input {
+					fmt.Printf("Product: %+v\n", product) // 使用 %+v 打印结构体的详细信息
+				}
+
 				if err := server.InsertProductInfoServ(c, input); err != nil { // 传递指针切片
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "插入数据失败", "errormessage": err.Error()})
 					return

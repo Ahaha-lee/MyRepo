@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import React from "react";
-import { VIPListApi } from "../../api/vip";
+import { VipGrade, VIPListApi } from "../../api/vip";
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { CommonTable } from "../../utils/Common/CommonTable";
 import MainLayout from "../../utils/MainLayOut/MainLayout";
 import {Pagination} from "../../utils/Common/SlicePage";
+// import { use } from "react";
 export function VIPDashboardPage() {
     return(
         <MainLayout rightContent={<VIPDashForm/>}></MainLayout>
@@ -18,10 +19,28 @@ export function VIPDashForm() {
     const [totalNum,setTotalNum ]=useState();
     const navigate = useNavigate();
   
-
     useEffect(() => {
         getlist();
     }, [pagecount]);
+
+    useEffect(() => {
+      console.log(vipsinfo);
+      for(let i=0;i<vipsinfo.length;i++)
+        {
+          changgrade(vipsinfo[i].phone);
+        }
+    }, [vipsinfo]);
+
+    const changgrade=async(id)=>{
+     await VipGrade.change({
+        params:{
+          search_id:id
+        }
+      }).then((res)=>{
+        console.log("修改等级返回的数据",res);
+      })
+    }
+
     const getlist = () => {
       VIPListApi.list(
         {

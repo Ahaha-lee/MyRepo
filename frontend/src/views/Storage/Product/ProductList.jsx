@@ -55,7 +55,7 @@ export function ProductProvider({ children }) {
         params: { search_id: category_id }
       });
       console.log('categorydetail返回的数据', res);
-      const details = res.category[0];
+      const details =category_id==0?res.category: res.category[0];
       return details;
     } catch (error) {
       console.log("错误信息", error);
@@ -119,7 +119,7 @@ export function ProductListPage() {
 }
 
 export function ProductListForm({ action }) {
-  const {  productid, setProductid, pagecount, setPagecount, totalNum, checkboxProduct,getinfo,getlist} = useContext(MyContext);
+  const {  productid, setProductid, pagecount, setPagecount, totalNum, checkboxProduct,getinfo,getlist,getCategory} = useContext(MyContext);
   const navigate = useNavigate();
   const totalPages = Math.ceil(totalNum / 10);
 
@@ -128,6 +128,10 @@ export function ProductListForm({ action }) {
   }, [pagecount]);
   const searchproduact = async () => {
     await getinfo(productid, "search");
+  };
+  const handleAddProduct = async () => {
+    const categoryinfo = await getCategory(0);
+    navigate("/storage/product_add", { state: { categoryinfo:  categoryinfo} });
   };
 
   return (
@@ -145,7 +149,7 @@ export function ProductListForm({ action }) {
         </div>
         {action === "productlist" ? (
             <div className="mb-3">
-                <button className="btn " type="button" onClick={() => navigate("/storage/product_add")}>商品新增</button>
+                <button className="btn " type="button" onClick={() =>handleAddProduct()}>商品新增</button>
                 <button className="btn " type="button" onClick={() => navigate("/storage/product_batchadd")}>批量新增</button>
                 <button className="btn " type="button" onClick={() => checkboxProduct("delete")}>删除商品</button>
                 <button className="btn " type="button" onClick={() => checkboxProduct("preload")}>缓存预加载</button>
@@ -179,6 +183,10 @@ export function ProductList({ action }) {
     {
       title: '商品ID',
       key: 'ProductID'
+    },
+    {
+      title: '商品图片',
+      key:"ImagePath"
     },
     {
       title: '商品名称',
@@ -219,6 +227,7 @@ export function ProductList({ action }) {
   const handleUpdateProduct = async (productId) => {
     const updateProduct = await getinfo(productId);
     navigate('/storage/product_update', { state: { product: updateProduct } });
+
   };
 
   const handleFetchCategory = async (action, category_id) => {
